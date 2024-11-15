@@ -1,0 +1,248 @@
+/* syntaxe.styles.css */
+header .navbar-menu .nav {
+	display: flex;
+	justify-content: space-between;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	}
+
+	nav-item {
+	margin: 0 15px;
+	}
+
+	nav-link {
+	text-decoration: none;
+	color: white;
+	font-weight: bold;
+	}
+	header .navbar-menu .nav {
+	display: flex;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	margin-left: auto;
+	}
+
+	nav-item {
+	margin: 0 15px;
+	}
+
+	nav-link {
+	text-decoration: none;
+	color: white;
+	font-weight: bold;
+	}
+
+	header {
+	display: flex;
+	align-items: center;
+	background: #333; /* Couleur du thème */
+	padding: 10px 20px;
+	}
+
+	body {
+		font-family: Arial, sans-serif;
+		line-height: 1.6;
+		margin: 20px;
+		padding: 0;
+		background-color: #f9f9f9;
+	}
+
+	header {
+		background: #333;
+		color: #fff;
+		padding: 10px 0;
+		text-align: center;
+	}
+
+	header h1 {
+		margin: 0;
+		font-size: 2em;
+	}
+
+	nav ul {
+		list-style: none;
+		padding: 0;
+	}
+
+	nav ul li {
+		display: inline;
+		margin: 0 10px;
+	}
+
+	nav ul li a {
+		color: #fff;
+		text-decoration: none;
+		padding: 5px 10px;
+		border-radius: 5px;
+	}
+
+	nav ul li a.active,
+	nav ul li a:hover {
+		background: #575757;
+	}
+
+	pre {
+		background: #f4f4f4;
+		padding: 10px;
+		border: 1px solid #ddd;
+		overflow-x: auto;
+	}
+	header {
+		background: #333;
+		color: #fff;
+		padding: 20px 0;
+		text-align: center;
+	}
+
+	header h1 {
+		margin: 0;
+		font-size: 2.5em;
+	}
+
+	nav ul {
+		list-style: none;
+		padding: 0;
+		margin: 10px 0 0 0;
+	}
+
+	nav ul li {
+		display: inline;
+		margin: 0 15px;
+	}
+
+	nav ul li a {
+		color: #fff;
+		text-decoration: none;
+		padding: 5px 10px;
+		border-radius: 5px;
+	}
+
+	nav ul li a.active,
+	nav ul li a:hover {
+		background: #575757;
+	}
+	body {
+		font-family: Arial, sans-serif;
+		line-height: 1.6;
+		margin: 20px;
+		padding: 0;
+		background-color: #f9f9f9;
+	}
+
+	header {
+		background: #333;
+		color: #fff;
+		padding: 20px 0;
+		text-align: center;
+	}
+
+	header h1 {
+		margin: 0;
+		font-size: 2.5em;
+	}
+
+	nav ul {
+		list-style: none;
+		padding: 0;
+		margin: 10px 0 0 0;
+	}
+
+	nav ul li {
+		display: inline;
+		margin: 0 15px;
+	}
+
+	nav ul li a {
+		color: #fff;
+		text-decoration: none;
+		padding: 5px 10px;
+		border-radius: 5px;
+	}
+
+	nav ul li a.active,
+	nav ul li a:hover {
+		background: #575757;
+	}
+	body {
+		font-family: Arial, sans-serif;
+		line-height: 1.6;
+		margin: 20px;
+		padding: 0;
+		color: #ffffff;
+		background-color: #000000;
+	}
+
+	pre {
+		background: #000000;
+		padding: 10px;
+		border: 1px solid #858585;
+		overflow-x: auto;
+	}
+
+	code {
+		font-family: "Courier New", Courier, monospace;
+		color: #00b3ff;
+		background-color: #000000;
+	}
+
+	h1,
+	h2 {
+		color: #ffffff;
+	}
+
+	ul {
+		margin: 10px 0;
+		padding-left: 20px;
+	}
+
+	li {
+		margin-bottom: 10px;
+	}
+
+body {
+	font-family: Arial, sans-serif;
+	line-height: 1.6;
+	margin: 20px;
+	background-color: #000000;
+	color: #ffffff;
+}
+h1 {
+	text-align: center;
+	color: #ffffff;
+}
+form {
+	max-width: 600px;
+	margin:  auto;
+	padding: 70px;
+	background: #000000;
+	background-color: #000000;
+	border: 1px solid #909090;
+	border-radius: 5px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+label {
+	display: block;
+	margin-top: 10px;
+	font-weight: bold;
+}
+input, textarea, button {
+	width: 100%;
+	padding: 10px;
+	margin-top: 5px;
+	border: 1px solid #757575;
+	background-color: rgb(201, 201, 201);
+	border-radius: 5px;
+}
+button {
+	background-color: #3498db;
+	color: #ffffff;
+	border: none;
+	cursor: pointer;
+	margin-top: 15px;
+}
+button:hover {
+	background-color: #2980b9;
+}

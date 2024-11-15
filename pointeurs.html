@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Ressources sur le Langage C</title>
+	<link rel="stylesheet" href="/static/css/contact.styles.css">
+</head>
+
+<body>
+	<header>
+		<header class="header" data-section-theme="dark">
+			<div class="container">
+				<a href="#">
+
+				</a>
+				<div class="header-logo" data-section-theme="dark">
+				</div>
+				<nav class="navbar-menu">
+					<ul class="nav">
+						<li class="nav-item">
+							<a href="index.html" class="nav-link">Introduction</a>
+						</li>
+						<li class="nav-item">
+							<a href="syntaxe.html" class="nav-link">Syntaxe</a>
+						</li>
+						<li class="nav-item">
+							<a href="pointeurs.html" class="nav-link">Pointeurs</a>
+						</li>
+						<li class="nav-item">
+							<a href="ressources.html" class="nav-link">Ressources</a>
+						</li>
+						<li class="nav-item">
+							<a href="contact.html" class="nav-link">Contact</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</header>
+	</header>
+
+<body>
+    <h1>Les Pointeurs</h1>
+    <p>
+        Les pointeurs sont un concept fondamental en programmation, notamment en langage C et C++.
+        Un pointeur est une variable qui contient l'adresse mémoire d'une autre variable, au lieu de contenir directement une valeur.
+        Cela permet une gestion plus fine de la mémoire et peut rendre les programmes plus efficaces,
+        notamment pour la manipulation de grandes structures de données ou lors de l'utilisation de fonctions.
+    </p>
+
+    <h2>Définition et rôle des pointeurs</h2>
+    <p>
+        Un pointeur permet de manipuler l'adresse mémoire d'une variable, ce qui peut offrir une grande flexibilité et efficacité.
+        Plutôt que de passer une copie d'une variable à une fonction, vous pouvez lui passer un pointeur pour qu'elle accède directement
+        à la mémoire de la variable d'origine.
+    </p>
+
+    <h2>Déclaration d'un pointeur</h2>
+    <p>
+        Pour déclarer un pointeur, on utilise l'opérateur <code>*</code> devant le nom du pointeur. Par exemple :
+    </p>
+    <pre><code>int *ptr;</code></pre>
+    <p>Ici, <code>ptr</code> est un pointeur qui peut stocker l'adresse d'une variable de type <code>int</code>.</p>
+
+    <h2>Initialisation d'un pointeur</h2>
+    <p>
+        Un pointeur doit être initialisé avec l'adresse d'une variable. L'opérateur <code>&amp;</code> est utilisé pour obtenir l'adresse mémoire d'une variable. Par exemple :
+    </p>
+    <pre><code>int x = 10;
+int *ptr = &amp;x;</code></pre>
+    <p>Ici, <code>ptr</code> contient l'adresse mémoire de <code>x</code>.</p>
+
+    <h2>Déréférencement d'un pointeur</h2>
+    <p>
+        Le déréférencement d'un pointeur permet d'accéder à la valeur stockée à l'adresse mémoire pointée par le pointeur. Cela se fait en utilisant l'opérateur <code>*</code>. Par exemple :
+    </p>
+    <pre><code>int y = *ptr;</code></pre>
+    <p>Cela signifie que la variable <code>y</code> prend la valeur stockée à l'adresse pointée par <code>ptr</code>, c'est-à-dire la valeur de <code>x</code> (qui est 10).</p>
+
+    <h2>Exemple d'utilisation des pointeurs</h2>
+    <p>
+        Voici un exemple simple où l'on utilise un pointeur pour modifier la valeur d'une variable dans une fonction :
+    </p>
+    <pre><code>#include &lt;stdio.h&gt;
+
+void modifierValeur(int *ptr) {
+    *ptr = 20;  // Modifie la valeur de la variable pointée
+}
+
+int main() {
+    int a = 10;
+    printf("Avant modification : %d\\n", a);  // Affiche 10
+
+    modifierValeur(&amp;a);  // Passe l'adresse de 'a'
+
+    printf("Après modification : %d\\n", a);  // Affiche 20
+    return 0;
+}</code></pre>
+    <p>
+        Dans cet exemple, la fonction <code>modifierValeur</code> prend un pointeur en argument. En utilisant ce pointeur,
+        la fonction modifie directement la valeur de <code>a</code> dans la fonction principale.
+    </p>
+
+    <h2>Avantages des pointeurs</h2>
+    <ul>
+        <li><strong>Efficacité mémoire :</strong> Les pointeurs permettent de passer des grandes structures de données (comme des tableaux ou des structures) sans avoir à les copier complètement.</li>
+        <li><strong>Manipulation de tableaux :</strong> Les pointeurs permettent de traiter des tableaux de manière plus flexible. Un tableau en C est en réalité un pointeur vers son premier élément.</li>
+        <li><strong>Accès direct à la mémoire :</strong> Les pointeurs permettent un contrôle plus précis sur l'accès et la modification de la mémoire.</li>
+    </ul>
+
+    <h2>Conclusion</h2>
+    <p>
+        Les pointeurs sont un outil puissant en programmation. Ils permettent de manipuler directement la mémoire et de modifier des données de manière efficace.
+        Cependant, une mauvaise gestion des pointeurs (comme des pointeurs nuls ou des fuites de mémoire) peut entraîner des erreurs difficiles à déboguer.
+    </p>
+</body>
+</html>
+<footer>
+	<p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
+</footer>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Ressources sur le Langage C</title>
+	<link rel="stylesheet" href="/static/css/contact.styles.css">
+</head>
+
+<body>
+	<header>
+		<header class="header" data-section-theme="dark">
+			<div class="container">
+				<a href="#">
+
+				</a>
+				<div class="header-logo" data-section-theme="dark">
+				</div>
+				<nav class="navbar-menu">
+					<ul class="nav">
+						<li class="nav-item">
+							<a href="index.html" class="nav-link">Introduction</a>
+						</li>
+						<li class="nav-item">
+							<a href="syntaxe.html" class="nav-link">Syntaxe</a>
+						</li>
+						<li class="nav-item">
+							<a href="pointeurs.html" class="nav-link">Pointeurs</a>
+						</li>
+						<li class="nav-item">
+							<a href="ressources.html" class="nav-link">Ressources</a>
+						</li>
+						<li class="nav-item">
+							<a href="contact.html" class="nav-link">Contact</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</header>
+	</header>
+
+	<h2>La Syntaxe en Langage C : Fondements et Éléments Clés</h2>
+	<p>
+		Le langage <strong>C</strong> est connu pour sa syntaxe simple, concise et puissante, qui a influencé de
+		nombreux
+		langages modernes comme C++, Java ou Python. Pour les débutants, comprendre la syntaxe du C est une étape
+		cruciale
+		pour apprendre à écrire des programmes efficaces et structurés. Voici un aperçu détaillé des éléments
+		fondamentaux
+		de la syntaxe en C.
+	</p>
+
+	<h3>1. Structure d’un Programme en C</h3>
+	<p>
+		Un programme en C suit une structure logique de base qui comprend des déclarations et des instructions
+		organisées dans
+		des blocs. Voici un exemple typique :
+	</p>
+	<pre><code>#include &lt;stdio.h&gt; // Inclusion de bibliothèques standard
+
+int main(void) // Fonction principale
+{
+    printf("Bonjour, monde !\\n"); // Affiche un message
+    return 0; // Retourne 0 pour indiquer que le programme s'est bien terminé
+}</code></pre>
+	<p><strong>Éléments importants :</strong></p>
+	<ul>
+		<li><code>#include</code> : Permet d’inclure des bibliothèques nécessaires au programme.</li>
+		<li><code>int main(void)</code> : Point d’entrée obligatoire pour tout programme C.</li>
+		<li>Instructions : Terminent toujours par un point-virgule (<code>;</code>).</li>
+		<li>Blocs : Encadrés par des accolades <code>{}</code>.</li>
+	</ul>
+
+	<h3>2. Les Types de Données et Variables</h3>
+	<p>
+		Le C est un langage typé, ce qui signifie que chaque variable doit être déclarée avec un type précis. Voici les
+		types
+		de données fondamentaux :
+	</p>
+	<ul>
+		<li><strong>Types numériques :</strong>
+			<ul>
+				<li><code>int</code> : Nombres entiers (e.g., -10, 0, 42).</li>
+				<li><code>float</code> : Nombres à virgule flottante (e.g., 3.14).</li>
+				<li><code>double</code> : Nombres décimaux avec plus de précision.</li>
+				<li><code>char</code> : Un seul caractère (e.g., 'a').</li>
+			</ul>
+		</li>
+		<li><strong>Types spéciaux :</strong>
+			<ul>
+				<li><code>void</code> : Absence de type (souvent utilisé pour les fonctions sans retour).</li>
+				<li><code>bool</code> : Valeurs booléennes (<code>true</code> ou <code>false</code>, disponible avec
+					<code>&lt;stdbool.h&gt;</code>).
+				</li>
+			</ul>
+		</li>
+	</ul>
+	<p><strong>Exemple :</strong></p>
+	<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdbool.h&gt;
+
+int main(void)
+{
+    int age = 25;
+    float temperature = 36.5;
+    char initial = 'C';
+    bool is_student = true;
+
+    printf("Âge : %d, Température : %.1f, Initiale : %c, Étudiant : %d\\n",
+           age, temperature, initial, is_student);
+    return 0;
+}</code></pre>
+
+	<h3>3. Les Instructions Conditionnelles</h3>
+	<p>
+		Les conditions permettent de contrôler l'exécution du code en fonction de certaines valeurs :
+	</p>
+	<pre><code>#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    int x = 10;
+
+    if (x > 0)
+    {
+        printf("x est positif.\\n");
+    }
+    else if (x == 0)
+    {
+        printf("x est nul.\\n");
+    }
+    else
+    {
+        printf("x est négatif.\\n");
+    }
+    return 0;
+}</code></pre>
+
+	<h3>4. Boucles</h3>
+	<p>
+		Le C offre plusieurs types de boucles pour exécuter un bloc d’instructions plusieurs fois.
+	</p>
+	<p><strong>Boucle for :</strong></p>
+	<pre><code>for (int i = 0; i &lt; 5; i++)
+{
+    printf("i vaut %d\\n", i);
+}</code></pre>
+	<p><strong>Boucle do-while :</strong></p>
+	<pre><code>int i = 0;
+do
+{
+    printf("i vaut %d\\n", i);
+    i++;
+} while (i &lt; 5);</code></pre>
+
+	<h3>5. Fonctions</h3>
+	<p>
+		Les fonctions permettent de structurer le code en encapsulant des blocs d’instructions réutilisables.
+	</p>
+	<p><strong>Exemple de fonction simple :</strong></p>
+	<pre><code>#include &lt;stdio.h&gt;
+
+int addition(int a, int b) // Fonction qui retourne la somme de deux entiers
+{
+    return a + b;
+}
+
+int main(void)
+{
+    int resultat = addition(5, 7);
+    printf("La somme est : %d\\n", resultat);
+    return 0;
+}</code></pre>
+
+	<h3>6. Pointeurs et Gestion de Mémoire</h3>
+	<p>
+		Les pointeurs sont une des caractéristiques les plus puissantes (et complexes) du C. Ils permettent de manipuler
+		directement la mémoire.
+	</p>
+	<pre><code>#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    int x = 10;
+    int *p = &x; // Pointeur vers x
+
+    printf("Valeur de x : %d\\n", x);
+    printf("Adresse de x : %p\\n", (void *)&x);
+    printf("Valeur via le pointeur : %d\\n", *p);
+    return 0;
+}</code></pre>
+
+	<h3>7. Commentaires</h3>
+	<ul>
+		<li><strong>Commentaires sur une ligne </strong> (Pas accepté par Betty) : Utilisez <code>//</code>.</li>
+		<li><strong>Commentaires multi-lignes </strong>(Accepté par Betty) : Encadrés par <code>/* ... */</code>.</li>
+	</ul>
+
+	<h3>8. Bonnes Pratiques Syntaxiques</h3>
+	<ul>
+		<li>Indentez
+<footer>
+	<p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
+</footer>

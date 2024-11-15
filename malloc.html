@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion de la Mémoire Dynamique en C</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+            overflow-x: auto;
+        }
+        h1, h2 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gestion de la Mémoire Dynamique en C</h1>
+    <p>En C, la gestion de la mémoire dynamique est essentielle pour allouer et libérer de la mémoire pendant l'exécution d'un programme. Les fonctions principales utilisées pour cela sont <code>malloc</code>, <code>calloc</code>, <code>realloc</code> et <code>free</code>.</p>
+
+    <h2>1. malloc</h2>
+    <p>La fonction <code>malloc</code> (memory allocation) est utilisée pour allouer un bloc de mémoire d'une taille spécifiée en octets. Elle retourne un pointeur vers le début du bloc de mémoire alloué. Si l'allocation échoue, elle retourne <code>NULL</code>.</p>
+
+    <h3>Syntaxe :</h3>
+    <pre><code>void* malloc(size_t size);</code></pre>
+
+    <h3>Exemple :</h3>
+    <pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main() {
+    int *arr;
+    int n = 5;
+
+    // Allocation de mémoire pour un tableau de 5 entiers
+    arr = (int*)malloc(n * sizeof(int));
+
+    if (arr == NULL) {
+        printf("Échec de l'allocation de mémoire.\n");
+        return 1;
+    }
+
+    // Initialisation et affichage des éléments
+    for (int i = 0; i &lt; n; i++) {
+        arr[i] = i + 1;
+        printf("%d ", arr[i]);
+    }
+
+    // Libération de la mémoire
+    free(arr);
+    return 0;
+}</code></pre>
+
+    <h2>2. calloc</h2>
+    <p>La fonction <code>calloc</code> (contiguous allocation) est similaire à <code>malloc</code>, mais elle initialise la mémoire allouée à zéro. Elle prend deux arguments : le nombre d'éléments et la taille de chaque élément.</p>
+
+    <h3>Syntaxe :</h3>
+    <pre><code>void* calloc(size_t num, size_t size);</code></pre>
+
+    <h3>Exemple :</h3>
+    <pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main() {
+    int *arr;
+    int n = 5;
+
+    // Allocation de mémoire pour un tableau de 5 entiers et initialisation à zéro
+    arr = (int*)calloc(n, sizeof(int));
+
+    if (arr == NULL) {
+        printf("Échec de l'allocation de mémoire.\n");
+        return 1;
+    }
+
+    // Affichage des éléments (devraient être tous à zéro)
+    for (int i = 0; i &lt; n; i++) {
+        printf("%d ", arr[i]);
+    }
+
+    // Libération de la mémoire
+    free(arr);
+    return 0;
+}</code></pre>
+
+    <h2>3. realloc</h2>
+    <p>La fonction <code>realloc</code> est utilisée pour redimensionner un bloc de mémoire précédemment alloué. Elle peut également être utilisée pour allouer un nouveau bloc si le pointeur passé est <code>NULL</code>.</p>
+
+    <h3>Syntaxe :</h3>
+    <pre><code>void* realloc(void* ptr, size_t size);</code></pre>
+
+    <h3>Exemple :</h3>
+    <pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main() {
+    int *arr;
+    int n = 5;
+
+    // Allocation initiale de mémoire
+    arr = (int*)malloc(n * sizeof(int));
+
+    if (arr == NULL) {
+        printf("Échec de l'allocation de mémoire.\n");
+        return 1;
+    }
+
+    // Initialisation des éléments
+    for (int i = 0; i < n; i++) {
+        arr[i] = i + 1;
+    }
+
+    // Redimensionnement du tableau à 10 éléments
+    n = 10;
+    arr = (int*)realloc(arr, n * sizeof(int));
+
+    if (arr == NULL) {
+        printf("Échec de la réallocation de mémoire.\n");
+        return 1;
+    }
+
+    // Initialisation des nouveaux éléments
+    for (int i = 5; i < n; i++) {
+        arr[i] = i + 1;
+    }
+
+    // Affichage des éléments
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+
+    // Libération de la mémoire
+    free(arr);
+    return 0;
+}</code></pre>
+
+    <h2>4. free</h2>
+    <p>La fonction <code>free</code> est utilisée pour libérer la mémoire précédemment allouée par <code>malloc</code>, <code>calloc</code> ou <code>realloc</code>. Il est important de libérer la mémoire pour éviter les fuites de mémoire.</p>
+
+    <h3>Syntaxe :</h3>
+    <pre><code>void free(void* ptr);</code></pre>
+
+    <h3>Exemple :</h3>
+    <pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main() {
+    int *arr;
+    int n = 5;
+
+    // Allocation de mémoire
+    arr = (int*)malloc(n * sizeof(int));
+
+    // Libération de la mémoire
+    free(arr);
+    return 0;
+}</code></pre>
+
+</body>
+</html> 
