@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonctions en C</title>
+</head>
+<body>
+    <h1>Fonctions en C</h1>
+
+    <p>Les fonctions en C sont des blocs de code qui effectuent une tâche spécifique. Elles permettent de structurer le programme, de réutiliser du code et de rendre le code plus lisible. Une fonction peut prendre des entrées, appelées paramètres, et peut renvoyer une valeur.</p>
+
+    <h2>Déclaration d'une fonction</h2>
+    <p>La déclaration d'une fonction comprend plusieurs éléments :</p>
+    <ul>
+        <li><strong>Type de retour</strong> : Le type de donnée que la fonction va renvoyer (par exemple, <code>int</code>, <code>float</code>, <code>void</code>, etc.).</li>
+        <li><strong>Nom de la fonction</strong> : Un identifiant unique pour la fonction.</li>
+        <li><strong>Paramètres</strong> : Une liste d'arguments que la fonction peut accepter, encadrée par des parenthèses.</li>
+    </ul>
+    <p>La syntaxe générale est la suivante :</p>
+    <pre><code>type_de_retour nom_de_fonction(type_param1 param1, type_param2 param2, ...) {
+    // Corps de la fonction
+}</code></pre>
+
+    <h2>Exemple de fonction simple</h2>
+    <p>Voici un exemple d'une fonction qui additionne deux nombres :</p>
+    <pre><code>#include &lt;stdio.h&gt;
+
+// Déclaration de la fonction
+int additionner(int a, int b) {
+    return a + b; // Retourne la somme de a et b
+}
+
+int main() {
+    int x = 5;
+    int y = 10;
+    int resultat = additionner(x, y); // Appel de la fonction
+    printf("La somme de %d et %d est %d\n", x, y, resultat);
+    return 0;
+}</code></pre>
+
+    <h2>Exemple de fonction avec des paramètres par référence</h2>
+    <p>Les fonctions peuvent également modifier des variables en utilisant des pointeurs. Voici un exemple d'une fonction qui échange les valeurs de deux variables :</p>
+    <pre><code>#include &lt;stdio.h&gt;
+
+// Déclaration de la fonction
+void echanger(int *a, int *b) {
+    int temp = *a; // Stocke la valeur de a
+    *a = *b;       // Assigne la valeur de b à a
+    *b = temp;     // Assigne la valeur de temp à b
+}
+
+int main() {
+    int x = 5;
+    int y = 10;
+    printf("Avant échange : x = %d, y = %d\n", x, y);
+    echanger(&x, &y); // Appel de la fonction avec les adresses de x et y
+    printf("Après échange : x = %d, y = %d\n", x, y);
+    return 0;
+}</code></pre>
+
+    <h2>Conclusion</h2>
+    <p>Les fonctions sont un élément fondamental de la programmation en C. Elles permettent de structurer le code, de le rendre plus lisible et de réutiliser des blocs de code. En utilisant des paramètres et des valeurs de retour, les fonctions peuvent être très flexibles et puissantes.</p>
+</body>
+</html>

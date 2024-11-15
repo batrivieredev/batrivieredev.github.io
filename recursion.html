@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Récursion en C</title>
+</head>
+<body>
+    <h1>Récursion en C</h1>
+
+    <p>La récursion est une technique de programmation où une fonction s'appelle elle-même pour résoudre un problème. Elle est souvent utilisée pour simplifier des problèmes complexes en les décomposant en sous-problèmes plus simples. La récursion est généralement composée de deux parties :</p>
+
+    <ul>
+        <li><strong>Cas de base</strong> : La condition qui arrête la récursion. C'est le point où la fonction ne s'appelle plus elle-même.</li>
+        <li><strong>Appel récursif</strong> : La partie où la fonction s'appelle elle-même avec des arguments modifiés.</li>
+    </ul>
+
+    <h2>Exemple de récursion : Factorielle</h2>
+    <p>L'un des exemples les plus courants de récursion est le calcul de la factorielle d'un nombre. La factorielle d'un entier positif <code>n</code> (notée <code>n!</code>) est le produit de tous les entiers positifs jusqu'à <code>n</code>.</p>
+    <p>La définition mathématique de la factorielle est :</p>
+    <ul>
+        <li><code>n! = n × (n-1)!</code> pour <code>n > 0</code></li>
+        <li><code>0! = 1</code> (cas de base)</li>
+    </ul>
+
+    <h3>Implémentation en C</h3>
+    <pre><code>#include &lt;stdio.h&gt;
+
+int factorielle(int n) {
+    // Cas de base
+    if (n == 0) {
+        return 1;
+    } else {
+        // Appel récursif
+        return n * factorielle(n - 1);
+    }
+}
+
+int main() {
+    int nombre = 5;
+    printf("La factorielle de %d est %d\n", nombre, factorielle(nombre));
+    return 0;
+}</code></pre>
+
+    <h2>Exemple de récursion : Fibonacci</h2>
+    <p>Un autre exemple classique est la suite de Fibonacci, où chaque nombre est la somme des deux précédents :</p>
+    <ul>
+        <li><code>F(0) = 0</code></li>
+        <li><code>F(1) = 1</code></li>
+        <li><code>F(n) = F(n-1) + F(n-2)</code> pour <code>n > 1</code></li>
+    </ul>
+
+    <h3>Implémentation en C</h3>
+    <pre><code>#include &lt;stdio.h&gt;
+
+int fibonacci(int n) {
+    // Cas de base
+    if (n == 0) {
+        return 0;
+    } else if (n == 1) {
+        return 1;
+    } else {
+        // Appel récursif
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+}
+
+int main() {
+    int nombre = 6;
+    printf("Le terme %d de la suite de Fibonacci est %d\n", nombre, fibonacci(nombre));
+    return 0;
+}</code></pre>
+
+    <h2>Conclusion</h2>
+    <p>La récursion est un outil puissant qui permet de résoudre des problèmes de manière élégante et concise. Cependant, il est important de s'assurer qu'il existe un cas de base pour éviter des appels récursifs infinis, ce qui pourrait entraîner un dépassement de pile.</p>
+</body>
+</html>

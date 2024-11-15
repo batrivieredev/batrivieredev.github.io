@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variables en C</title>
+</head>
+<body>
+    <h1>Variables en C</h1>
+
+    <p>Les variables en C sont des emplacements de mémoire qui permettent de stocker des données. Chaque variable a un type qui détermine la taille et la nature des données qu'elle peut contenir. Les variables doivent être déclarées avant d'être utilisées dans un programme.</p>
+
+    <h2>Types de variables</h2>
+    <p>Les types de variables les plus courants en C incluent :</p>
+    <ul>
+        <li><strong>int</strong> : Pour les entiers (ex : -1, 0, 42).</li>
+        <li><strong>float</strong> : Pour les nombres à virgule flottante (ex : 3.14, -0.001).</li>
+        <li><strong>double</strong> : Pour les nombres à virgule flottante avec une précision plus élevée.</li>
+        <li><strong>char</strong> : Pour les caractères uniques (ex : 'a', 'Z', '1').</li>
+    </ul>
+
+    <h2>Déclaration d'une variable</h2>
+    <p>La déclaration d'une variable se fait en spécifiant son type suivi de son nom. La syntaxe générale est la suivante :</p>
+    <pre><code>type nom_variable;</code></pre>
+
+    <h2>Exemple de déclaration et d'initialisation</h2>
+    <p>Voici un exemple simple qui montre comment déclarer et initialiser des variables :</p>
+    <pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+    int age;          // Déclaration d'une variable entière
+    float poids; // Déclaration d'une variable flottante
+    char initiale;   // Déclaration d'une variable caractère
+
+    // Initialisation des variables
+    age = 25;
+    poids = 70.5;
+    initiale = 'J';
+
+    // Affichage des valeurs
+    printf("Âge : %d ans\n", age);
+    printf("Poids : %.2f kg\n", poids);
+    printf("Initiale : %c\n", initiale);
+
+    return 0;
+}
+</code></pre>
+
+    <h2>Exemple d'utilisation des variables</h2>
+    <p>Les variables peuvent également être utilisées dans des expressions. Voici un exemple qui calcule l'aire d'un rectangle :</p>
+    <pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+    float longueur = 5.0; // Déclaration et initialisation de la longueur
+    float largeur = 3.0;  // Déclaration et initialisation de la largeur
+    float aire;           // Déclaration de la variable pour l'aire
+
+    // Calcul de l'aire
+    aire = longueur * largeur;
+
+    // Affichage de l'aire
+    printf("L'aire du rectangle est : %.2f\n", aire);
+
+    return 0;
+}
+</code></pre>
+
+    <h2>Conclusion</h2>
+    <p>Les variables sont essentielles pour stocker et manipuler des données dans un programme C. En comprenant les différents types de variables et comment les utiliser, vous pouvez créer des programmes plus efficaces et flexibles.</p>
+</body>
+</html>
