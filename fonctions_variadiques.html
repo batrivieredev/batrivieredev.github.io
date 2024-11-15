@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Site sur le C - batrivieredev</title>
+	<link rel="stylesheet" href="/static/css/contact.styles.css">
+</head>
+
+<body>
+	<header>
+		<header class="header" data-section-theme="dark">
+			<div class="container">
+				<a href="#">
+
+				</a>
+				<div class="header-logo" data-section-theme="dark">
+				</div>
+				<nav class="navbar-menu">
+					<ul class="nav">
+						<li class="nav-item">
+							<a href="index.html" class="nav-link">Introduction</a>
+						</li>
+						<li class="nav-item">
+							<a href="fonctions_variadiques.html" class="nav-link">Fonctions Variadiques</a>
+						</li>
+						<li class="nav-item">
+							<a href="syntaxe.html" class="nav-link">Syntaxe</a>
+						</li>
+						<li class="nav-item">
+							<a href="malloc.html" class="nav-link">Malloc,Realloc,Calloc,Free</a>
+						</li>
+						<li class="nav-item">
+							<a href="argc_argv.html" class="nav-link">argc et argv</a>
+						</li>
+						<li class="nav-item">
+							<a href="recursion.html" class="nav-link">Recursion</a>
+						</li>
+						<li class="nav-item">
+							<a href="structure_typedef.html" class="nav-link">structure typedef</a>
+						</li>
+						<li class="nav-item">
+							<a href="variables.html" class="nav-link">Variables</a>
+						</li>
+						<li class="nav-item">
+							<a href="pointeurs.html" class="nav-link">Pointeurs</a>
+						</li>
+						<li class="nav-item">
+							<a href="fonction.html" class="nav-link">fonctions</a>
+						</li>
+						<li class="nav-item">
+							<a href="chaines.html" class="nav-link">Manipulation des Chaines</a>
+						</li>
+						<li class="nav-item">
+							<a href="ressources.html" class="nav-link">Ressources</a>
+						</li>
+						<li class="nav-item">
+							<a href="contact.html" class="nav-link">Contact</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</header>
+	</header>
+
+<body>
+    <h1>Fonctions Variadiques en C</h1>
+    <p>
+        En langage C, une <strong>fonction variadique</strong> est une fonction qui peut accepter un nombre variable d'arguments. Cela permet de créer des fonctions plus flexibles qui peuvent traiter différents nombres d'arguments sans avoir à définir une signature de fonction pour chaque cas.
+    </p>
+
+    <h2>Utilisation des Fonctions Variadiques</h2>
+    <p>
+        Pour définir une fonction variadique, on utilise le type <code>stdarg.h</code>, qui fournit des macros pour manipuler les arguments variadiques. Voici les étapes de base pour créer une fonction variadique :
+    </p>
+    <ol>
+        <li>Inclure l'en-tête <code>stdarg.h</code>.</li>
+        <li>Utiliser les macros <code>va_start</code>, <code>va_arg</code> et <code>va_end</code> pour accéder aux arguments.</li>
+    </ol>
+
+    <h2>Exemple de Fonction Variadique</h2>
+    <p>
+        Voici un exemple simple d'une fonction variadique qui calcule la somme de plusieurs entiers :
+    </p>
+
+    <pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdarg.h&gt;
+
+int somme(int nombre, ...) {
+    int total = 0;
+    va_list args;
+
+    // Initialiser args pour le nombre d'arguments
+    va_start(args, nombre);
+
+    // Ajouter chaque argument à total
+    for (int i = 0; i < nombre; i++) {
+        total += va_arg(args, int);
+    }
+
+    // Nettoyer args
+    va_end(args);
+
+    return total;
+}
+
+int main() {
+    printf("La somme est : %d\n", somme(4, 1, 2, 3, 4)); // Affiche : La somme est : 10
+    return 0;
+}
+</code></pre>
+
+    <h2>Explication de l'Exemple</h2>
+    <p>
+        Dans cet exemple, la fonction <code>somme</code> prend un premier argument <code>nombre</code> qui indique combien d'autres arguments seront passés. Ensuite, grâce à <code>va_list</code>, nous pouvons itérer sur les arguments restants en utilisant <code>va_arg</code> pour les récupérer un par un. Enfin, nous terminons avec <code>va_end</code> pour libérer les ressources.
+    </p>
+
+    <h2>Conclusion</h2>
+    <p>
+        Les fonctions variadiques sont un puissant outil en C qui permet de créer des fonctions flexibles. Elles sont particulièrement utiles lorsque le nombre d'arguments peut varier d'un appel à l'autre. Cependant, il est important de les utiliser avec précaution, car une mauvaise gestion des arguments peut entraîner des erreurs.
+    </p>
+</body>
+</html>
+<footer>
+	<p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
+</footer>
