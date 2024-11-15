@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Manipulation des Chaînes en C</title>
+	<link rel="stylesheet" href="/static/css/contact.styles.css">
+</head>
+
+<body>
+	<header>
+		<header class="header" data-section-theme="dark">
+			<div class="container">
+				<a href="#">
+
+				</a>
+				<div class="header-logo" data-section-theme="dark">
+				</div>
+				<nav class="navbar-menu">
+					<ul class="nav">
+						<li class="nav-item">
+							<a href="index.html" class="nav-link">Introduction</a>
+						</li>
+						<li class="nav-item">
+							<a href="syntaxe.html" class="nav-link">Syntaxe</a>
+						</li>
+						<li class="nav-item">
+							<a href="malloc.html" class="nav-link">Malloc,Realloc,Calloc,Free</a>
+						</li>
+						<li class="nav-item">
+							<a href="pointeurs.html" class="nav-link">Pointeurs</a>
+						</li>
+						<li class="nav-item">
+							<a href="chaines.html" class="nav-link">Manipulation des Chaines</a>
+						</li>
+						<li class="nav-item">
+							<a href="ressources.html" class="nav-link">Ressources</a>
+						</li>
+						<li class="nav-item">
+							<a href="contact.html" class="nav-link">Contact</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</header>
+	</header>
+
+<body>
+    <h1>Structures et typedef en C</h1>
+
+    <h2>Structures en C</h2>
+    <p>Une structure (ou <code>struct</code>) est un type de données composite qui permet de regrouper plusieurs variables de différents types sous un même nom. Cela est particulièrement utile lorsque vous devez représenter un objet ou un concept qui a plusieurs attributs.</p>
+
+    <h3>Déclaration d'une structure</h3>
+    <pre><code>struct Point {
+    int x;
+    int y;
+};</code></pre>
+    <p>Dans cet exemple, nous avons défini une structure nommée <code>Point</code> qui contient deux membres : <code>x</code> et <code>y</code>, tous deux de type <code>int</code>.</p>
+
+    <h3>Utilisation d'une structure</h3>
+    <pre><code>struct Point p1;
+p1.x = 10;
+p1.y = 20;
+
+printf("Point p1: (%d, %d)\n", p1.x, p1.y);</code></pre>
+
+    <h2>Typedef en C</h2>
+    <p>Le mot-clé <code>typedef</code> permet de créer un alias pour un type de données, ce qui peut rendre le code plus lisible et plus facile à gérer. Cela est particulièrement utile pour les structures, car cela vous permet de ne pas avoir à écrire le mot-clé <code>struct</code> chaque fois que vous déclarez une variable de ce type.</p>
+
+    <h3>Déclaration d'un typedef pour une structure</h3>
+    <pre><code>typedef struct {
+    int x;
+    int y;
+} Point;</code></pre>
+    <p>Dans cet exemple, nous avons créé un alias <code>Point</code> pour la structure, ce qui nous permet de l'utiliser sans le préfixe <code>struct</code>.</p>
+
+    <h3>Utilisation d'un typedef</h3>
+    <p>Maintenant, vous pouvez créer des variables de type <code>Point</code> directement :</p>
+    <pre><code>Point p2;
+p2.x = 30;
+p2.y = 40;
+
+printf("Point p2: (%d, %d)\n", p2.x, p2.y);</code></pre>
+
+    <h2>Exemple complet</h2>
+    <p>Voici un exemple complet qui combine tout cela :</p>
+    <pre><code>#include &lt;stdio.h&gt;
+
+// Définition de la structure avec typedef
+typedef struct {
+    int x;
+    int y;
+} Point;
+
+int main() {
+    // Création d'une instance de Point
+    Point p1;
+    p1.x = 10;
+    p1.y = 20;
+
+    Point p2;
+    p2.x = 30;
+    p2.y = 40;
+
+    // Affichage des points
+    printf("Point p1: (%d, %d)\n", p1.x, p1.y);
+    printf("Point p2: (%d, %d)\n", p2.x, p2.y);
+
+    return 0;
+}</code></pre>
+
+    <h2>Conclusion</h2>
+    <p>Les structures et le <code>typedef</code> sont des outils puissants en C qui vous permettent de créer des types de données complexes et de rendre votre code plus lisible. En utilisant des structures, vous pouvez regrouper des données connexes, et avec <code>typedef</code>, vous simplifiez leur utilisation dans votre code.</p>
+</body>
+</html>
