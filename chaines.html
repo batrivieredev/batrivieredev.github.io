@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Manipulation des Chaînes en C</title>
+	<link rel="stylesheet" href="/static/css/contact.styles.css">
+</head>
+
+<body>
+	<header>
+		<header class="header" data-section-theme="dark">
+			<div class="container">
+				<a href="#">
+
+				</a>
+				<div class="header-logo" data-section-theme="dark">
+				</div>
+				<nav class="navbar-menu">
+					<ul class="nav">
+						<li class="nav-item">
+							<a href="index.html" class="nav-link">Introduction</a>
+						</li>
+						<li class="nav-item">
+							<a href="syntaxe.html" class="nav-link">Syntaxe</a>
+						</li>
+						<li class="nav-item">
+							<a href="malloc.html" class="nav-link">Malloc,Realloc,Calloc,Free</a>
+						</li>
+						<li class="nav-item">
+							<a href="pointeurs.html" class="nav-link">Pointeurs</a>
+						</li>
+						<li class="nav-item">
+							<a href="chaines.html" class="nav-link">Manipulation des Chaines</a>
+						</li>
+						<li class="nav-item">
+							<a href="ressources.html" class="nav-link">Ressources</a>
+						</li>
+						<li class="nav-item">
+							<a href="contact.html" class="nav-link">Contact</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</header>
+	</header>
+
+    <h1>Manipulation des Chaînes en C</h1>
+
+    <h2>1. Déclaration et Initialisation d'une Chaîne</h2>
+    <h3>Exemple :</h3>
+    <pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+    char str1[] = "Bonjour";  // Chaîne initialisée lors de la déclaration
+    char str2[20];           // Tableau vide pour une chaîne de 20 caractères
+
+    // Copier une chaîne dans une autre
+    sprintf(str2, "Monde");
+
+    printf("%s %s\n", str1, str2);  // Affiche : Bonjour Monde
+    return 0;
+}</code></pre>
+    <h3>Points Importants :</h3>
+    <ul>
+        <li>La chaîne "Bonjour" est stockée dans str1, suivie du caractère nul (\0).</li>
+        <li>Le tableau str2 doit être suffisamment grand pour contenir la chaîne copiée.</li>
+    </ul>
+
+    <h2>2. Utilisation des Fonctions de la Bibliothèque &lt;string.h&gt;</h2>
+    <p>Le C offre plusieurs fonctions pour manipuler les chaînes de caractères via la bibliothèque &lt;string.h&gt;.</p>
+
+    <h3>a) Copie d'une Chaîne : strcpy</h3>
+    <h4>Exemple :</h4>
+    <pre><code>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+int main() {
+    char source[] = "Bonjour";
+    char destination[20];
+
+    strcpy(destination, source);  // Copie source dans destination
+
+    printf("Destination : %s\n", destination);  // Affiche : Destination : Bonjour
+    return 0;
+}</code></pre>
+
+    <h3>b) Concaténation : strcat</h3>
+    <h4>Exemple :</h4>
+    <pre><code>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+int main() {
+    char str1[20] = "Bonjour";
+    char str2[] = " Monde";
+
+    strcat(str1, str2);  // Concatène str2 à la fin de str1
+
+    printf("Concaténation : %s\n", str1);  // Affiche : Bonjour Monde
+    return 0;
+}</code></pre>
+    <p class="warning">⚠️ Attention : str1 doit avoir suffisamment d'espace pour accueillir la chaîne concaténée, sinon cela peut entraîner un dépassement de mémoire.</p>
+
+    <h2>3. Comparaison de Chaînes : strcmp</h2>
+    <h4>Exemple :</h4>
+    <pre><code>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+int main() {
+    char str1[] = "abc";
+    char str2[] = "abcd";
+
+    int result = strcmp(str1, str2);
+
+    if (result == 0) {
+        printf("Les chaînes sont identiques.\n");
+    } else if (result < 0) {
+        printf("str1 est plus petit que str2.\n");
+    } else {
+        printf("str1 est plus grand que str2.\n");
+    }
+    return 0;
+}</code></pre>
+    <h4>Explication :</h4>
+    <ul>
+        <li>strcmp renvoie :</li>
+        <ul>
+            <li>0 si les chaînes sont égales.</li>
+            <li>Une valeur négative si str1 est "plus petit" que str2.</li>
+            <li>Une valeur positive si str1 est "plus grand" que str2.</li>
+        </ul>
+    </ul>
+
+    <h2> 4. Lecture et Écriture de Chaînes</h2>
+    <h4>Exemple : Lecture avec scanf</h4>
+    <pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+    char nom[50];
+
+    printf("Entrez votre nom : ");
+    scanf("%49s", nom);  // Limite la lecture à 49 caractères pour éviter un débordement
+
+    printf("Bonjour, %s !\n", nom);
+    return 0;
+}</code></pre>
+    <p class="warning">⚠️ Attention : scanf peut causer des dépassements de mémoire si l'entrée dépasse la taille du tableau. Utilisez un modificateur pour limiter la taille.</p>
+
+    <h2>5. Gestion Manuelle de la Mémoire</h2>
+    <p>Les chaînes peuvent être manipulées dynamiquement avec malloc et free.</p>
+    <h4>Exemple :</h4>
+    <pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+int main() {
+    char *chaine = (char *)malloc(20 * sizeof(char));  // Alloue dynamiquement de la mémoire
+
+    if (chaine == NULL) {
+        printf("Erreur d'allocation mémoire.\n");
+        return 1;
+    }
+
+    strcpy(chaine, "Bonjour");
+    printf("%s\n", chaine);  // Affiche : Bonjour
+
+    free(chaine);  // Libère la mémoire allouée
+    return 0;
+}</code></pre>
+    <h4>Points Clés :</h4>
+    <ul>
+        <li>Toujours libérer la mémoire avec free après utilisation.</li>
+        <li>Vérifiez si l'allocation (malloc) a réussi.</li>
+    </ul>
+
+    <h2>6. Dépassement de Mémoire (Buffer Overflow)</h2>
+    <p>Le dépassement de mémoire se produit si vous tentez d'écrire au-delà de la taille allouée pour une chaîne.</p>
+    <h4>Exemple Erroné :</h4>
+    <pre><code>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+int main() {
+    char str[5] = "Test";
+    strcat(str, " Erreur");  // Provoque un débordement
+
+    printf("%s\n", str);  // Peut causer un comportement indéfini
+    return 0;
+}</code></pre>
+    <h4>Solution :</h4>
+    <p>Toujours vérifier la taille disponible avant d'ajouter des caractères.</p>
+
+    <h2>7. Chaînes de Caractères Constantes</h2>
+    <p>Les chaînes littérales comme "Bonjour" sont immuables et stockées dans une section en lecture seule.</p>
+    <h4>Exemple :</h4>
+    <pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+    char *str = "Bonjour";
+    str[0] = 'b';  // Erreur : Modification interdite pour une chaîne constante
+
+    return 0;
+}</code></pre>
+    <p>Pour modifier une chaîne, utilisez un tableau ou une mémoire allouée dynamiquement.</p>
+
+    <h2>Conclusion</h2>
+    <p>En résumé, manipuler des chaînes en C nécessite une attention particulière pour éviter des erreurs comme les dépassements de mémoire, les pointeurs invalides ou les fuites de mémoire. Utilisez les fonctions de &lt;string.h&gt; et allouez dynamiquement de la mémoire lorsque nécessaire pour des chaînes de grande taille ou dynamiques.</p>
+
+</body>
+</html>
