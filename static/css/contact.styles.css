@@ -246,3 +246,26 @@ button {
 button:hover {
 	background-color: #2980b9;
 }
+.explanation {
+	background: #000000;
+	border: 1px solid #2ecc71;
+	padding: 10px;
+	margin-bottom: 20px;
+}
+body {
+	font-family: Arial, sans-serif;
+	line-height: 1.6;
+	margin: 20px;
+}
+h1, h2, h3 {
+	color: #ffffff;
+}
+code {
+	display: block;
+	background: #000000;
+	border: 1px solid #555555;
+	color: #00b3ff;
+	padding: 10px;
+	margin: 10px 0;
+	white-space: pre-wrap;
+}
