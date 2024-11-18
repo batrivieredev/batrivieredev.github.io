@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Site sur le C - batrivieredev</title>
-	<link rel="stylesheet" href="/static/css/contact.styles.css">
+	<link rel="stylesheet" href="/batrivieredev.github.io/static/css/contact.styles.css">
 </head>
 
 <body>
@@ -64,27 +64,11 @@
 		</header>
 	</header>
 
+
 <body>
-    <h1>Fonctions Variadiques en C</h1>
-    <p>
-        En langage C, une <strong>fonction variadique</strong> est une fonction qui peut accepter un nombre variable d'arguments. Cela permet de créer des fonctions plus flexibles qui peuvent traiter différents nombres d'arguments sans avoir à définir une signature de fonction pour chaque cas.
-    </p>
-
-    <h2>Utilisation des Fonctions Variadiques</h2>
-    <p>
-        Pour définir une fonction variadique, on utilise le type <code>stdarg.h</code>, qui fournit des macros pour manipuler les arguments variadiques. Voici les étapes de base pour créer une fonction variadique :
-    </p>
-    <ol>
-        <li>Inclure l'en-tête <code>stdarg.h</code>.</li>
-        <li>Utiliser les macros <code>va_start</code>, <code>va_arg</code> et <code>va_end</code> pour accéder aux arguments.</li>
-    </ol>
-
-    <h2>Exemple de Fonction Variadique</h2>
-    <p>
-        Voici un exemple simple d'une fonction variadique qui calcule la somme de plusieurs entiers :
-    </p>
-
-    <pre><code>#include &lt;stdio.h&gt;
+    <h1>Code C - Fonction Variadique</h1>
+    <pre>
+#include &lt;stdio.h&gt;
 #include &lt;stdarg.h&gt;
 
 int somme(int nombre, ...) {
@@ -95,7 +79,7 @@ int somme(int nombre, ...) {
     va_start(args, nombre);
 
     // Ajouter chaque argument à total
-    for (int i = 0; i < nombre; i++) {
+    for (int i = 0; i &lt; nombre; i++) {
         total += va_arg(args, int);
     }
 
@@ -109,22 +93,31 @@ int main() {
     printf("La somme est : %d\n", somme(4, 1, 2, 3, 4)); // Affiche : La somme est : 10
     return 0;
 }
-</code></pre>
+    </pre>
 
-    <h2>Explication de l'Exemple</h2>
+    <h2>Explication du Code</h2>
     <p>
-        Dans cet exemple, la fonction <code>somme</code> prend un premier argument <code>nombre</code> qui indique combien d'autres arguments seront passés. Ensuite, grâce à <code>va_list</code>, nous pouvons itérer sur les arguments restants en utilisant <code>va_arg</code> pour les récupérer un par un. Enfin, nous terminons avec <code>va_end</code> pour libérer les ressources.
+        Ce programme C illustre l'utilisation d'une fonction variadique, c'est-à-dire une fonction qui accepte un nombre variable d'arguments.
     </p>
-
-    <h2>Conclusion</h2>
-    <p>
-        Les fonctions variadiques sont un puissant outil en C qui permet de créer des fonctions flexibles. Elles sont particulièrement utiles lorsque le nombre d'arguments peut varier d'un appel à l'autre. Cependant, il est important de les utiliser avec précaution, car une mauvaise gestion des arguments peut entraîner des erreurs.
-    </p>
+    <ul>
+        <li>
+            <strong>Inclusion des bibliothèques :</strong> Les bibliothèques <code>&lt;stdarg.h&gt;</code> et <code>&lt;stdio.h&gt;</code> sont utilisées. <code>&lt;stdarg.h&gt;</code> fournit les outils nécessaires pour gérer les arguments variables.
+        </li>
+        <li>
+            <strong>Fonction <code>somme</code> :</strong> Cette fonction accepte un premier paramètre <code>nombre</code>, indiquant le nombre d'arguments supplémentaires passés. Les étapes de la fonction sont :
+            <ul>
+                <li>Initialisation de <code>va_list args</code> avec <code>va_start</code>, qui pointe vers le premier argument variable.</li>
+                <li>Une boucle <code>for</code> qui utilise <code>va_arg</code> pour récupérer chaque argument et l’ajouter à <code>total</code>.</li>
+                <li>Libération de la mémoire associée avec <code>va_end</code>.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Fonction <code>main</code> :</strong> Elle appelle la fonction <code>somme</code> avec quatre arguments supplémentaires (1, 2, 3, 4) et affiche leur somme dans la console.
+        </li>
+    </ul>
+    <h3>Sortie attendue :</h3>
+    <pre>
+La somme est : 10
+    </pre>
 </body>
 </html>
-
-
-<footer>
-	<p>&nbsp;</p>
-	<p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
-</footer>
