@@ -66,35 +66,35 @@
 
 
 <body>
-    <h1>Code C - Fonction Variadique</h1>
-    <pre>
-#include &lt;stdio.h&gt;
+	<h1>Code C - Fonction Variadique</h1>
+	<pre>
+<code>#include &lt;stdio.h&gt;
 #include &lt;stdarg.h&gt;
 
 int somme(int nombre, ...) {
-    int total = 0;
-    va_list args;
+	int total = 0;
+	va_list args;
 
-    // Initialiser args pour le nombre d'arguments
-    va_start(args, nombre);
+	// Initialiser args pour le nombre d'arguments
+	va_start(args, nombre);
 
-    // Ajouter chaque argument à total
-    for (int i = 0; i &lt; nombre; i++) {
-        total += va_arg(args, int);
-    }
+	// Ajouter chaque argument à total
+	for (int i = 0; i &lt; nombre; i++) {
+		total += va_arg(args, int);
+	}
 
-    // Nettoyer args
-    va_end(args);
+	// Nettoyer args
+	va_end(args);
 
-    return total;
+	return total;
 }
 
 int main() {
-    printf("La somme est : %d\n", somme(4, 1, 2, 3, 4)); // Affiche : La somme est : 10
-    return 0;
-}
-    </pre>
-
+	printf("La somme est : %d\n", somme(4, 1, 2, 3, 4)); // Affiche : La somme est : 10
+	return 0;
+}</code>
+	</pre>
+</body>
     <h2>Explication du Code</h2>
     <p>
         Ce programme C illustre l'utilisation d'une fonction variadique, c'est-à-dire une fonction qui accepte un nombre variable d'arguments.
