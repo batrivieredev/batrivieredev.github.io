@@ -41,7 +41,7 @@ header .navbar-menu .nav {
 	header {
 	display: flex;
 	align-items: center;
-	background: #333; /* Couleur du thème */
+	background: #ff0303; /* Couleur du thème */
 	padding: 10px 20px;
 	}
 
@@ -54,7 +54,7 @@ header .navbar-menu .nav {
 	}
 
 	header {
-		background: #333;
+		background: #f00404;
 		color: #fff;
 		padding: 10px 0;
 		text-align: center;
@@ -84,7 +84,7 @@ header .navbar-menu .nav {
 
 	nav ul li a.active,
 	nav ul li a:hover {
-		background: #575757;
+		background: #ff0000;
 	}
 
 	pre {
