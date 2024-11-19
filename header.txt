@@ -26,26 +26,3 @@
 	<title>Site sur le C - batrivieredev</title>
 	<link rel="stylesheet" href="/static/css/styles.css">
 </head>
-
-
-	<!DOCTYPE html>
-	<html lang="fr">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Contact</title>
-	</head>
-	<body>
-		<h1>Contactez-Moi</h1>
-		<h4>baptiste.rivierefr@gmail.com</h4>
-
-
-
-
-<footer>
-	<p>&nbsp;</p>
-	<p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
-</footer>
-
-</body>
-</html>

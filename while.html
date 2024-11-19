@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+</head>
+<body>
+    <!-- Placeholder pour le header -->
+    <div id="header"></div>
+
+
+    <script>
+        // Charger le contenu du fichier header.html
+        fetch("header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Site sur le C - batrivieredev</title>
+	<link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+
+    <div class="bandeau">
+        <h1>Comprendre les Boucles while en C</h1>
+    </div>
+
+    <div class="content">
+        <h2>Qu'est-ce qu'une boucle while ?</h2>
+        <p>
+            Une boucle <code>while</code> en C est une structure de contrôle qui permet d'exécuter un bloc de code tant qu'une condition spécifiée est vraie. Elle est souvent utilisée pour répéter des actions jusqu'à ce qu'une certaine condition soit remplie.
+        </p>
+        <p>
+            La syntaxe de base d'une boucle <code>while</code> est la suivante :
+        </p>
+        <pre><code>while (condition) {
+    // bloc de code à exécuter
+}</code></pre>
+
+        <h2>Exemples d'utilisation</h2>
+
+        <h3>1. Compter de 1 à 5</h3>
+        <pre><code>int i = 1;
+while (i <= 5) {
+    printf("%d\n", i);
+    i++;
+}</code></pre>
+        <p>Ce code affichera :</p>
+        <pre><code>1
+2
+3
+4
+5</code></pre>
+
+        <h3>2. Somme des nombres de 1 à n</h3>
+        <pre><code>int n = 5;
+int somme = 0;
+int i = 1;
+
+while (i <= n) {
+    somme += i;
+    i++;
+}
+printf("La somme des nombres de 1 à %d est : %d", n, somme);</code></pre>
+        <p>Ce code affichera : <strong>La somme des nombres de 1 à 5 est : 15</strong></p>
+
+        <h3>3. Boucle infinie</h3>
+        <pre><code>int j = 0;
+while (1) { // condition toujours vraie
+    printf("Cette boucle ne s'arrêtera jamais !\n");
+    j++;
+    if (j >= 5) break; // pour éviter une boucle infinie dans cet exemple
+}</code></pre>
+        <p>Ce code affichera : <strong>Cette boucle ne s'arrêtera jamais !</strong> jusqu'à ce que la condition de sortie soit atteinte.</p>
+
+        <h2>Conclusion</h2>
+        <p>
+            Les boucles <code>while</code> sont très utiles pour exécuter des blocs de code de manière répétée tant qu'une condition est vraie. Elles sont souvent utilisées pour des tâches telles que le traitement de données, la validation d'entrées, et bien plus encore.
+        </p>
+    </div>
+
+
+
+    <footer>
+        <p>&nbsp;</p>
+        <p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
+    </footer>
+
+
+</body>
+</html>

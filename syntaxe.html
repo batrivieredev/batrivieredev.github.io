@@ -1,5 +1,24 @@
 <!DOCTYPE html>
 <html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+</head>
+<body>
+    <!-- Placeholder pour le header -->
+    <div id="header"></div>
+
+
+    <script>
+        // Charger le contenu du fichier header.html
+        fetch("header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>
 
 <head>
 	<meta charset="UTF-8">
@@ -7,68 +26,6 @@
 	<title>Site sur le C - batrivieredev</title>
 	<link rel="stylesheet" href="/static/css/styles.css">
 </head>
-
-<body>
-	<header>
-		<header class="header" data-section-theme="dark">
-			<div class="container">
-				<a href="#">
-
-				</a>
-				<div class="header-logo" data-section-theme="dark">
-				</div>
-				<nav class="navbar-menu">
-					<ul class="nav">
-						<li class="nav-item">
-							<a href="index.html" class="nav-link">Introduction</a>
-						</li>
-						<li class="nav-item">
-							<a href="fonctions_variadiques.html" class="nav-link">Fonctions Variadiques</a>
-						</li>
-						<li class="nav-item">
-							<a href="syntaxe.html" class="nav-link">Syntaxe</a>
-						</li>
-						<li class="nav-item">
-							<a href="malloc.html" class="nav-link">Malloc,Realloc,Calloc,Free</a>
-						</li>
-						<li class="nav-item">
-							<a href="argc_argv.html" class="nav-link">Argc et Argv</a>
-						</li>
-						<li class="nav-item">
-							<a href="recursion.html" class="nav-link">Recursion</a>
-						</li>
-						<li class="nav-item">
-							<a href="structure_typedef.html" class="nav-link">Structure Typedef</a>
-						</li>
-						<li class="nav-item">
-							<a href="variables.html" class="nav-link">Variables</a>
-						</li>
-						<li class="nav-item">
-							<a href="pointeurs.html" class="nav-link">Pointeurs</a>
-						</li>
-						<li class="nav-item">
-							<a href="fonction.html" class="nav-link">Fonctions</a>
-						</li>
-						<li class="nav-item">
-							<a href="chaines.html" class="nav-link">Manipulation des Chaines</a>
-						</li>
-						<li class="nav-item">
-							<a href="ressources.html" class="nav-link">Ressources</a>
-						</li>
-						<li class="nav-item">
-							<a href="printf.html" class="nav-link">Printf</a>
-						</li>
-                        <li class="nav-item">
-							<a href="contact.html" class="nav-link">Contact</a>
-						</li>
-					</ul>
-				</nav>
-			</div>
-		</header>
-	</header>
-
-
-
 
 <body>
 	<h1>La Syntaxe en Langage C : Fondements et Éléments Clés</h1>
@@ -168,72 +125,11 @@ int main(void)
     return 0;
 }</code></pre>
 
-	<h3>4. Boucles</h3>
-	<p>
-		Le C offre plusieurs types de boucles pour exécuter un bloc d’instructions plusieurs fois.
-	</p>
-	<p><strong>Boucle for :</strong></p>
-	<pre><code>for (int i = 0; i &lt; 5; i++)
-{
-    printf("i vaut %d\\n", i);
-}</code></pre>
-	<p><strong>Boucle do-while :</strong></p>
-	<pre><code>int i = 0;
-do
-{
-    printf("i vaut %d\\n", i);
-    i++;
-} while (i &lt; 5);</code></pre>
-
-	<h3>5. Fonctions</h3>
-	<p>
-		Les fonctions permettent de structurer le code en encapsulant des blocs d’instructions réutilisables.
-	</p>
-	<p><strong>Exemple de fonction simple :</strong></p>
-	<pre><code>#include &lt;stdio.h&gt;
-
-int addition(int a, int b) // Fonction qui retourne la somme de deux entiers
-{
-    return a + b;
-}
-
-int main(void)
-{
-    int resultat = addition(5, 7);
-    printf("La somme est : %d\\n", resultat);
-    return 0;
-}</code></pre>
-
-	<h3>6. Pointeurs et Gestion de Mémoire</h3>
-	<p>
-		Les pointeurs sont une des caractéristiques les plus puissantes (et complexes) du C. Ils permettent de manipuler
-		directement la mémoire.
-	</p>
-	<pre><code>#include &lt;stdio.h&gt;
-
-int main(void)
-{
-    int x = 10;
-    int *p = &x; // Pointeur vers x
-
-    printf("Valeur de x : %d\\n", x);
-    printf("Adresse de x : %p\\n", (void *)&x);
-    printf("Valeur via le pointeur : %d\\n", *p);
-    return 0;
-}</code></pre>
-
-	<h3>7. Commentaires</h3>
-	<ul>
-		<li><strong>Commentaires sur une ligne </strong> (Pas accepté par Betty) : Utilisez <code>//</code>.</li>
-		<li><strong>Commentaires multi-lignes </strong>(Accepté par Betty) : Encadrés par <code>/* ... */</code>.</li>
-	</ul>
-
-	<h3>8. Bonnes Pratiques Syntaxiques</h3>
-	<ul>
-	<li><strong>Indentation</strong> : Utilisez 4 espaces pour indenter le code.(pas accepté par Betty, Betty accepte une tabulation à la place de 4 espaces)</li>
-
 
 <footer>
 	<p>&nbsp;</p>
 	<p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
 </footer>
+
+</body>
+</html>

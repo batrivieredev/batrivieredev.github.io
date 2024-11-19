@@ -1,5 +1,24 @@
 <!DOCTYPE html>
 <html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+</head>
+<body>
+    <!-- Placeholder pour le header -->
+    <div id="header"></div>
+
+
+    <script>
+        // Charger le contenu du fichier header.html
+        fetch("header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>
 
 <head>
 	<meta charset="UTF-8">
@@ -7,66 +26,6 @@
 	<title>Site sur le C - batrivieredev</title>
 	<link rel="stylesheet" href="/static/css/styles.css">
 </head>
-
-<body>
-	<header>
-		<header class="header" data-section-theme="dark">
-			<div class="container">
-				<a href="#">
-
-				</a>
-				<div class="header-logo" data-section-theme="dark">
-				</div>
-				<nav class="navbar-menu">
-					<ul class="nav">
-						<li class="nav-item">
-							<a href="index.html" class="nav-link">Introduction</a>
-						</li>
-						<li class="nav-item">
-							<a href="fonctions_variadiques.html" class="nav-link">Fonctions Variadiques</a>
-						</li>
-						<li class="nav-item">
-							<a href="syntaxe.html" class="nav-link">Syntaxe</a>
-						</li>
-						<li class="nav-item">
-							<a href="malloc.html" class="nav-link">Malloc,Realloc,Calloc,Free</a>
-						</li>
-						<li class="nav-item">
-							<a href="argc_argv.html" class="nav-link">Argc et Argv</a>
-						</li>
-						<li class="nav-item">
-							<a href="recursion.html" class="nav-link">Recursion</a>
-						</li>
-						<li class="nav-item">
-							<a href="structure_typedef.html" class="nav-link">Structure Typedef</a>
-						</li>
-						<li class="nav-item">
-							<a href="variables.html" class="nav-link">Variables</a>
-						</li>
-						<li class="nav-item">
-							<a href="pointeurs.html" class="nav-link">Pointeurs</a>
-						</li>
-						<li class="nav-item">
-							<a href="fonction.html" class="nav-link">Fonctions</a>
-						</li>
-						<li class="nav-item">
-							<a href="chaines.html" class="nav-link">Manipulation des Chaines</a>
-						</li>
-						<li class="nav-item">
-							<a href="ressources.html" class="nav-link">Ressources</a>
-						</li>
-						<li class="nav-item">
-							<a href="printf.html" class="nav-link">Printf</a>
-						</li>
-                        <li class="nav-item">
-							<a href="contact.html" class="nav-link">Contact</a>
-						</li>
-					</ul>
-				</nav>
-			</div>
-		</header>
-	</header>
-
 
 
 
