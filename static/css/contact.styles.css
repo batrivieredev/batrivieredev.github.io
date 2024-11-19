@@ -4,8 +4,11 @@ header .navbar-menu .nav {
 	justify-content: space-between;
 	list-style: none;
 	margin: 0;
-	padding: 0;
 	width: 100%;
+	padding: 15px; /* Espacement intérieur */
+	text-align: center; /* Centrer le texte */
+	position: relative; /* Position relative pour l'animation */
+	overflow: hidden; /* Masquer le débordement */
 	}
 
 	nav-item {
