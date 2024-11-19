@@ -125,14 +125,14 @@ header .navbar-menu .nav {
 
 	nav ul li a.active,
 	nav ul li a:hover {
-		background: #575757;
+		background: #fc0000;
 	}
 	body {
 		font-family: Arial, sans-serif;
 		line-height: 1.6;
 		margin: 20px;
 		padding: 0;
-		background-color: #f9f9f9;
+		background-color: #ff0000;
 	}
 
 	header {
@@ -167,7 +167,7 @@ header .navbar-menu .nav {
 
 	nav ul li a.active,
 	nav ul li a:hover {
-		background: #575757;
+		background: #00b3ff;
 	}
 	body {
 		font-family: Arial, sans-serif;
