@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+</head>
+<body>
+    <!-- Placeholder pour le header -->
+    <div id="header"></div>
+
+
+    <script>
+        // Charger le contenu du fichier header.html
+        fetch("header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Site sur le C - batrivieredev</title>
+	<link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+
+<body>
+    <h1>Manipulation de Fichiers en C</h1>
+
+    <h2>1. Introduction</h2>
+    <p>La manipulation de fichiers en C permet de lire et d'écrire des données dans des fichiers. Cela est essentiel pour la persistance des données, permettant aux programmes de stocker et de récupérer des informations entre les exécutions.</p>
+
+    <h2>2. Types de Fichiers</h2>
+    <p>Il existe deux types de fichiers en C :</p>
+    <ul>
+        <li><strong>Fichiers texte :</strong> Contiennent des données sous forme de texte lisible.</li>
+        <li><strong>Fichiers binaire :</strong> Contiennent des données sous forme binaire, non lisible directement.</li>
+    </ul>
+
+    <h2>3. Fonctions de Base</h2>
+    <p>Les fonctions principales pour manipuler des fichiers en C incluent :</p>
+    <ul>
+        <li><code>fopen()</code> : Ouvre un fichier.</li>
+        <li><code>fclose()</code> : Ferme un fichier.</li>
+        <li><code>fread()</code> : Lit des données d'un fichier binaire.</li>
+        <li><code>fwrite()</code> : Écrit des données dans un fichier binaire.</li>
+        <li><code>fprintf()</code> : Écrit des données formatées dans un fichier texte.</li>
+        <li><code>fscanf()</code> : Lit des données formatées à partir d'un fichier texte.</li>
+    </ul>
+
+    <h2>4. Exemple de Lecture et d'Écriture de Fichiers</h2>
+    <p>Voici un exemple simple qui montre comment écrire dans un fichier texte et le lire ensuite :</p>
+
+    <h3>Fichier : <code>exemple_fichier.c</code></h3>
+    <pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+    FILE *fichier;
+    char nom[50];
+
+    // Écriture dans un fichier
+    fichier = fopen("exemple.txt", "w");
+    if (fichier == NULL) {
+        printf("Erreur à l'ouverture du fichier.\n");
+        return 1;
+    }
+    fprintf(fichier, "Bonjour, ceci est un exemple de fichier.\n");
+    fclose(fichier);
+
+    // Lecture du fichier
+    fichier = fopen("exemple.txt", "r");
+    if (fichier == NULL) {
+        printf("Erreur à l'ouverture du fichier.\n");
+        return 1;
+    }
+    while (fgets(nom, sizeof(nom), fichier) != NULL) {
+        printf("%s", nom);
+    }
+    fclose(fichier);
+
+    return 0;
+}
+</code></pre>
+
+    <h2>5. Compilation et Exécution</h2>
+    <p>Pour compiler et exécuter ce programme, utilisez les commandes suivantes dans un terminal :</p>
+    <pre><code>gcc exemple_fichier.c -o exemple_fichier
+./exemple_fichier
+</code></pre>
+    <p>Après l'exécution, un fichier nommé <code>exemple.txt</code> sera créé, contenant le texte écrit par le programme.</p>
+
+    <h2>6. Conclusion</h2>
+    <p>La manipulation de fichiers en C est une compétence essentielle pour le développement de logiciels. En comprenant comment ouvrir, lire, écrire et fermer des fichiers, vous pouvez créer des programmes qui interagissent avec les données de manière efficace.</p>
+</body>
+</html>

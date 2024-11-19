@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+</head>
+<body>
+    <!-- Placeholder pour le header -->
+    <div id="header"></div>
+
+
+    <script>
+        // Charger le contenu du fichier header.html
+        fetch("header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Site sur le C - batrivieredev</title>
+	<link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+
+<body>
+    <h1>Compilation et Liens en C</h1>
+
+    <h2>1. Introduction</h2>
+    <p>La compilation et le processus de liaison sont essentiels pour transformer le code source écrit en C en un programme exécutable. Ce processus se compose de plusieurs étapes.</p>
+
+    <h2>2. Étapes de la Compilation</h2>
+    <ol>
+        <li><strong>Prétraitement :</strong> Le préprocesseur traite les directives de prétraitement (commençant par #). Cela inclut l'inclusion de fichiers d'en-tête et la définition de macros.</li>
+        <li><strong>Compilation :</strong> Le compilateur traduit le code source en code objet, qui est un code machine non exécutable.</li>
+        <li><strong>Édition de liens :</strong> Le linker combine les fichiers objets et les bibliothèques pour créer un exécutable.</li>
+    </ol>
+
+    <h2>3. Exemple de Code</h2>
+    <p>Considérons un simple programme C qui utilise une fonction définie dans un autre fichier :</p>
+
+    <h3>Fichier : <code>main.c</code></h3>
+    <pre><code>#include &lt;stdio.h&gt;
+#include "utils.h"
+
+int main() {
+    int result = add(5, 3);
+    printf("La somme est : %d\n", result);
+    return 0;
+}
+</code></pre>
+
+    <h3>Fichier : <code>utils.c</code></h3>
+    <pre><code>#include "utils.h"
+
+int add(int a, int b) {
+    return a + b;
+}
+</code></pre>
+
+    <h3>Fichier : <code>utils.h</code></h3>
+    <pre><code>int add(int a, int b);
+</code></pre>
+
+    <h2>4. Compilation et Liaison</h2>
+    <p>Pour compiler et lier ces fichiers, vous pouvez utiliser les commandes suivantes dans un terminal :</p>
+    <pre><code>gcc -c utils.c   # Compile utils.c en utils.o
+gcc -c main.c     # Compile main.c en main.o
+gcc -o mon_programme main.o utils.o  # Lie main.o et utils.o pour créer l'exécutable
+</code></pre>
+
+    <h2>5. Exécution du Programme</h2>
+    <p>Après avoir compilé et lié le programme, vous pouvez l'exécuter avec la commande :</p>
+    <pre><code>./mon_programme
+</code></pre>
+
+    <h2>Conclusion</h2>
+    <p>La compilation et l'édition de liens sont des étapes cruciales dans le développement de programmes en C. Comprendre ces processus vous aidera à mieux gérer votre code et à résoudre les problèmes liés à la compilation.</p>
+</body>
+</html>
