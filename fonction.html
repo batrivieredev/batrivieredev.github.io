@@ -74,7 +74,7 @@
 
     <h2>Exemple de fonction simple</h2>
     <p>Voici un exemple d'une fonction qui additionne deux nombres, avec une explication de chaque ligne :</p>
-    <code>
+    <pre><code>
 #include &lt;stdio.h&gt; // Inclusion de la bibliothèque standard pour l'entrée et la sortie.
 
 int additionner(int a, int b) { // Déclare une fonction qui prend deux entiers en paramètres et retourne un entier.
@@ -88,7 +88,7 @@ int main() { // Début du programme principal.
     printf("La somme de %d et %d est %d\\n", x, y, resultat); // Affiche le résultat formaté.
     return 0; // Indique que le programme s'est terminé correctement.
 }
-    </code>
+    </code></pre>
     <div class="explanation">
         <ul>
             <li><strong>#include &lt;stdio.h&gt; :</strong> Permet d'utiliser les fonctions standard telles que <code>printf</code></li>
@@ -105,8 +105,7 @@ int main() { // Début du programme principal.
 
     <h2>Exemple de fonction avec des paramètres par référence</h2>
     <p>Voici un exemple d'une fonction qui échange deux valeurs, avec une explication :</p>
-    <code>
-#include &lt;stdio.h&gt; // Inclusion de la bibliothèque standard pour l'entrée et la sortie.
+<pre><code>#include &lt;stdio.h&gt; // Inclusion de la bibliothèque standard pour l'entrée et la sortie.
 
 void echanger(int *a, int *b) { // Déclare une fonction prenant deux pointeurs en paramètres.
     int temp = *a; // Stocke la valeur pointée par a dans temp.
@@ -121,8 +120,7 @@ int main() { // Début du programme principal.
     echanger(&x, &y); // Appelle la fonction avec les adresses de x et y.
     printf("Après échange : x = %d, y = %d\\n", x, y); // Affiche les valeurs après l'échange.
     return 0; // Indique que le programme s'est terminé correctement.
-}
-    </code>
+}</code></pre>
     <div class="explanation">
         <ul>
             <li><strong>#include &lt;stdio.h&gt; :</strong> Permet d'utiliser <code>printf</code></li>
