@@ -186,7 +186,7 @@ header .navbar-menu .nav {
 	}
 
 code {
-		font-family: "Courier New", Courier, monospace;
+		font-family: "Courier New", 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif, monospace;
 		color: #00b3ff;
 		background-color: #000000;
 	}
