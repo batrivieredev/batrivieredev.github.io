@@ -1,0 +1,103 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+</head>
+<body>
+    <!-- Placeholder pour le header -->
+    <div id="header"></div>
+
+
+    <script>
+        // Charger le contenu du fichier header.html
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Site sur le C - batrivieredev</title>
+	<link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+
+<div class="content"> &nbsp; </div>
+
+
+
+<body>
+    <h1>Ressources pour Python</h1>
+    <p>
+        Python est un langage de programmation polyvalent et populaire, connu pour sa syntaxe claire et sa vaste communauté. Voici une collection de ressources pour apprendre, pratiquer et maîtriser Python.
+    </p>
+
+    <h2>1. Guides et tutoriels officiels</h2>
+    <ul>
+        <li><a href="https://www.python.org/doc/" target="_blank">Documentation officielle de Python</a> - Guide complet sur les fonctionnalités du langage.</li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank">Tutoriel officiel Python</a> - Une introduction détaillée pour les débutants.</li>
+        <li><a href="https://realpython.com/" target="_blank">Real Python</a> - Des articles approfondis et des cours interactifs.</li>
+    </ul>
+
+    <h2>2. Plateformes interactives pour apprendre Python</h2>
+    <ul>
+        <li><a href="https://www.codecademy.com/learn/learn-python-3" target="_blank">Codecademy - Learn Python 3</a> - Cours interactifs pour débutants.</li>
+        <li><a href="https://www.datacamp.com/" target="_blank">DataCamp</a> - Formation en Python pour la science des données.</li>
+        <li><a href="https://www.kaggle.com/learn/python" target="_blank">Kaggle Learn Python</a> - Formation pratique avec des projets interactifs.</li>
+        <li><a href="https://www.edx.org/course/introduction-computer-science-harvardx-cs50x" target="_blank">CS50’s Introduction to Computer Science (Harvard)</a> - Cours gratuit avec une introduction à Python.</li>
+    </ul>
+
+    <h2>3. Livres recommandés</h2>
+    <ul>
+        <li><a href="https://automatetheboringstuff.com/" target="_blank">Automate the Boring Stuff with Python</a> - Idéal pour apprendre des applications pratiques.</li>
+        <li><a href="https://greenteapress.com/wp/think-python-2e/" target="_blank">Think Python</a> - Une approche basée sur la résolution de problèmes.</li>
+        <li><a href="https://www.oreilly.com/library/view/fluent-python/9781491946237/" target="_blank">Fluent Python</a> - Guide avancé pour exploiter les fonctionnalités de Python.</li>
+    </ul>
+
+    <h2>4. Outils et bibliothèques populaires</h2>
+    <ul>
+        <li><a href="https://numpy.org/" target="_blank">NumPy</a> - Traitement de tableaux multidimensionnels et mathématiques.</li>
+        <li><a href="https://pandas.pydata.org/" target="_blank">Pandas</a> - Analyse et manipulation de données.</li>
+        <li><a href="https://matplotlib.org/" target="_blank">Matplotlib</a> - Visualisation de données avec des graphiques.</li>
+        <li><a href="https://scikit-learn.org/" target="_blank">Scikit-Learn</a> - Machine Learning en Python.</li>
+        <li><a href="https://flask.palletsprojects.com/" target="_blank">Flask</a> - Framework léger pour développer des applications web.</li>
+    </ul>
+
+    <h2>5. Exercices pratiques et défis</h2>
+    <ul>
+        <li><a href="https://www.hackerrank.com/domains/tutorials/10-days-of-python" target="_blank">10 Days of Python (HackerRank)</a> - Défis interactifs pour débutants et intermédiaires.</li>
+        <li><a href="https://www.codewars.com/" target="_blank">Codewars</a> - Résolvez des défis Python et comparez vos solutions.</li>
+        <li><a href="https://leetcode.com/" target="_blank">LeetCode</a> - Défis de programmation pour préparer les entretiens techniques.</li>
+    </ul>
+
+    <h2>6. Communautés et forums</h2>
+    <ul>
+        <li><a href="https://stackoverflow.com/questions/tagged/python" target="_blank">Stack Overflow - Python</a> - Posez vos questions ou cherchez des réponses.</li>
+        <li><a href="https://www.reddit.com/r/Python/" target="_blank">Reddit: r/Python</a> - Discussions, annonces, et ressources Python.</li>
+        <li><a href="https://discuss.python.org/" target="_blank">Python Discussion Forum</a> - Forum officiel de la communauté Python.</li>
+    </ul>
+
+    <h2>Conclusion</h2>
+    <p>
+        Que vous soyez débutant ou programmeur avancé, ces ressources vous aideront à maîtriser Python et à découvrir tout son potentiel. Prenez le temps de pratiquer et de rejoindre les communautés pour apprendre efficacement.
+    </p>
+
+    <footer>
+        <p>&nbsp;</p>
+		<p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
+    </footer>
+
+</body>
+</html>
+
+

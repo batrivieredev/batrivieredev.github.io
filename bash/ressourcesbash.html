@@ -1,0 +1,106 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+</head>
+<body>
+    <!-- Placeholder pour le header -->
+    <div id="header"></div>
+
+
+    <script>
+        // Charger le contenu du fichier header.html
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Site sur le C - batrivieredev</title>
+	<link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+
+<div class="content"> &nbsp; </div>
+
+
+
+
+
+<body>
+    <h1>Ressources sur Bash</h1>
+    <p>
+        Bash (Bourne Again SHell) est l'un des interpréteurs de commandes les plus utilisés sous Linux et Unix. Voici une liste de ressources pour apprendre Bash, maîtriser ses commandes, et découvrir des astuces pour l'utiliser efficacement.
+    </p>
+
+    <h2>1. Guides d'introduction</h2>
+    <ul>
+        <li><a href="https://www.gnu.org/software/bash/" target="_blank">Site officiel de Bash</a> - Documentation officielle et informations sur les versions.</li>
+        <li><a href="https://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO.html" target="_blank">Bash Programming Introduction HOWTO</a> - Un guide détaillé pour débuter avec Bash.</li>
+        <li><a href="https://linuxhint.com/bash_scripting_tutorial/" target="_blank">Bash Scripting Tutorial</a> - Un tutoriel interactif pour apprendre le scripting Bash.</li>
+    </ul>
+
+    <h2>2. Références des commandes Bash</h2>
+    <ul>
+        <li><a href="https://ss64.com/bash/" target="_blank">SS64 Bash Commands</a> - Une liste complète des commandes Bash avec des exemples.</li>
+        <li><a href="https://explainshell.com/" target="_blank">ExplainShell</a> - Comprendre les commandes Bash ligne par ligne.</li>
+        <li><a href="https://devhints.io/bash" target="_blank">Bash Cheatsheet</a> - Une fiche de référence rapide sur Bash.</li>
+    </ul>
+
+    <h2>3. Livres et cours en ligne</h2>
+    <ul>
+        <li><a href="https://linuxcommand.org/" target="_blank">The Linux Command Line</a> - Un livre gratuit pour maîtriser la ligne de commande Linux, y compris Bash.</li>
+        <li><a href="https://www.udemy.com/course/bash-scripting/" target="_blank">Bash Scripting and Shell Programming (Udemy)</a> - Un cours vidéo complet sur Udemy.</li>
+        <li><a href="https://www.codecademy.com/learn/learn-the-command-line" target="_blank">Learn the Command Line (Codecademy)</a> - Un cours interactif pour les bases de la ligne de commande.</li>
+    </ul>
+
+    <h2>4. Outils et extensions pour Bash</h2>
+    <ul>
+        <li><a href="https://ohmyz.sh/" target="_blank">Oh My Zsh</a> - Une alternative populaire à Bash avec des fonctionnalités avancées.</li>
+        <li><a href="https://bash-it.github.io/" target="_blank">Bash-it</a> - Un framework pour Bash qui ajoute des thèmes, des alias, et plus.</li>
+        <li><a href="https://github.com/scop/bash-completion" target="_blank">Bash-Completion</a> - Un plugin pour améliorer l'autocomplétion des commandes Bash.</li>
+    </ul>
+
+    <h2>5. Exercices pratiques</h2>
+    <ul>
+        <li><a href="https://www.hackerrank.com/domains/tutorials/10-days-of-bash" target="_blank">10 Days of Bash (HackerRank)</a> - Des exercices interactifs pour pratiquer Bash.</li>
+        <li><a href="https://www.practicepython.org/" target="_blank">Practice Python</a> - Bien que centré sur Python, ce site propose des exercices pour améliorer vos compétences en scripting.</li>
+        <li><a href="https://codewars.com/" target="_blank">Codewars</a> - Résolvez des défis Bash et comparez vos solutions avec d'autres utilisateurs.</li>
+    </ul>
+
+    <h2>6. Forums et communautés</h2>
+    <ul>
+        <li><a href="https://stackoverflow.com/questions/tagged/bash" target="_blank">Stack Overflow - Bash</a> - Posez vos questions ou trouvez des solutions aux problèmes liés à Bash.</li>
+        <li><a href="https://www.reddit.com/r/commandline/" target="_blank">Reddit: r/commandline</a> - Discussions sur Bash et les outils de ligne de commande.</li>
+        <li><a href="https://askubuntu.com/" target="_blank">Ask Ubuntu</a> - Une communauté centrée sur les utilisateurs d'Ubuntu et de Bash.</li>
+    </ul>
+
+    <h2>Conclusion</h2>
+    <p>
+        Bash est un outil incroyablement puissant pour automatiser des tâches, manipuler des fichiers, et interagir avec le système d'exploitation. Avec ces ressources, vous aurez tout ce qu'il faut pour commencer et progresser rapidement.
+    </p>
+
+    <div class="footer">
+        © 2024. Tous droits réservés.
+    </div>
+
+
+	<footer>
+        <p>&nbsp;</p>
+		<p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
+    </footer>
+
+</body>
+</html>
+
