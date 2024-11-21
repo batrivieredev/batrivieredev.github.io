@@ -16,7 +16,7 @@
 
     <script>
         // Charger le contenu du fichier header.html
-        fetch("header.html")
+        fetch("/header.html")
             .then(response => response.text())
             .then(data => document.getElementById("header").innerHTML = data)
             .catch(error => console.error('Erreur lors du chargement du header:', error));
@@ -34,72 +34,71 @@
 
 <div class="content"> &nbsp; </div>
 
+<body>
+    <h1>Introduction aux Langages de Programmation</h1>
+    <p>
+        Les langages de programmation sont les outils fondamentaux permettant aux humains de communiquer avec les machines.
+        Ils servent à écrire des instructions que les ordinateurs peuvent comprendre et exécuter pour accomplir des tâches
+        spécifiques, qu'il s'agisse de calculs complexes, de gestion de données ou de création d'applications interactives.
+    </p>
+    <p>
+        Un langage de programmation est constitué d’un ensemble de règles (<strong>sa syntaxe</strong>) et d’un vocabulaire spécifique
+        qui définissent comment écrire des programmes. Chaque langage a ses propres caractéristiques, adaptées à des contextes et des
+        objectifs différents. Par exemple, certains langages sont conçus pour gérer des systèmes complexes (comme le C ou le Java),
+        tandis que d'autres sont plus orientés vers la création rapide d'applications web (comme JavaScript ou Python).
+    </p>
 
+    <h2>Classification des langages de programmation</h2>
+    <ul>
+        <li>
+            <strong>Langages de bas niveau :</strong> Ces langages, comme l’<em>assembleur</em>, sont proches du langage machine.
+            Ils offrent un contrôle précis des ressources matérielles, mais sont souvent difficiles à maîtriser.
+        </li>
+        <li>
+            <strong>Langages de haut niveau :</strong> Plus proches de la langue humaine, ces langages (comme Python, Java, ou C++)
+            permettent aux développeurs d’écrire du code de manière plus intuitive. Ils sont souvent accompagnés de bibliothèques
+            et de frameworks facilitant le développement.
+        </li>
+        <li>
+            <strong>Langages compilés et interprétés :</strong>
+            <ul>
+                <li>
+                    <em>Langages compilés</em> (ex : C, Rust) nécessitent un processus de compilation qui transforme le code source
+                    en un programme exécutable.
+                </li>
+                <li>
+                    <em>Langages interprétés</em> (ex : Python, JavaScript) sont directement exécutés par un interpréteur sans étape
+                    de compilation préalable.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Langages spécifiques au domaine :</strong> Certains langages, comme SQL pour la gestion des bases de données
+            ou MATLAB pour les calculs mathématiques, sont conçus pour des usages spécialisés.
+        </li>
+    </ul>
 
+    <h2>Importance des langages de programmation</h2>
+    <p>
+        Les langages de programmation jouent un rôle clé dans :
+    </p>
+    <ul>
+        <li><strong>Le développement logiciel :</strong> Ils permettent de créer des applications mobiles, des logiciels métiers ou des jeux vidéo.</li>
+        <li><strong>L’automatisation des tâches :</strong> Avec des langages comme Python, il est possible d'automatiser des processus complexes.</li>
+        <li><strong>La manipulation de données :</strong> Des langages comme R ou Python sont largement utilisés dans le domaine de la science des données.</li>
+        <li><strong>L’innovation technologique :</strong> Des technologies modernes comme l’intelligence artificielle et l’Internet des objets reposent sur des langages comme Python, Java ou C++.</li>
+    </ul>
 
+    <h2>Conclusion</h2>
+    <p>
+        Les langages de programmation sont à la base de toutes les technologies modernes. Apprendre à programmer ouvre la porte
+        à de nombreuses opportunités, qu'il s'agisse de résoudre des problèmes, de créer des solutions innovantes ou de contribuer
+        au développement des outils numériques de demain.
+    </p>
 
-    <body>
-		<h1>Introduction à la Programmation en Langage C</h1>
-		<p>
-			Le langage <strong>C</strong> est un langage de programmation polyvalent et structuré, créé dans les années 1970 par
-			<em>Dennis Ritchie</em> au sein des laboratoires Bell. Initialement conçu pour développer le système
-			d'exploitation UNIX, le C s'est rapidement imposé comme l'un des langages les plus influents et populaires
-			dans l'histoire de l'informatique.
-		</p>
-		<p>
-			Le C est souvent qualifié de <strong>langage de bas niveau à haut potentiel</strong>. Bien qu'il permette
-			une manipulation fine des ressources matérielles, il conserve une syntaxe lisible et simple, le rendant idéal
-			pour une grande variété de tâches, notamment :
-		</p>
-		<ul>
-			<li>Le développement de systèmes d'exploitation (par exemple : UNIX, Linux, Windows).</li>
-			<li>La programmation de logiciels embarqués dans les appareils électroniques.</li>
-			<li>La conception d'applications complexes, comme des bases de données ou des compilateurs.</li>
-		</ul>
-
-		<h2>Caractéristiques principales du C</h2>
-		<ul>
-			<li>
-				<strong>Performances et efficacité :</strong> Le C est réputé pour produire du code rapide et efficace.
-				Il permet un contrôle précis sur la mémoire et le matériel grâce à l’utilisation de pointeurs et
-				d’instructions proches de l’architecture matérielle.
-			</li>
-			<li>
-				<strong>Portabilité :</strong> Les programmes écrits en C peuvent être compilés sur une grande variété
-				de plateformes avec peu ou pas de modifications, ce qui en fait un choix privilégié pour le développement
-				multiplateforme.
-			</li>
-			<li>
-				<strong>Simplicité et modularité :</strong> Le C utilise une approche structurée qui permet aux développeurs
-				de diviser le code en fonctions modulaires, facilitant ainsi la maintenance et la réutilisation.
-			</li>
-			<li>
-				<strong>Langage de référence :</strong> De nombreux langages modernes, comme C++, Java, Python, et même Go,
-				ont été influencés par le C, ce qui en fait un excellent point de départ pour apprendre la programmation.
-			</li>
-		</ul>
-
-		<h2>Pourquoi apprendre le C ?</h2>
-		<ul>
-			<li>
-				<strong>Bases solides :</strong> Comprendre le C aide à mieux saisir les concepts fondamentaux de
-				l’informatique, comme la gestion de la mémoire, les algorithmes, et les structures de données.
-			</li>
-			<li>
-				<strong>Compétence recherchée :</strong> Le C reste un langage clé dans les secteurs du développement système,
-				de la programmation embarquée, et de la cybersécurité.
-			</li>
-			<li>
-				<strong>Polyvalence :</strong> Que ce soit pour des projets simples ou pour des applications critiques, le C
-				offre une flexibilité inégalée.
-			</li>
-		</ul>
-		<p>
-			En résumé, le langage C est une pierre angulaire du développement informatique. Il permet de construire des bases
-			solides pour devenir un programmeur compétent, capable de résoudre des problèmes complexes tout en maîtrisant les
-			rouages du matériel informatique. Apprendre le C, c’est apprendre à penser comme un développeur.
-		</p>
-
+    <div class="footer">
+        © 2024. Tous droits réservés.
+    </div>
 
 
 	<footer>
@@ -109,3 +108,4 @@
 
 </body>
 </html>
+

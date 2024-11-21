@@ -1,0 +1,171 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+</head>
+<body>
+    <!-- Placeholder pour le header -->
+    <div id="header"></div>
+
+
+    <script>
+        // Charger le contenu du fichier header.html
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Site sur le C - batrivieredev</title>
+	<link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+
+<div class="content"> &nbsp; </div>
+
+
+
+
+<body>
+    <h1>Introduction aux Éditeurs de Texte : Emacs, Vi et Nano</h1>
+    <p>
+        Les éditeurs de texte comme <strong>Emacs</strong>, <strong>Vi</strong> et <strong>Nano</strong> sont des outils essentiels pour les développeurs et les administrateurs système.
+        Ils permettent de créer et de modifier des fichiers texte directement à partir du terminal.
+    </p>
+
+    <h2>1. Emacs</h2>
+    <p>
+        <strong>Emacs</strong> est un éditeur de texte puissant et extensible, souvent utilisé pour le développement logiciel.
+    </p>
+    <h3>Commandes principales</h3>
+    <ul>
+        <li>
+            <strong>Ouvrir un fichier :</strong>
+            <code>emacs fichier.txt</code>
+        </li>
+        <li>
+            <strong>Enregistrer un fichier :</strong>
+            <code>CTRL + x, CTRL + s</code>
+        </li>
+        <li>
+            <strong>Quitter Emacs :</strong>
+            <code>CTRL + x, CTRL + c</code>
+        </li>
+        <li>
+            <strong>Annuler une action :</strong>
+            <code>CTRL + /</code>
+        </li>
+        <li>
+            <strong>Rechercher dans un fichier :</strong>
+            <code>CTRL + s</code>
+        </li>
+    </ul>
+    <p>Emacs est hautement configurable et prend en charge de nombreux plugins et extensions.</p>
+
+    <h2>2. Vi</h2>
+    <p>
+        <strong>Vi</strong> (et sa version améliorée Vim) est un éditeur très populaire dans les environnements Unix/Linux. Il est rapide mais demande un temps d'apprentissage.
+    </p>
+    <h3>Modes principaux</h3>
+    <p>Vi fonctionne avec deux modes principaux :</p>
+    <ul>
+        <li>
+            <strong>Mode commande :</strong> Utilisé pour naviguer et manipuler le texte (touche <code>ESC</code> pour activer).
+        </li>
+        <li>
+            <strong>Mode insertion :</strong> Permet de saisir du texte (touche <code>i</code> pour activer).
+        </li>
+    </ul>
+    <h3>Commandes principales</h3>
+    <ul>
+        <li>
+            <strong>Ouvrir un fichier :</strong>
+            <code>vi fichier.txt</code>
+        </li>
+        <li>
+            <strong>Enregistrer et quitter :</strong>
+            <code>:wq</code>
+        </li>
+        <li>
+            <strong>Quitter sans enregistrer :</strong>
+            <code>:q!</code>
+        </li>
+        <li>
+            <strong>Copier une ligne :</strong>
+            <code>yy</code>
+        </li>
+        <li>
+            <strong>Coller une ligne copiée :</strong>
+            <code>p</code>
+        </li>
+        <li>
+            <strong>Rechercher un mot :</strong>
+            <code>/mot</code>
+        </li>
+    </ul>
+    <p>Vi est connu pour sa légèreté et est souvent disponible par défaut sur tous les systèmes Unix/Linux.</p>
+
+    <h2>3. Nano</h2>
+    <p>
+        <strong>Nano</strong> est un éditeur de texte simple et facile à utiliser, parfait pour les débutants.
+    </p>
+    <h3>Commandes principales</h3>
+    <ul>
+        <li>
+            <strong>Ouvrir un fichier :</strong>
+            <code>nano fichier.txt</code>
+        </li>
+        <li>
+            <strong>Enregistrer un fichier :</strong>
+            <code>CTRL + O</code>
+        </li>
+        <li>
+            <strong>Quitter Nano :</strong>
+            <code>CTRL + X</code>
+        </li>
+        <li>
+            <strong>Couper une ligne :</strong>
+            <code>CTRL + K</code>
+        </li>
+        <li>
+            <strong>Coller une ligne :</strong>
+            <code>CTRL + U</code>
+        </li>
+        <li>
+            <strong>Rechercher un mot :</strong>
+            <code>CTRL + W</code>
+        </li>
+    </ul>
+    <p>Nano est idéal pour des modifications rapides et nécessite très peu de temps d'apprentissage.</p>
+
+    <h2>Conclusion</h2>
+    <p>
+        Que vous choisissiez Emacs, Vi ou Nano, chaque éditeur a ses forces et ses faiblesses. Emacs est puissant et configurable,
+        Vi est rapide et léger, tandis que Nano est simple et intuitif. Le choix dépend de vos besoins et de votre niveau de confort.
+    </p>
+
+    <div class="footer">
+        © 2024. Tous droits réservés.
+    </div>
+</body>
+</html>
+
+
+<footer>
+    <p>&nbsp;</p>
+    <p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
+</footer>
+
+</body>
+</html>

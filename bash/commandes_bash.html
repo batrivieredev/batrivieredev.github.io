@@ -1,0 +1,218 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+</head>
+<body>
+    <!-- Placeholder pour le header -->
+    <div id="header"></div>
+
+
+    <script>
+        // Charger le contenu du fichier header.html
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Site sur le C - batrivieredev</title>
+	<link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+
+<div class="content"> &nbsp; </div>
+
+
+
+<body>
+    <h1>Liste des Commandes Bash</h1>
+    <p>
+        Voici une liste des commandes Bash les plus courantes, accompagnées d'une brève description et d'exemples pratiques.
+        Ces commandes permettent d'interagir avec le système, de gérer des fichiers, de naviguer dans les répertoires, et plus encore.
+    </p>
+
+    <h2>Commandes de navigation</h2>
+    <ul>
+        <li>
+            <strong>pwd</strong> - Affiche le répertoire de travail actuel.
+            <code>pwd</code>
+        </li>
+        <li>
+            <strong>ls</strong> - Liste les fichiers et dossiers du répertoire courant.
+            <code>
+# Liste tous les fichiers
+ls
+
+# Liste avec détails
+ls -l
+            </code>
+        </li>
+        <li>
+            <strong>cd</strong> - Change le répertoire courant.
+            <code>
+# Aller dans le répertoire "Documents"
+cd Documents
+
+# Revenir au répertoire parent
+cd ..
+            </code>
+        </li>
+    </ul>
+
+    <h2>Commandes de gestion de fichiers</h2>
+    <ul>
+        <li>
+            <strong>touch</strong> - Crée un fichier vide.
+            <code>
+# Crée un fichier nommé fichier.txt
+touch fichier.txt
+            </code>
+        </li>
+        <li>
+            <strong>mkdir</strong> - Crée un répertoire.
+            <code>
+# Crée un dossier appelé "mon_dossier"
+mkdir mon_dossier
+            </code>
+        </li>
+        <li>
+            <strong>cp</strong> - Copie des fichiers ou des dossiers.
+            <code>
+# Copie fichier1.txt en fichier2.txt
+cp fichier1.txt fichier2.txt
+
+# Copie tout le contenu du dossier1 dans dossier2
+cp -r dossier1/ dossier2/
+            </code>
+        </li>
+        <li>
+            <strong>mv</strong> - Déplace ou renomme des fichiers.
+            <code>
+# Renommer fichier.txt en nouveau_nom.txt
+mv fichier.txt nouveau_nom.txt
+
+# Déplacer fichier.txt vers le dossier "Documents"
+mv fichier.txt Documents/
+            </code>
+        </li>
+        <li>
+            <strong>rm</strong> - Supprime des fichiers ou des répertoires.
+            <code>
+# Supprimer fichier.txt
+rm fichier.txt
+
+# Supprimer un répertoire et son contenu
+rm -r mon_dossier/
+            </code>
+        </li>
+    </ul>
+
+    <h2>Commandes d'affichage et de lecture de fichiers</h2>
+    <ul>
+        <li>
+            <strong>cat</strong> - Affiche le contenu d'un fichier.
+            <code>
+# Affiche le contenu de fichier.txt
+cat fichier.txt
+            </code>
+        </li>
+        <li>
+            <strong>more</strong> / <strong>less</strong> - Affiche un fichier page par page.
+            <code>
+# Lire fichier.txt page par page
+less fichier.txt
+            </code>
+        </li>
+        <li>
+            <strong>head</strong> / <strong>tail</strong> - Affiche les premières ou dernières lignes d'un fichier.
+            <code>
+# Les 10 premières lignes de fichier.txt
+head fichier.txt
+
+# Les 5 dernières lignes
+tail -n 5 fichier.txt
+            </code>
+        </li>
+    </ul>
+
+    <h2>Commandes système</h2>
+    <ul>
+        <li>
+            <strong>echo</strong> - Affiche un texte ou une variable.
+            <code>
+# Affiche "Bonjour, monde !"
+echo "Bonjour, monde !"
+            </code>
+        </li>
+        <li>
+            <strong>whoami</strong> - Affiche l'utilisateur actuel.
+            <code>whoami</code>
+        </li>
+        <li>
+            <strong>uname</strong> - Affiche des informations sur le système.
+            <code>
+# Informations de base sur le système
+uname
+
+# Détails supplémentaires
+uname -a
+            </code>
+        </li>
+        <li>
+            <strong>top</strong> - Affiche les processus en cours.
+            <code>top</code>
+        </li>
+        <li>
+            <strong>kill</strong> - Termine un processus.
+            <code>
+# Termine un processus avec l'ID 1234
+kill 1234
+            </code>
+        </li>
+    </ul>
+
+    <h2>Commandes réseau</h2>
+    <ul>
+        <li>
+            <strong>ping</strong> - Vérifie la connectivité réseau avec un hôte.
+            <code>ping google.com</code>
+        </li>
+        <li>
+            <strong>ifconfig</strong> - Affiche les configurations réseau (requiert des privilèges root).
+            <code>ifconfig</code>
+        </li>
+        <li>
+            <strong>scp</strong> - Copie des fichiers vers/depuis une machine distante.
+            <code>
+# Copie fichier.txt vers un serveur distant
+scp fichier.txt utilisateur@serveur:/chemin/du/dossier
+            </code>
+        </li>
+    </ul>
+
+    <h2>Conclusion</h2>
+    <p>
+        Cette liste est une introduction aux commandes Bash les plus courantes. Il existe bien d'autres commandes et options
+        que vous pouvez explorer en consultant la documentation officielle ou en utilisant <code>man commande</code>.
+    </p>
+
+    
+	<footer>
+        <p>&nbsp;</p>
+		<p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
+    </footer>
+
+</body>
+</html>

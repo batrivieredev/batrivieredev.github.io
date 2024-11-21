@@ -1,0 +1,149 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+</head>
+<body>
+    <!-- Placeholder pour le header -->
+    <div id="header"></div>
+
+
+    <script>
+        // Charger le contenu du fichier header.html
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Site sur le C - batrivieredev</title>
+	<link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+
+<div class="content"> &nbsp; </div>
+
+
+
+<body>
+    <h1>Introduction à la Syntaxe Bash</h1>
+    <p>
+        Bash (Bourne Again Shell) est un interpréteur de commandes utilisé dans les systèmes d'exploitation Unix/Linux. Il permet d'exécuter des commandes, d'écrire des scripts et d'automatiser des tâches. La compréhension de la syntaxe Bash est essentielle pour exploiter pleinement les fonctionnalités d'un terminal.
+    </p>
+
+    <h2>1. Commandes de base</h2>
+    <ul>
+        <li>
+            <strong>Afficher un message :</strong>
+            <code>echo "Bonjour, monde!"</code>
+        </li>
+        <li>
+            <strong>Changer de répertoire :</strong>
+            <code>cd /chemin/du/dossier</code>
+        </li>
+        <li>
+            <strong>Lister les fichiers :</strong>
+            <code>ls -l</code>
+        </li>
+        <li>
+            <strong>Créer un fichier vide :</strong>
+            <code>touch fichier.txt</code>
+        </li>
+    </ul>
+
+    <h2>2. Variables en Bash</h2>
+    <p>Les variables permettent de stocker des valeurs temporaires pour les utiliser dans des scripts.</p>
+    <h3>Exemple :</h3>
+    <code>
+# Déclaration d'une variable
+nom="Alice"
+
+# Utilisation de la variable
+echo "Bonjour, $nom!"
+    </code>
+
+    <h2>3. Structures conditionnelles</h2>
+    <p>Bash permet d'exécuter des blocs de code conditionnellement grâce aux instructions <code>if</code>, <code>elif</code>, et <code>else</code>.</p>
+    <h3>Exemple :</h3>
+    <code>
+# Vérifier si un fichier existe
+if [ -f fichier.txt ]; then
+    echo "Le fichier existe."
+else
+    echo "Le fichier n'existe pas."
+fi
+    </code>
+
+    <h2>4. Boucles</h2>
+    <p>Les boucles permettent de répéter une action plusieurs fois. Les deux principales boucles en Bash sont <code>for</code> et <code>while</code>.</p>
+    <h3>Exemples :</h3>
+    <code>
+# Boucle for
+for i in {1..5}; do
+    echo "Compteur : $i"
+done
+
+# Boucle while
+compteur=1
+while [ $compteur -le 5 ]; do
+    echo "Compteur : $compteur"
+    compteur=$((compteur + 1))
+done
+    </code>
+
+    <h2>5. Fonctions en Bash</h2>
+    <p>Les fonctions permettent de regrouper un ensemble de commandes pour les réutiliser facilement.</p>
+    <h3>Exemple :</h3>
+    <code>
+# Déclaration d'une fonction
+dire_bonjour() {
+    echo "Bonjour, $1!"
+}
+
+# Appel de la fonction avec un argument
+dire_bonjour "Alice"
+    </code>
+
+    <h2>6. Redirections et Pipes</h2>
+    <ul>
+        <li><strong>Rediriger la sortie vers un fichier :</strong>
+            <code>commande > fichier.txt</code>
+        </li>
+        <li><strong>Ajouter à un fichier existant :</strong>
+            <code>commande >> fichier.txt</code>
+        </li>
+        <li><strong>Utiliser un pipe pour connecter deux commandes :</strong>
+            <code>commande1 | commande2</code>
+        </li>
+    </ul>
+    <h3>Exemple :</h3>
+    <code>
+# Trouver un mot dans un fichier et afficher uniquement les résultats correspondants
+cat fichier.txt | grep "mot"
+    </code>
+
+    <h2>Conclusion</h2>
+    <p>
+        Bash est un outil puissant pour les développeurs et les administrateurs système. En combinant les commandes, les variables, les boucles, et les redirections, vous pouvez automatiser des tâches complexes avec des scripts simples. N'hésitez pas à pratiquer et à explorer la documentation pour aller plus loin.
+    </p>
+
+
+
+<footer>
+    <p>&nbsp;</p>
+    <p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
+</footer>
+
+</body>
+</html>
