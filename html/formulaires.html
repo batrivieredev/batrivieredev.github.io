@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaires HTML</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Les Formulaires HTML</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Qu'est-ce qu'un formulaire HTML ?</h2>
+            <p>
+                Les formulaires HTML permettent de collecter des données auprès des utilisateurs. Ils contiennent divers champs
+                d'entrée tels que des zones de texte, des cases à cocher, des boutons radio, des menus déroulants et des boutons
+                de soumission.
+            </p>
+        </section>
+
+        <section>
+            <h2>Structure d'un formulaire</h2>
+            <p>
+                Un formulaire est défini par la balise <code>&lt;form&gt;</code> et peut contenir plusieurs champs d'entrée.
+                Il utilise les attributs <code>action</code> (URL de destination) et <code>method</code> (GET ou POST) pour
+                envoyer les données.
+            </p>
+            <pre>
+                <code>
+                &lt;form action="/submit" method="post"&gt;
+                    &lt;!-- Champs du formulaire --&gt;
+                &lt;/form&gt;
+                </code>
+            </pre>
+        </section>
+
+        <section>
+            <h2>Exemples de champs de formulaire</h2>
+
+            <h3>Champ de texte</h3>
+            <pre>
+                <code>
+                &lt;label for="name"&gt;Nom :&lt;/label&gt;
+                &lt;input type="text" id="name" name="name" placeholder="Votre nom" required&gt;
+                </code>
+            </pre>
+
+            <h3>Champ email</h3>
+            <pre>
+                <code>
+                &lt;label for="email"&gt;Email :&lt;/label&gt;
+                &lt;input type="email" id="email" name="email" placeholder="exemple@mail.com" required&gt;
+                </code>
+            </pre>
+
+            <h3>Mot de passe</h3>
+            <pre>
+                <code>
+                &lt;label for="password"&gt;Mot de passe :&lt;/label&gt;
+                &lt;input type="password" id="password" name="password" required&gt;
+                </code>
+            </pre>
+
+            <h3>Cases à cocher</h3>
+            <pre>
+                <code>
+                &lt;input type="checkbox" id="newsletter" name="newsletter"&gt;
+                &lt;label for="newsletter"&gt;S'abonner à la newsletter&lt;/label&gt;
+                </code>
+            </pre>
+
+            <h3>Boutons radio</h3>
+            <pre>
+                <code>
+                &lt;input type="radio" id="homme" name="genre" value="homme"&gt;
+                &lt;label for="homme"&gt;Homme&lt;/label&gt;
+                &lt;input type="radio" id="femme" name="genre" value="femme"&gt;
+                &lt;label for="femme"&gt;Femme&lt;/label&gt;
+                </code>
+            </pre>
+
+            <h3>Liste déroulante</h3>
+            <pre>
+                <code>
+                &lt;label for="pays"&gt;Pays :&lt;/label&gt;
+                &lt;select id="pays" name="pays"&gt;
+                    &lt;option value="france"&gt;France&lt;/option&gt;
+                    &lt;option value="canada"&gt;Canada&lt;/option&gt;
+                    &lt;option value="belgique"&gt;Belgique&lt;/option&gt;
+                &lt;/select&gt;
+                </code>
+            </pre>
+
+            <h3>Zone de texte</h3>
+            <pre>
+                <code>
+                &lt;label for="message"&gt;Message :&lt;/label&gt;
+                &lt;textarea id="message" name="message" rows="4" cols="30" placeholder="Votre message..."&gt;&lt;/textarea&gt;
+                </code>
+            </pre>
+
+            <h3>Bouton de soumission</h3>
+            <pre>
+                <code>
+                &lt;input type="submit" value="Envoyer"&gt;
+                </code>
+            </pre>
+        </section>
+
+        <section>
+            <h2>Exemple de formulaire complet</h2>
+            <pre>
+                <code>
+                &lt;form action="/submit" method="post"&gt;
+                    &lt;label for="name"&gt;Nom :&lt;/label&gt;
+                    &lt;input type="text" id="name" name="name" required&gt;&lt;br&gt;&lt;br&gt;
+
+                    &lt;label for="email"&gt;Email :&lt;/label&gt;
+                    &lt;input type="email" id="email" name="email" required&gt;&lt;br&gt;&lt;br&gt;
+
+                    &lt;label for="password"&gt;Mot de passe :&lt;/label&gt;
+                    &lt;input type="password" id="password" name="password" required&gt;&lt;br&gt;&lt;br&gt;
+
+                    &lt;input type="submit" value="Envoyer"&gt;
+                &lt;/form&gt;
+                </code>
+            </pre>
+        </section>
+    </main>
+
+</body>
+</html>
