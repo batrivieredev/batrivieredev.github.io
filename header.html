@@ -17,6 +17,7 @@
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="/editors/commandes_base.html">📝 Commandes de base</a></li>
             <li><a class="dropdown-item" href="/bash/bashrc_configuration.html">⚙️ Configuration .bashrc</a></li>
+            <li><a class="dropdown-item" href="/bash/alias.html">🏷️ Alias Bash</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><h6 class="dropdown-header">Éditeurs de texte</h6></li>
             <li><a class="dropdown-item" href="/editors/vim.html">📌 Vim</a></li>
@@ -69,11 +70,6 @@
             🛠️ DevOps
           </a>
           <ul class="dropdown-menu">
-            <li><h6 class="dropdown-header">Git</h6></li>
-            <li><a class="dropdown-item" href="/devops/git/configuration.html">⚙️ Configuration</a></li>
-            <li><a class="dropdown-item" href="/devops/git/commandes.html">💻 Commandes</a></li>
-            <li><a class="dropdown-item" href="/devops/git/workflows.html">🔄 Workflows</a></li>
-            <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="/devops/docker/introduction.html">🐳 Docker</a></li>
             <li><a class="dropdown-item" href="/devops/kubernetes/introduction.html">☸️ Kubernetes</a></li>
           </ul>
@@ -125,19 +121,22 @@
             <li><a class="dropdown-item" href="/tests/e2e/introduction.html">🔄 E2E</a></li>
           </ul>
         </li>
+
+        <!-- Git -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            📂 Git
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/git/introduction.html">📚 Introduction</a></li>
+            <li><a class="dropdown-item" href="/git/configuration.html">⚙️ Configuration</a></li>
+            <li><a class="dropdown-item" href="/git/commandes.html">💻 Commandes</a></li>
+            <li><a class="dropdown-item" href="/git/workflows.html">🔄 Workflows</a></li>
+          </ul>
+        </li>
       </ul>
 
-      <!-- Accessibilité -->
-      <div class="d-flex align-items-center">
-        <button class="btn btn-theme me-2" id="theme-toggle" title="Mode sombre">
-          <i class="bi bi-moon-stars-fill"></i>
-          <span class="d-none d-sm-inline">Mode sombre</span>
-        </button>
-        <button class="btn btn-theme" id="font-toggle" title="Police dyslexique">
-          <i class="bi bi-fonts"></i>
-          <span class="d-none d-sm-inline">Police dyslexique</span>
-        </button>
-      </div>
+      <!-- End of navigation -->
     </div>
   </div>
 </nav>
