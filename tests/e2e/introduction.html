@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests End-to-End avec Selenium et Cypress</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Tests End-to-End avec Selenium et Cypress</h1>
+
+        <div class="alert alert-info">
+            Guide d'utilisation de Selenium et Cypress pour les tests end-to-end d'applications web.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests avec Selenium</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Python avec Selenium
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+def test_login():
+    driver = webdriver.Chrome()
+    try:
+        driver.get("http://example.com/login")
+
+        # Attendre que les éléments soient chargés
+        email_input = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "email"))
+        )
+        password_input = driver.find_element(By.ID, "password")
+        submit_button = driver.find_element(By.ID, "submit")
+
+        # Remplir le formulaire
+        email_input.send_keys("test@example.com")
+        password_input.send_keys("password123")
+        submit_button.click()
+
+        # Vérifier la redirection
+        WebDriverWait(driver, 10).until(
+            EC.url_to_be("http://example.com/dashboard")
+        )
+
+        # Vérifier le message de bienvenue
+        welcome = driver.find_element(By.CLASS_NAME, "welcome")
+        assert "Welcome" in welcome.text
+
+    finally:
+        driver.quit()
+
+# Test avec Page Object Model
+class LoginPage:
+    def __init__(self, driver):
+        self.driver = driver
+        self.url = "http://example.com/login"
+
+    def navigate(self):
+        self.driver.get(self.url)
+
+    def login(self, email, password):
+        email_input = self.driver.find_element(By.ID, "email")
+        password_input = self.driver.find_element(By.ID, "password")
+        submit_button = self.driver.find_element(By.ID, "submit")
+
+        email_input.send_keys(email)
+        password_input.send_keys(password)
+        submit_button.click()
+
+def test_login_pom():
+    driver = webdriver.Chrome()
+    try:
+        login_page = LoginPage(driver)
+        login_page.navigate()
+        login_page.login("test@example.com", "password123")
+
+        assert "dashboard" in driver.current_url
+    finally:
+        driver.quit()</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests avec Cypress</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// cypress/e2e/login.cy.js
+describe('Login Flow', () => {
+  beforeEach(() => {
+    cy.visit('/login')
+  })
+
+  it('should login successfully', () => {
+    cy.get('#email')
+      .type('test@example.com')
+
+    cy.get('#password')
+      .type('password123')
+
+    cy.get('#submit')
+      .click()
+
+    cy.url()
+      .should('include', '/dashboard')
+
+    cy.get('.welcome')
+      .should('contain', 'Welcome')
+  })
+
+  it('should show error for invalid credentials', () => {
+    cy.get('#email')
+      .type('invalid@example.com')
+
+    cy.get('#password')
+      .type('wrongpass')
+
+    cy.get('#submit')
+      .click()
+
+    cy.get('.error-message')
+      .should('be.visible')
+      .and('contain', 'Invalid credentials')
+  })
+})
+
+// Custom Commands
+Cypress.Commands.add('login', (email, password) => {
+  cy.visit('/login')
+  cy.get('#email').type(email)
+  cy.get('#password').type(password)
+  cy.get('#submit').click()
+})
+
+// Fixtures
+describe('User Profile', () => {
+  beforeEach(() => {
+    cy.fixture('user').then((user) => {
+      cy.login(user.email, user.password)
+    })
+  })
+
+  it('should display user information', () => {
+    cy.get('.profile-name')
+      .should('contain', 'John Doe')
+  })
+})</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Configuration</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// cypress.config.js
+const { defineConfig } = require("cypress");
+
+module.exports = defineConfig({
+  e2e: {
+    baseUrl: 'http://localhost:3000',
+    setupNodeEvents(on, config) {
+      // implement node event listeners here
+    },
+    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
+    viewportWidth: 1280,
+    viewportHeight: 720,
+    video: true,
+    screenshotOnFailure: true
+  },
+});
+
+// selenium_config.py
+from selenium.webdriver.chrome.options import Options
+
+chrome_options = Options()
+chrome_options.add_argument("--headless")  # Mode headless
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+
+driver = webdriver.Chrome(options=chrome_options)</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Structure des tests :</h3>
+                    <pre><code>project/
+├── cypress/
+│   ├── e2e/
+│   │   ├── login.cy.js
+│   │   └── profile.cy.js
+│   ├── fixtures/
+│   │   └── user.json
+│   ├── support/
+│   │   └── commands.js
+│   └── videos/
+├── selenium_tests/
+│   ├── pages/
+│   │   ├── login_page.py
+│   │   └── dashboard_page.py
+│   ├── tests/
+│   │   └── test_login.py
+│   └── conftest.py
+└── package.json</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests d'API</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Cypress API Testing
+describe('API Tests', () => {
+  it('should create a new user', () => {
+    cy.request('POST', '/api/users', {
+      name: 'John Doe',
+      email: 'john@example.com'
+    }).then((response) => {
+      expect(response.status).to.eq(201)
+      expect(response.body).to.have.property('id')
+    })
+  })
+
+  it('should intercept API calls', () => {
+    cy.intercept('GET', '/api/users/*', {
+      statusCode: 200,
+      body: {
+        id: 1,
+        name: 'John Doe'
+      }
+    }).as('getUser')
+
+    cy.visit('/profile')
+    cy.wait('@getUser')
+    cy.get('.user-name').should('contain', 'John Doe')
+  })
+})
+
+# Selenium avec Requests
+import requests
+
+def test_api_with_selenium():
+    # Login via UI
+    driver.get('/login')
+    login_page.login('test@example.com', 'password123')
+
+    # Get auth token from browser
+    token = driver.execute_script(
+        'return localStorage.getItem("token")'
+    )
+
+    # Use token for API requests
+    headers = {'Authorization': f'Bearer {token}'}
+    response = requests.get(
+        'http://example.com/api/profile',
+        headers=headers
+    )
+
+    assert response.status_code == 200
+    assert response.json()['name'] == 'John Doe'</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Intégration CI/CD</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># GitHub Actions
+name: E2E Tests
+
+on: [push, pull_request]
+
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start application
+        run: npm start & npx wait-on http://localhost:3000
+
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v5
+        with:
+          browser: chrome
+          headless: true
+
+  selenium:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Chrome
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+          sudo apt-get update
+          sudo apt-get install google-chrome-stable
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install webdriver-manager
+
+      - name: Run Selenium tests
+        run: pytest selenium_tests/</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

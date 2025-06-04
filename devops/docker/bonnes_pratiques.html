@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker - Bonnes Pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Docker - Bonnes Pratiques</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour créer et gérer des conteneurs Docker de manière efficace et sécurisée.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="h6 text-success">✅ Bonnes pratiques</h3>
+                        <pre><code># Utiliser un utilisateur non-root
+FROM node:18-alpine
+RUN addgroup -S appgroup && \
+    adduser -S appuser -G appgroup
+USER appuser
+
+# Scanner les vulnérabilités
+docker scan monimage:latest
+
+# Minimiser la surface d'attaque
+FROM alpine:3.18
+RUN apk add --no-cache nginx
+
+# Utiliser des images officielles
+FROM node:18-alpine
+FROM postgres:14</code></pre>
+
+                        <h3 class="h6 text-danger mt-3">❌ À éviter</h3>
+                        <pre><code># Ne pas exposer les secrets
+ENV API_KEY=123456 # ❌
+
+# Ne pas utiliser latest
+FROM node:latest # ❌
+
+# Ne pas exécuter en tant que root
+USER root # ❌</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Optimisation des images</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Utiliser un .dockerignore
+node_modules
+.git
+.env
+*.log
+
+# Multi-stage builds
+FROM node:18 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Minimiser les layers
+RUN apt-get update && \
+    apt-get install -y \
+    package1 \
+    package2 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Organiser les commandes par fréquence de changement
+COPY package*.json ./
+RUN npm ci
+COPY . .</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Organisation et maintenance</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Structure du projet</h3>
+                        <pre><code>project/
+├── docker/
+│   ├── app/
+│   │   └── Dockerfile
+│   ├── nginx/
+│   │   ├── Dockerfile
+│   │   └── nginx.conf
+│   └── postgres/
+│       └── init.sql
+├── docker-compose.yml
+├── docker-compose.prod.yml
+└── .env.example</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Documentation</h3>
+                        <pre><code># README.md
+## Docker Setup
+```bash
+# Development
+docker-compose up -d
+
+# Production
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+## Environment Variables
+Copy `.env.example` to `.env` and configure:
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `REDIS_URL`</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Monitoring et logging</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Configuration des logs
+version: '3.8'
+services:
+  app:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "production"
+
+# Healthcheck
+HEALTHCHECK --interval=30s \
+            --timeout=3s \
+            --start-period=5s \
+            --retries=3 \
+            CMD wget --quiet --tries=1 --spider \
+                http://localhost:3000/health || exit 1
+
+# Labels pour la documentation
+LABEL maintainer="team@example.com"
+LABEL version="1.0"
+LABEL description="Application web"</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">CI/CD</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Versions des images
+TAG=$(git rev-parse --short HEAD)
+docker build -t app:${TAG} .
+docker tag app:${TAG} app:latest
+
+# Tests dans le pipeline
+stages:
+  - build
+  - test
+  - deploy
+
+test:
+  stage: test
+  script:
+    - docker-compose -f docker-compose.test.yml up
+    - docker-compose -f docker-compose.test.yml \
+        run app npm test
+
+# Déploiement
+deploy:
+  script:
+    - docker stack deploy \
+        --with-registry-auth \
+        -c docker-compose.prod.yml \
+        myapp</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Conventions de nommage</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Images :</strong> {organisation}/{application}:{version} (ex: acme/backend:1.2.3)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Conteneurs :</strong> {projet}_{service}_{numéro} (ex: myapp_api_1)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Volumes :</strong> {projet}_data (ex: myapp_postgres_data)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Réseaux :</strong> {projet}_network (ex: myapp_backend_network)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Variables d'environnement :</strong> MAJUSCULES_AVEC_UNDERSCORE
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

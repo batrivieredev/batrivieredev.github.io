@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB - Introduction | Scriptorium</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="bi bi-house"></i></a></li>
+                <li class="breadcrumb-item">Bases de données</li>
+                <li class="breadcrumb-item">MongoDB</li>
+                <li class="breadcrumb-item active">Introduction</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Introduction à MongoDB</h1>
+            <div class="btn-group">
+                <a href="introduction.html" class="btn btn-primary active">Introduction</a>
+                <a href="concepts_avances.html" class="btn btn-outline-primary">Concepts avancés</a>
+                <a href="exemples.html" class="btn btn-outline-primary">Exemples</a>
+                <a href="bonnes_pratiques.html" class="btn btn-outline-primary">Bonnes pratiques</a>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            MongoDB est une base de données NoSQL orientée documents qui offre flexibilité et scalabilité.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Concepts clés</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Base de données :</strong> Conteneur physique pour les collections
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Collection :</strong> Groupe de documents MongoDB (équivalent table SQL)
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Document :</strong> Enregistrement composé de paires clé-valeur (format BSON)
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Champ :</strong> Paire clé-valeur dans un document
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Structure des données</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Exemple de document
+{
+    "_id": ObjectId("5f9e1b9b9d3b2c1d2c1d2c1d"),
+    "titre": "MongoDB Introduction",
+    "auteur": {
+        "nom": "Dupont",
+        "email": "dupont@example.com"
+    },
+    "tags": ["nosql", "database", "mongodb"],
+    "vues": 100,
+    "commentaires": [
+        {
+            "utilisateur": "Jean",
+            "texte": "Super article!"
+        }
+    ]
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Opérations CRUD de base</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Create & Read</h3>
+                        <pre><code>// Insérer un document
+db.articles.insertOne({
+    titre: "Mon article",
+    contenu: "Contenu de l'article"
+})
+
+// Lire des documents
+db.articles.find({ titre: "Mon article" })
+db.articles.findOne({ _id: ObjectId("...") })</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Update & Delete</h3>
+                        <pre><code>// Mettre à jour un document
+db.articles.updateOne(
+    { titre: "Mon article" },
+    { $set: { contenu: "Nouveau contenu" } }
+)
+
+// Supprimer un document
+db.articles.deleteOne({ titre: "Mon article" })</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Requêtes avancées</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Opérateurs de comparaison
+db.produits.find({
+    prix: { $gt: 100, $lt: 200 }
+})
+
+// Opérateurs logiques
+db.articles.find({
+    $or: [
+        { categorie: "Tech" },
+        { tags: "mongodb" }
+    ]
+})
+
+// Agrégation
+db.ventes.aggregate([
+    { $match: { date: { $gte: new Date('2024-01-01') } } },
+    { $group: { _id: "$categorie", total: { $sum: "$montant" } } }
+])</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Index</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Créer un index simple
+db.users.createIndex({ email: 1 })
+
+// Index composé
+db.produits.createIndex(
+    { categorie: 1, prix: -1 }
+)
+
+// Index unique
+db.users.createIndex(
+    { email: 1 },
+    { unique: true }
+)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Avantages de MongoDB</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6 text-success">Points forts</h3>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Schéma flexible</li>
+                            <li class="list-group-item">Scalabilité horizontale</li>
+                            <li class="list-group-item">Haute disponibilité</li>
+                            <li class="list-group-item">Performance en lecture/écriture</li>
+                            <li class="list-group-item">Support natif du JSON</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6 text-primary">Cas d'utilisation</h3>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Applications temps réel</li>
+                            <li class="list-group-item">Big Data</li>
+                            <li class="list-group-item">Contenu dynamique</li>
+                            <li class="list-group-item">IoT et données mobiles</li>
+                            <li class="list-group-item">Catalogues de produits</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Baptiste RIVIERE - Scriptorium</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/accessibility.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("header").innerHTML = data;
+                // Re-init Bootstrap components after dynamic content load
+                const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+            })
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

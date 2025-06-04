@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction à Redis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction à Redis</h1>
+
+        <div class="alert alert-info">
+            Redis est une base de données NoSQL en mémoire qui peut être utilisée comme cache, broker de messages ou pour stocker des données structurées.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Types de données de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Chaînes
+SET user:1:name "John Doe"
+GET user:1:name
+
+# Nombres
+SET counter 1
+INCR counter
+INCRBY counter 5
+
+# Listes
+LPUSH messages "Hello"
+RPUSH messages "World"
+LRANGE messages 0 -1
+
+# Ensembles
+SADD tags "redis" "cache" "nosql"
+SMEMBERS tags
+SISMEMBER tags "redis"
+
+# Hash
+HSET user:1 name "John" age "30"
+HGET user:1 name
+HGETALL user:1
+
+# Ensembles ordonnés
+ZADD scores 100 "player1"
+ZADD scores 200 "player2"
+ZRANGE scores 0 -1 WITHSCORES</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Opérations clés</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Expiration
+SET session:123 "data" EX 3600
+TTL session:123
+
+# Opérations atomiques
+SET counter 0 NX
+INCR counter
+WATCH counter
+MULTI
+SET counter 50
+EXEC
+
+# Pattern matching
+KEYS user:*
+SCAN 0 MATCH user:* COUNT 10
+
+# Pipeline
+PIPELINE
+SET key1 "value1"
+SET key2 "value2"
+INCR counter
+EXEC
+
+# Publish/Subscribe
+SUBSCRIBE channel1
+PUBLISH channel1 "message"</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Configuration de base</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># redis.conf
+port 6379
+bind 127.0.0.1
+maxmemory 2gb
+maxmemory-policy allkeys-lru
+
+# Persistance
+save 900 1    # Après 900 sec si au moins 1 changement
+save 300 10   # Après 300 sec si au moins 10 changements
+save 60 10000 # Après 60 sec si au moins 10000 changements
+
+# Sécurité
+requirepass StrongPassword123
+rename-command FLUSHALL ""
+rename-command FLUSHDB ""
+
+# Réplication
+slaveof master-host 6379
+masterauth StrongPassword123
+
+# Limites
+maxclients 10000
+timeout 300</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Politiques de mémoire :</h3>
+                    <ul class="mb-0">
+                        <li><strong>noeviction :</strong> Erreur quand la mémoire est pleine</li>
+                        <li><strong>allkeys-lru :</strong> Supprime les clés les moins récemment utilisées</li>
+                        <li><strong>volatile-lru :</strong> Supprime les clés expirables les moins utilisées</li>
+                        <li><strong>allkeys-random :</strong> Supprime des clés au hasard</li>
+                        <li><strong>volatile-ttl :</strong> Supprime les clés avec TTL le plus court</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Supervision</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Info sur le serveur
+INFO
+
+# Stats mémoire
+INFO memory
+
+# Stats clients
+INFO clients
+
+# Stats persistance
+INFO persistence
+
+# Surveillance en temps réel
+MONITOR
+
+# Statistiques des commandes
+INFO commandstats
+
+# Analyse de la mémoire
+MEMORY STATS
+MEMORY USAGE key</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Commandes utiles</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Base de données
+SELECT 1          # Changer de DB
+FLUSHDB          # Vider la DB courante
+FLUSHALL         # Vider toutes les DBs
+INFO keyspace    # Stats des DBs
+
+# Transactions
+MULTI           # Début transaction
+EXEC            # Exécuter transaction
+DISCARD         # Annuler transaction
+UNWATCH         # Arrêter surveillance
+
+# Sauvegarde
+SAVE            # Sauvegarde synchrone
+BGSAVE          # Sauvegarde asynchrone
+LASTSAVE        # Timestamp dernière save
+
+# Réplication
+SLAVEOF NO ONE  # Promouvoir en master
+INFO replication # État réplication</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Structure des clés</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Conventions de nommage
+object-type:id:field
+user:1000:profile
+user:1000:sessions
+
+// Préfixes par domaine
+cache:users:1234
+temp:sessions:xyz789
+queue:emails
+
+// Hiérarchie
+org:1:dept:2:employees
+project:123:tasks:456:comments
+
+// Timestamps
+events:2024-03-06
+logs:2024:03:06:error</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Conseils :</h3>
+                    <ul class="mb-0">
+                        <li>Utiliser des séparateurs consistents (:, ., -)</li>
+                        <li>Préfixes courts mais descriptifs</li>
+                        <li>Inclure le type de données si pertinent</li>
+                        <li>Éviter les clés trop longues</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

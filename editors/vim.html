@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vim - Documentation complète</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Documentation complète de Vim</h1>
+
+        <div class="alert alert-info">
+            Guide complet des commandes et fonctionnalités de Vim.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Modes de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Touche</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>i</td><td>Mode insertion avant le curseur</td></tr>
+                                <tr><td>I</td><td>Mode insertion début de ligne</td></tr>
+                                <tr><td>a</td><td>Mode insertion après le curseur</td></tr>
+                                <tr><td>A</td><td>Mode insertion fin de ligne</td></tr>
+                                <tr><td>o</td><td>Nouvelle ligne dessous</td></tr>
+                                <tr><td>O</td><td>Nouvelle ligne dessus</td></tr>
+                                <tr><td>v</td><td>Mode visuel (sélection)</td></tr>
+                                <tr><td>V</td><td>Mode visuel ligne</td></tr>
+                                <tr><td>Ctrl+v</td><td>Mode visuel bloc</td></tr>
+                                <tr><td>R</td><td>Mode remplacement</td></tr>
+                                <tr><td>Esc</td><td>Retour mode normal</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Déplacements</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Touche</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>h j k l</td><td>Gauche, bas, haut, droite</td></tr>
+                                <tr><td>w</td><td>Début mot suivant</td></tr>
+                                <tr><td>b</td><td>Début mot précédent</td></tr>
+                                <tr><td>e</td><td>Fin mot suivant</td></tr>
+                                <tr><td>ge</td><td>Fin mot précédent</td></tr>
+                                <tr><td>0</td><td>Début de ligne</td></tr>
+                                <tr><td>$</td><td>Fin de ligne</td></tr>
+                                <tr><td>^</td><td>Premier caractère non-blanc</td></tr>
+                                <tr><td>gg</td><td>Début du fichier</td></tr>
+                                <tr><td>G</td><td>Fin du fichier</td></tr>
+                                <tr><td>nG</td><td>Ligne n</td></tr>
+                                <tr><td>H</td><td>Haut de l'écran</td></tr>
+                                <tr><td>M</td><td>Milieu de l'écran</td></tr>
+                                <tr><td>L</td><td>Bas de l'écran</td></tr>
+                                <tr><td>%</td><td>Parenthèse/accolade correspondante</td></tr>
+                                <tr><td>f{char}</td><td>Sur le caractère suivant</td></tr>
+                                <tr><td>F{char}</td><td>Sur le caractère précédent</td></tr>
+                                <tr><td>t{char}</td><td>Avant le caractère suivant</td></tr>
+                                <tr><td>T{char}</td><td>Après le caractère précédent</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Édition</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Commande</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>x</td><td>Supprimer caractère</td></tr>
+                                <tr><td>dd</td><td>Supprimer ligne</td></tr>
+                                <tr><td>dw</td><td>Supprimer mot</td></tr>
+                                <tr><td>d$</td><td>Supprimer jusqu'à fin de ligne</td></tr>
+                                <tr><td>D</td><td>Supprimer jusqu'à fin de ligne</td></tr>
+                                <tr><td>c{motion}</td><td>Changer texte</td></tr>
+                                <tr><td>cc</td><td>Changer ligne</td></tr>
+                                <tr><td>C</td><td>Changer jusqu'à fin de ligne</td></tr>
+                                <tr><td>r{char}</td><td>Remplacer caractère</td></tr>
+                                <tr><td>y{motion}</td><td>Copier texte</td></tr>
+                                <tr><td>yy</td><td>Copier ligne</td></tr>
+                                <tr><td>p</td><td>Coller après</td></tr>
+                                <tr><td>P</td><td>Coller avant</td></tr>
+                                <tr><td>u</td><td>Annuler</td></tr>
+                                <tr><td>Ctrl+r</td><td>Refaire</td></tr>
+                                <tr><td>.</td><td>Répéter dernière commande</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Recherche et remplacement</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Commande</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>/pattern</td><td>Rechercher vers l'avant</td></tr>
+                                <tr><td>?pattern</td><td>Rechercher vers l'arrière</td></tr>
+                                <tr><td>n</td><td>Occurrence suivante</td></tr>
+                                <tr><td>N</td><td>Occurrence précédente</td></tr>
+                                <tr><td>*</td><td>Mot sous curseur vers l'avant</td></tr>
+                                <tr><td>#</td><td>Mot sous curseur vers l'arrière</td></tr>
+                                <tr><td>:%s/old/new/g</td><td>Remplacer global</td></tr>
+                                <tr><td>:%s/old/new/gc</td><td>Remplacer avec confirmation</td></tr>
+                                <tr><td>:g/pattern/d</td><td>Supprimer lignes correspondantes</td></tr>
+                                <tr><td>:v/pattern/d</td><td>Supprimer lignes non correspondantes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Manipulation de fenêtres</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Commande</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>:sp</td><td>Diviser horizontalement</td></tr>
+                                <tr><td>:vsp</td><td>Diviser verticalement</td></tr>
+                                <tr><td>Ctrl+w s</td><td>Diviser horizontalement</td></tr>
+                                <tr><td>Ctrl+w v</td><td>Diviser verticalement</td></tr>
+                                <tr><td>Ctrl+w h/j/k/l</td><td>Naviguer entre fenêtres</td></tr>
+                                <tr><td>Ctrl+w H/J/K/L</td><td>Déplacer fenêtre</td></tr>
+                                <tr><td>Ctrl+w =</td><td>Tailles égales</td></tr>
+                                <tr><td>Ctrl+w _</td><td>Maximiser hauteur</td></tr>
+                                <tr><td>Ctrl+w |</td><td>Maximiser largeur</td></tr>
+                                <tr><td>Ctrl+w +</td><td>Augmenter hauteur</td></tr>
+                                <tr><td>Ctrl+w -</td><td>Diminuer hauteur</td></tr>
+                                <tr><td>Ctrl+w ></td><td>Augmenter largeur</td></tr>
+                                <tr><td>Ctrl+w <</td><td>Diminuer largeur</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Marques et registres</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Commande</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>m{a-zA-Z}</td><td>Définir marque</td></tr>
+                                <tr><td>`{a-zA-Z}</td><td>Aller à la marque position exacte</td></tr>
+                                <tr><td>'{a-zA-Z}</td><td>Aller à la marque début de ligne</td></tr>
+                                <tr><td>"{a-z}</td><td>Utiliser registre nommé</td></tr>
+                                <tr><td>".</td><td>Dernier texte inséré</td></tr>
+                                <tr><td>"%</td><td>Nom du fichier courant</td></tr>
+                                <tr><td>"#</td><td>Nom du dernier fichier</td></tr>
+                                <tr><td>"_</td><td>Registre nul (trou noir)</td></tr>
+                                <tr><td>"+</td><td>Presse-papier système</td></tr>
+                                <tr><td>"*</td><td>Sélection système</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Commandes Ex</h2>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Commande</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>:w</td><td>Sauvegarder</td></tr>
+                        <tr><td>:w file</td><td>Sauvegarder sous</td></tr>
+                        <tr><td>:q</td><td>Quitter</td></tr>
+                        <tr><td>:q!</td><td>Quitter sans sauvegarder</td></tr>
+                        <tr><td>:wq</td><td>Sauvegarder et quitter</td></tr>
+                        <tr><td>:e file</td><td>Éditer fichier</td></tr>
+                        <tr><td>:r file</td><td>Insérer fichier</td></tr>
+                        <tr><td>:!cmd</td><td>Exécuter commande shell</td></tr>
+                        <tr><td>:r !cmd</td><td>Insérer sortie commande</td></tr>
+                        <tr><td>:set nu</td><td>Afficher numéros de ligne</td></tr>
+                        <tr><td>:set nonu</td><td>Masquer numéros de ligne</td></tr>
+                        <tr><td>:set list</td><td>Afficher caractères invisibles</td></tr>
+                        <tr><td>:set nolist</td><td>Masquer caractères invisibles</td></tr>
+                        <tr><td>:help</td><td>Aide</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

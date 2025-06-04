@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hachage des mots de passe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Hachage des mots de passe avec bcrypt et argon2</h1>
+
+        <div class="alert alert-info">
+            Guide d'utilisation de bcrypt et argon2 pour le hachage sécurisé des mots de passe.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">bcrypt en Node.js</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const bcrypt = require('bcrypt');
+
+class UserService {
+  // Configuration recommandée
+  static SALT_ROUNDS = 12;
+
+  static async hashPassword(password) {
+    try {
+      const salt = await bcrypt.genSalt(this.SALT_ROUNDS);
+      return await bcrypt.hash(password, salt);
+    } catch (error) {
+      throw new Error('Password hashing failed');
+    }
+  }
+
+  static async verifyPassword(password, hash) {
+    try {
+      return await bcrypt.compare(password, hash);
+    } catch (error) {
+      throw new Error('Password verification failed');
+    }
+  }
+}
+
+// Utilisation dans un contrôleur
+class AuthController {
+  async register(req, res) {
+    try {
+      const { email, password } = req.body;
+
+      const hashedPassword = await UserService.hashPassword(password);
+
+      const user = await User.create({
+        email,
+        password: hashedPassword
+      });
+
+      res.status(201).json({
+        message: 'User created successfully'
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: 'Registration failed'
+      });
+    }
+  }
+
+  async login(req, res) {
+    try {
+      const { email, password } = req.body;
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(401).json({
+          message: 'Invalid credentials'
+        });
+      }
+
+      const isValid = await UserService.verifyPassword(
+        password,
+        user.password
+      );
+
+      if (!isValid) {
+        return res.status(401).json({
+          message: 'Invalid credentials'
+        });
+      }
+
+      // Génération du token JWT...
+    } catch (error) {
+      res.status(500).json({
+        message: 'Login failed'
+      });
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">argon2 en Python</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
+
+class PasswordService:
+    def __init__(self):
+        # Configuration recommandée
+        self.ph = PasswordHasher(
+            time_cost=3,        # Nombre d'itérations
+            memory_cost=65536,  # Utilisation mémoire (64 MB)
+            parallelism=4,      # Degré de parallélisme
+            hash_len=32,        # Longueur du hash
+            salt_len=16         # Longueur du sel
+        )
+
+    def hash_password(self, password: str) -> str:
+        try:
+            return self.ph.hash(password)
+        except Exception as e:
+            raise ValueError("Password hashing failed") from e
+
+    def verify_password(self, hash: str, password: str) -> bool:
+        try:
+            self.ph.verify(hash, password)
+            return True
+        except VerifyMismatchError:
+            return False
+        except Exception as e:
+            raise ValueError("Password verification failed") from e
+
+# Utilisation dans FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI()
+password_service = PasswordService()
+
+class UserCreate(BaseModel):
+    email: str
+    password: str
+
+@app.post("/register")
+async def register(user: UserCreate):
+    try:
+        hashed_password = password_service.hash_password(
+            user.password
+        )
+
+        # Création de l'utilisateur dans la base
+        db_user = await User.create(
+            email=user.email,
+            password=hashed_password
+        )
+
+        return {"message": "User created successfully"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Registration failed"
+        )
+
+@app.post("/login")
+async def login(user: UserCreate):
+    try:
+        db_user = await User.get(email=user.email)
+        if not db_user:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid credentials"
+            )
+
+        is_valid = password_service.verify_password(
+            db_user.password,
+            user.password
+        )
+
+        if not is_valid:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid credentials"
+            )
+
+        # Génération du token JWT...
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Login failed"
+        )</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Meilleures pratiques de sécurité</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Configuration</h3>
+                        <ul>
+                            <li>bcrypt : utiliser un coût minimum de 12</li>
+                            <li>argon2 : préférer argon2id</li>
+                            <li>Mémoire : au moins 64MB pour argon2</li>
+                            <li>Temps : ajuster selon la charge serveur</li>
+                        </ul>
+
+                        <h3 class="h6">Stockage</h3>
+                        <ul>
+                            <li>Ne jamais stocker en clair</li>
+                            <li>Ne pas tronquer les hashes</li>
+                            <li>Utiliser VARCHAR(255) minimum</li>
+                            <li>Backup chiffré des données</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Sécurité</h3>
+                        <ul>
+                            <li>Validation des mots de passe</li>
+                            <li>Limiter les tentatives de connexion</li>
+                            <li>Éviter les messages d'erreur précis</li>
+                            <li>HTTPS obligatoire</li>
+                        </ul>
+
+                        <pre><code>// Validation du mot de passe
+function validatePassword(password) {
+  const MIN_LENGTH = 12;
+  const REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
+
+  return password.length >= MIN_LENGTH && REGEX.test(password);
+}
+
+// Limitation des tentatives
+const rateLimit = require('express-rate-limit');
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5 // 5 tentatives
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Migration des hashes</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>class PasswordMigrationService {
+  static async migrateHash(user, plainPassword) {
+    // Vérifier l'ancien hash (ex: MD5)
+    if (user.password === md5(plainPassword)) {
+      // Générer un nouveau hash sécurisé
+      const newHash = await bcrypt.hash(
+        plainPassword,
+        12
+      );
+
+      // Mettre à jour l'utilisateur
+      await User.update({
+        id: user.id,
+        password: newHash,
+        password_version: 2
+      });
+
+      return true;
+    }
+    return false;
+  }
+}
+
+// Utilisation pendant la connexion
+async function login(email, password) {
+  const user = await User.findOne({ email });
+
+  if (user.password_version === 1) {
+    // Ancienne version : tenter la migration
+    const success = await PasswordMigrationService
+      .migrateHash(user, password);
+    if (!success) {
+      throw new Error('Invalid credentials');
+    }
+  } else {
+    // Nouvelle version : vérification normale
+    const valid = await bcrypt.compare(
+      password,
+      user.password
+    );
+    if (!valid) {
+      throw new Error('Invalid credentials');
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests de sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Tests unitaires
+describe('PasswordService', () => {
+  const service = new PasswordService();
+
+  test('should hash password correctly', async () => {
+    const password = 'MySecurePass123!';
+    const hash = await service.hashPassword(password);
+
+    expect(hash).not.toBe(password);
+    expect(hash).toMatch(/^\$2[aby]\$/);
+  });
+
+  test('should verify password correctly', async () => {
+    const password = 'MySecurePass123!';
+    const hash = await service.hashPassword(password);
+
+    const isValid = await service.verifyPassword(
+      hash,
+      password
+    );
+    expect(isValid).toBe(true);
+
+    const isInvalid = await service.verifyPassword(
+      hash,
+      'WrongPassword123!'
+    );
+    expect(isInvalid).toBe(false);
+  });
+
+  test('should use sufficient rounds', async () => {
+    const start = Date.now();
+    await service.hashPassword('test');
+    const duration = Date.now() - start;
+
+    // Devrait prendre au moins 250ms
+    expect(duration).toBeGreaterThan(250);
+  });
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

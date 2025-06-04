@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemples de développement natif iOS/Android</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Exemples de développement natif iOS/Android</h1>
+
+        <div class="alert alert-info">
+            Exemples d'applications natives pour iOS (Swift) et Android (Kotlin).
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Application de chat iOS</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// ChatView.swift
+struct ChatView: View {
+    @StateObject private var viewModel = ChatViewModel()
+    @State private var messageText = ""
+
+    var body: some View {
+        VStack {
+            ScrollView {
+                LazyVStack {
+                    ForEach(viewModel.messages) { message in
+                        MessageBubble(message: message)
+                            .transition(.slide)
+                    }
+                }
+            }
+
+            HStack {
+                TextField("Message...", text: $messageText)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+
+                Button(action: sendMessage) {
+                    Image(systemName: "paperplane.fill")
+                }
+            }
+            .padding()
+        }
+    }
+
+    private func sendMessage() {
+        guard !messageText.isEmpty else { return }
+        viewModel.send(messageText)
+        messageText = ""
+    }
+}
+
+// MessageBubble.swift
+struct MessageBubble: View {
+    let message: Message
+
+    var body: some View {
+        HStack {
+            if message.isFromCurrentUser {
+                Spacer()
+            }
+
+            Text(message.text)
+                .padding()
+                .background(
+                    message.isFromCurrentUser ?
+                        Color.blue : Color.gray.opacity(0.3)
+                )
+                .foregroundColor(
+                    message.isFromCurrentUser ?
+                        .white : .primary
+                )
+                .cornerRadius(16)
+                .padding(
+                    message.isFromCurrentUser ?
+                        .leading : .trailing,
+                    50
+                )
+
+            if !message.isFromCurrentUser {
+                Spacer()
+            }
+        }
+        .padding(.horizontal)
+    }
+}
+
+// ChatViewModel.swift
+class ChatViewModel: ObservableObject {
+    @Published var messages: [Message] = []
+    private let service = ChatService()
+
+    init() {
+        setupMessageListener()
+    }
+
+    func send(_ text: String) {
+        let message = Message(
+            text: text,
+            isFromCurrentUser: true,
+            timestamp: Date()
+        )
+        service.send(message)
+    }
+
+    private func setupMessageListener() {
+        service.observeMessages { [weak self] messages in
+            self?.messages = messages
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Application de chat Android</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// ChatActivity.kt
+@AndroidEntryPoint
+class ChatActivity : AppCompatActivity() {
+    private val viewModel: ChatViewModel by viewModels()
+    private lateinit var binding: ActivityChatBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityChatBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setupRecyclerView()
+        setupMessageInput()
+        observeMessages()
+    }
+
+    private fun setupRecyclerView() {
+        val adapter = MessageAdapter()
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager =
+            LinearLayoutManager(this)
+
+        viewModel.messages.observe(this) { messages ->
+            adapter.submitList(messages)
+            binding.recyclerView.scrollToPosition(
+                messages.size - 1
+            )
+        }
+    }
+
+    private fun setupMessageInput() {
+        binding.sendButton.setOnClickListener {
+            val text = binding.messageInput.text.toString()
+            if (text.isNotEmpty()) {
+                viewModel.sendMessage(text)
+                binding.messageInput.text.clear()
+            }
+        }
+    }
+}
+
+// MessageAdapter.kt
+class MessageAdapter :
+    ListAdapter<Message, MessageViewHolder>(MessageDiffCallback()) {
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): MessageViewHolder {
+        val binding = ItemMessageBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return MessageViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(
+        holder: MessageViewHolder,
+        position: Int
+    ) {
+        holder.bind(getItem(position))
+    }
+}
+
+// ChatViewModel.kt
+@HiltViewModel
+class ChatViewModel @Inject constructor(
+    private val chatRepository: ChatRepository
+) : ViewModel() {
+
+    private val _messages = MutableStateFlow<List<Message>>(emptyList())
+    val messages = _messages.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            chatRepository.getMessages()
+                .collect { messages ->
+                    _messages.value = messages
+                }
+        }
+    }
+
+    fun sendMessage(text: String) {
+        viewModelScope.launch {
+            val message = Message(
+                text = text,
+                senderId = currentUserId,
+                timestamp = System.currentTimeMillis()
+            )
+            chatRepository.sendMessage(message)
+        }
+    }
+}
+
+// layout/activity_chat.xml
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"&gt;
+
+    &lt;androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/messageInput" /&gt;
+
+    &lt;EditText
+        android:id="@+id/messageInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Message..."
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sendButton" /&gt;
+
+    &lt;ImageButton
+        android:id="@+id/sendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_send"
+        android:background="?attr/selectableItemBackground"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" /&gt;
+
+&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

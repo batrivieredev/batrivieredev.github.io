@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction à Express.js</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction à Express.js</h1>
+
+        <div class="alert alert-info">
+            Express.js est un framework web minimaliste et flexible pour Node.js qui permet de créer des applications web et des API.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Installation et configuration</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Initialisation du projet
+mkdir myapp
+cd myapp
+npm init -y
+
+# Installation d'Express
+npm install express
+
+# Structure du projet
+myapp/
+├── node_modules/
+├── package.json
+├── package-lock.json
+├── src/
+│   ├── app.js
+│   ├── routes/
+│   ├── controllers/
+│   ├── models/
+│   └── middleware/
+└── public/
+
+# app.js de base
+const express = require('express');
+const app = express();
+
+// Middleware intégrés
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+// Définition des routes
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
+// Démarrage du serveur
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Routing</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// routes/users.js
+const express = require('express');
+const router = express.Router();
+
+// GET /users
+router.get('/', (req, res) => {
+  res.json({ users: [] });
+});
+
+// GET /users/:id
+router.get('/:id', (req, res) => {
+  const id = req.params.id;
+  res.json({ id });
+});
+
+// POST /users
+router.post('/', (req, res) => {
+  const { name, email } = req.body;
+  res.status(201).json({ name, email });
+});
+
+// PUT /users/:id
+router.put('/:id', (req, res) => {
+  const id = req.params.id;
+  const { name, email } = req.body;
+  res.json({ id, name, email });
+});
+
+// DELETE /users/:id
+router.delete('/:id', (req, res) => {
+  const id = req.params.id;
+  res.status(204).send();
+});
+
+module.exports = router;
+
+// app.js
+const usersRouter = require('./routes/users');
+app.use('/users', usersRouter);</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Middleware</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Middleware d'authentification
+const authenticateUser = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({
+      error: 'Authorization header requis'
+    });
+  }
+
+  try {
+    const token = authHeader.split(' ')[1];
+    const user = verifyToken(token);
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).json({
+      error: 'Token invalide'
+    });
+  }
+};
+
+// Middleware de logging
+const logger = (req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+};
+
+// Middleware de gestion d'erreurs
+const errorHandler = (err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    error: 'Erreur serveur'
+  });
+};
+
+// Utilisation des middleware
+app.use(logger);
+
+app.get('/protected',
+  authenticateUser,
+  (req, res) => {
+    res.json({ user: req.user });
+  }
+);
+
+app.use(errorHandler);</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Gestion des vues</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Installation d'EJS
+npm install ejs
+
+// Configuration
+app.set('view engine', 'ejs');
+app.set('views', './views');
+
+// views/index.ejs
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;&lt;%= title %&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;&lt;%= title %&gt;&lt;/h1&gt;
+  &lt;ul&gt;
+    &lt;% users.forEach(function(user) { %&gt;
+      &lt;li&gt;&lt;%= user.name %&gt;&lt;/li&gt;
+    &lt;% }); %&gt;
+  &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+// Route avec rendu de vue
+app.get('/', (req, res) => {
+  res.render('index', {
+    title: 'Ma page',
+    users: [
+      { name: 'John' },
+      { name: 'Jane' }
+    ]
+  });
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Gestion des erreurs</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Classe d'erreur personnalisée
+class AppError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+    this.status = `${statusCode}`.startsWith('4') ?
+      'fail' : 'error';
+
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+// Middleware de gestion d'erreurs
+const handleErrors = (err, req, res, next) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+
+  if (process.env.NODE_ENV === 'development') {
+    res.status(err.statusCode).json({
+      status: err.status,
+      error: err,
+      message: err.message,
+      stack: err.stack
+    });
+  } else {
+    // Production
+    if (err.isOperational) {
+      res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message
+      });
+    } else {
+      console.error('ERROR 💥', err);
+      res.status(500).json({
+        status: 'error',
+        message: 'Erreur serveur'
+      });
+    }
+  }
+};
+
+// Utilisation
+app.all('*', (req, res, next) => {
+  next(new AppError(
+    `Route ${req.originalUrl} non trouvée`,
+    404
+  ));
+});
+
+app.use(handleErrors);</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

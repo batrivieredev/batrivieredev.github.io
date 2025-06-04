@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB - Bonnes Pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>MongoDB - Bonnes Pratiques</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour concevoir, développer et maintenir des applications MongoDB performantes.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Conception du Schéma</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="h6 text-success">✅ Bonnes pratiques</h3>
+                        <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item">Modéliser selon les besoins de l'application</li>
+                            <li class="list-group-item">Privilégier l'embedding pour les données fréquemment accédées ensemble</li>
+                            <li class="list-group-item">Utiliser des références pour les données volumineuses ou rarement accédées</li>
+                            <li class="list-group-item">Concevoir pour les cas d'utilisation les plus fréquents</li>
+                        </ul>
+
+                        <h3 class="h6 text-danger">❌ À éviter</h3>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Documents trop volumineux (limite de 16MB)</li>
+                            <li class="list-group-item">Tableaux sans limite de taille</li>
+                            <li class="list-group-item">Noms de champs trop longs</li>
+                            <li class="list-group-item">Relations many-to-many complexes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Indexation</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="h6">Stratégies d'indexation</h3>
+                        <pre><code>// Index composé pour les requêtes fréquentes
+db.users.createIndex({
+    email: 1,
+    status: 1
+})
+
+// Index pour tri
+db.products.createIndex({
+    category: 1,
+    created_at: -1
+})
+
+// Index texte pour recherche
+db.articles.createIndex({
+    title: "text",
+    content: "text"
+}, {
+    weights: {
+        title: 2,
+        content: 1
+    }
+})</code></pre>
+
+                        <div class="alert alert-warning mt-3">
+                            <strong>Note :</strong> Surveillez l'utilisation des index avec :
+                            <pre><code>db.collection.aggregate([
+    { $indexStats: {} }
+])</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Optimisation des Performances</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Requêtes efficaces</h3>
+                        <pre><code>// Projection pour limiter les données
+db.users.find(
+    { status: "active" },
+    { name: 1, email: 1 }
+)
+
+// Pagination avec limit/skip
+db.posts.find()
+    .sort({ created_at: -1 })
+    .skip(20)
+    .limit(10)
+
+// Utiliser explain() pour analyser
+db.orders.find({
+    status: "pending"
+}).explain("executionStats")</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Gestion du cache</h3>
+                        <pre><code>// Taille du working set
+db.stats()
+
+// Statistiques de la collection
+db.collection.stats()
+
+// Conseils de performance
+mongosh --eval "
+    db.users.find().hint({ email: 1 })
+    db.orders.find().allowDiskUse()
+"</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Sécurité</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Authentication et Autorisation</h3>
+                        <pre><code>// Créer un utilisateur avec rôles
+db.createUser({
+    user: "appUser",
+    pwd: "secure_password",
+    roles: [
+        { role: "readWrite", db: "myapp" },
+        { role: "read", db: "reporting" }
+    ]
+})
+
+// Activer l'authentification
+mongod --auth</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Encryption</h3>
+                        <pre><code>// Encryption at rest
+mongod --enableEncryption \
+    --encryptionKeyFile key.file
+
+// Champs sensibles
+db.users.insertOne({
+    name: "John",
+    ssn: new Binary(encryptData("123-45-6789"),
+        ENCRYPTION_DETERMINISTIC)
+})</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Maintenance et Surveillance</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <h5>Sauvegardes régulières</h5>
+                        <pre><code>mongodump --db myapp --out /backup/
+mongorestore --db myapp /backup/myapp/</code></pre>
+                    </li>
+                    <li class="list-group-item">
+                        <h5>Monitoring</h5>
+                        <pre><code>// Opérations en cours
+db.currentOp()
+
+// Statistiques serveur
+db.serverStatus()
+
+// Métriques de performance
+db.getProfilingStatus()</code></pre>
+                    </li>
+                    <li class="list-group-item">
+                        <h5>Maintenance</h5>
+                        <pre><code>// Compactage et réparation
+db.repairDatabase()
+
+// Défragmentation
+db.runCommand({ compact: "collection" })</code></pre>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL - Concepts Avancés</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>GraphQL - Concepts Avancés</h1>
+
+        <div class="alert alert-info">
+            Découvrez les fonctionnalités avancées de GraphQL pour créer des APIs plus puissantes et flexibles.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Interfaces et Unions</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># Interface
+interface Node {
+  id: ID!
+}
+
+interface Commentable {
+  comments: [Comment!]!
+}
+
+type Post implements Node & Commentable {
+  id: ID!
+  title: String!
+  content: String!
+  comments: [Comment!]!
+}
+
+type Article implements Node & Commentable {
+  id: ID!
+  headline: String!
+  body: String!
+  comments: [Comment!]!
+}
+
+# Union
+union SearchResult = Post | User | Comment
+
+type Query {
+  search(term: String!): [SearchResult!]!
+  node(id: ID!): Node
+}
+
+# Fragment sur interface
+fragment CommentableFields on Commentable {
+  comments {
+    id
+    content
+  }
+}
+
+# Fragment sur union
+fragment SearchFields on SearchResult {
+  ... on Post {
+    title
+    content
+  }
+  ... on User {
+    name
+    email
+  }
+  ... on Comment {
+    content
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Directives</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Directive personnalisée
+directive @auth(
+  requires: Role = USER
+) on OBJECT | FIELD_DEFINITION
+
+enum Role {
+  ADMIN
+  USER
+  GUEST
+}
+
+type User @auth(requires: ADMIN) {
+  id: ID!
+  email: String! @auth(requires: ADMIN)
+  name: String!
+  role: Role!
+}
+
+# Utilisation des directives
+query GetUser($withPosts: Boolean!) {
+  user(id: "123") {
+    name
+    email
+    posts @include(if: $withPosts) {
+      title
+    }
+    privateData @skip(if: $hidePrivate) {
+      ssn
+    }
+  }
+}
+
+# Directive de dépréciation
+type User {
+  id: ID!
+  name: String!
+  oldField: String @deprecated(
+    reason: "Use newField instead"
+  )
+  newField: String
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Subscriptions</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Schéma
+type Subscription {
+  userCreated: User!
+  postUpdated(postId: ID!): Post!
+  commentAdded(postId: ID!): Comment!
+}
+
+# Résolveur de subscription
+const resolvers = {
+  Subscription: {
+    commentAdded: {
+      subscribe: (parent, { postId }, { pubsub }) => {
+        return pubsub.asyncIterator(
+          `COMMENT_ADDED_${postId}`
+        );
+      }
+    }
+  }
+};
+
+# Client (Apollo)
+const COMMENTS_SUBSCRIPTION = gql`
+  subscription OnCommentAdded($postId: ID!) {
+    commentAdded(postId: $postId) {
+      id
+      content
+      author {
+        name
+      }
+    }
+  }
+`;
+
+function Comments({ postId }) {
+  const { data, loading } = useSubscription(
+    COMMENTS_SUBSCRIPTION,
+    { variables: { postId } }
+  );
+
+  useEffect(() => {
+    if (data) {
+      // Mettre à jour l'UI
+    }
+  }, [data]);</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Pagination et Filtrage</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># Pagination avec curseur
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type PostConnection {
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type PostEdge {
+  node: Post!
+  cursor: String!
+}
+
+type Query {
+  posts(
+    first: Int
+    after: String
+    last: Int
+    before: String
+    filter: PostFilter
+    orderBy: PostOrderBy
+  ): PostConnection!
+}
+
+input PostFilter {
+  title_contains: String
+  createdAt_gte: DateTime
+  author_id: ID
+  OR: [PostFilter!]
+}
+
+input PostOrderBy {
+  field: PostOrderField!
+  direction: OrderDirection!
+}
+
+enum PostOrderField {
+  CREATED_AT
+  TITLE
+  LIKES
+}
+
+enum OrderDirection {
+  ASC
+  DESC
+}
+
+# Exemple de requête
+query GetPosts {
+  posts(
+    first: 10
+    after: "cursor"
+    filter: {
+      OR: [
+        { title_contains: "GraphQL" }
+        { author_id: "123" }
+      ]
+    }
+    orderBy: {
+      field: CREATED_AT
+      direction: DESC
+    }
+  ) {
+    edges {
+      node {
+        id
+        title
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Cache et Optimisation</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Configuration du cache Apollo
+const client = new ApolloClient({
+  uri: '/graphql',
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          posts: {
+            keyArgs: ['filter'],
+            merge(existing = [], incoming, { args }) {
+              return [...existing, ...incoming];
+            }
+          }
+        }
+      },
+      Post: {
+        fields: {
+          comments: {
+            merge: false
+          }
+        }
+      }
+    }
+  })
+});
+
+# Cache local
+extend type Query {
+  isLoggedIn: Boolean! @client
+  cartItems: [ID!]! @client
+}
+
+const resolvers = {
+  Query: {
+    isLoggedIn: () => {
+      return !!localStorage.getItem('token');
+    }
+  }
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Batching et Dataloader</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Configuration Dataloader
+const userLoader = new DataLoader(async (ids) => {
+  const users = await db.users.findByIds(ids);
+  return ids.map(id =>
+    users.find(user => user.id === id)
+  );
+});
+
+const resolvers = {
+  Post: {
+    author: async (post, args, { loaders }) => {
+      return loaders.user.load(post.authorId);
+    }
+  }
+};
+
+// Batching des requêtes
+const batchedResolver = async (parent, args, context) => {
+  await new Promise(resolve => setTimeout(resolve, 0));
+
+  const results = await context.db.findMany({
+    where: {
+      id: parent.id
+    }
+  });
+
+  return results[0];
+};
+
+// Apollo Link batch
+import { BatchHttpLink } from '@apollo/client/link/batch-http';
+
+const link = new BatchHttpLink({
+  uri: '/graphql',
+  batchMax: 5,
+  batchInterval: 20
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

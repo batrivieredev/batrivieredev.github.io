@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction à PM2</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction à PM2</h1>
+
+        <div class="alert alert-info">
+            PM2 est un gestionnaire de processus pour les applications Node.js en production, offrant des fonctionnalités de gestion, surveillance et déploiement.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Commandes de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Installation
+npm install -g pm2
+
+# Démarrer une application
+pm2 start app.js
+
+# Lister les applications
+pm2 list
+
+# Monitorer les applications
+pm2 monit
+
+# Redémarrer une application
+pm2 restart app
+
+# Arrêter une application
+pm2 stop app
+
+# Supprimer une application
+pm2 delete app
+
+# Voir les logs
+pm2 logs [app]
+
+# Recharger toutes les applications
+pm2 reload all
+
+# Sauvegarde de la liste des processus
+pm2 save</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// ecosystem.config.js
+module.exports = {
+  apps: [{
+    name: 'api',
+    script: './src/server.js',
+    instances: 'max',
+    exec_mode: 'cluster',
+    env: {
+      NODE_ENV: 'development'
+    },
+    env_production: {
+      NODE_ENV: 'production'
+    },
+    watch: true,
+    ignore_watch: ['node_modules', 'logs'],
+    max_memory_restart: '1G',
+    error_file: './logs/error.log',
+    out_file: './logs/out.log',
+    merge_logs: true,
+    log_date_format: 'YYYY-MM-DD HH:mm:ss'
+  }]
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Fonctionnalités avancées</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Mode Cluster</h3>
+                        <pre><code># Démarrer en mode cluster
+pm2 start app.js -i max
+
+# Scaling manuel
+pm2 scale app +3  # Ajouter 3 instances
+pm2 scale app 2   # Définir 2 instances
+
+# Load balancing automatique
+pm2 reload app --update-env</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Déploiement</h3>
+                        <pre><code>// ecosystem.config.js
+module.exports = {
+  deploy: {
+    production: {
+      user: 'ubuntu',
+      host: 'example.com',
+      ref: 'origin/main',
+      repo: 'git@github.com:user/repo.git',
+      path: '/var/www/production',
+      'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production'
+    }
+  }
+}
+
+# Déployer
+pm2 deploy production</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Monitoring</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Dashboard en temps réel
+pm2 monit
+
+# Statistiques
+pm2 show app
+
+# Métriques système
+pm2 stats
+
+# Monitoring web avec PM2 Plus
+pm2 plus
+
+# Métriques personnalisées
+pm2.emit('metric', {
+  name: 'Active users',
+  value: users.length
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Intégration avec Nginx</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># nginx.conf
+upstream nodejs {
+    server 127.0.0.1:3000;
+    server 127.0.0.1:3001;
+    server 127.0.0.1:3002;
+    server 127.0.0.1:3003;
+}
+
+server {
+    listen 80;
+    server_name example.com;
+
+    location / {
+        proxy_pass http://nodejs;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

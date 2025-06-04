@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL - Bonnes Pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>PostgreSQL - Bonnes Pratiques</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour concevoir, optimiser et maintenir des bases de données PostgreSQL.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Conception du schéma</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="h6 text-success">✅ Bonnes pratiques</h3>
+                        <pre><code>-- Nommage explicite
+CREATE TABLE user_profiles (
+    user_id INTEGER PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+-- Types appropriés
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    sku VARCHAR(20),  -- Pour les codes fixes
+    name TEXT,        -- Pour texte variable
+    price NUMERIC(10,2), -- Pour monnaie
+    created_at TIMESTAMPTZ -- Avec timezone
+);</code></pre>
+
+                        <h3 class="h6 text-danger mt-3">❌ À éviter</h3>
+                        <pre><code>-- Éviter les types trop larges
+amount NUMERIC(20,6)  -- Pour un prix ❌
+name VARCHAR(1000)    -- Pour un nom ❌
+
+-- Éviter les champs dénormalisés
+addresses TEXT        -- Stocker JSON/CSV ❌
+tags VARCHAR(255)     -- Liste dans un champ ❌</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Indexation</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>-- Index pour les clés étrangères
+CREATE INDEX idx_user_profiles_user_id
+ON user_profiles(user_id);
+
+-- Index pour les recherches fréquentes
+CREATE INDEX idx_products_name
+ON products USING gin(to_tsvector('french', name));
+
+-- Index partiel pour les données filtrées
+CREATE INDEX idx_active_users
+ON users(created_at)
+WHERE status = 'active';
+
+-- Analyser l'utilisation des index
+SELECT schemaname, tablename, indexname, idx_scan
+FROM pg_stat_user_indexes
+ORDER BY idx_scan DESC;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Performance des requêtes</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>-- Utiliser EXPLAIN ANALYZE
+EXPLAIN ANALYZE
+SELECT *
+FROM orders o
+JOIN users u ON o.user_id = u.id
+WHERE o.status = 'completed';
+
+-- Pagination efficace
+SELECT *
+FROM large_table
+WHERE id > last_seen_id
+ORDER BY id
+LIMIT 20;
+
+-- Éviter les sous-requêtes corrélées
+-- ❌ Inefficace
+SELECT *,
+    (SELECT COUNT(*)
+     FROM order_items oi
+     WHERE oi.order_id = o.id) as items_count
+FROM orders o;
+
+-- ✅ Meilleure approche
+SELECT o.*, COUNT(oi.id) as items_count
+FROM orders o
+LEFT JOIN order_items oi ON o.id = oi.order_id
+GROUP BY o.id;</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Conseils d'optimisation :</h3>
+                    <ul class="mb-0">
+                        <li>Utiliser EXPLAIN ANALYZE pour analyser les requêtes</li>
+                        <li>Éviter SELECT * en production</li>
+                        <li>Limiter les résultats avec LIMIT</li>
+                        <li>Préférer les jointures aux sous-requêtes</li>
+                        <li>Utiliser des index adaptés aux requêtes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Maintenance</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>-- Statistiques des tables
+ANALYZE users;
+
+-- Nettoyage (VACUUM)
+VACUUM ANALYZE orders;
+
+-- VACUUM automatique
+ALTER TABLE large_table
+SET (autovacuum_vacuum_scale_factor = 0.1);
+
+-- Surveillance des performances
+SELECT relname, n_live_tup, n_dead_tup,
+    last_autovacuum
+FROM pg_stat_user_tables;
+
+-- Configuration
+ALTER SYSTEM SET
+    maintenance_work_mem = '1GB';
+ALTER SYSTEM SET
+    autovacuum_work_mem = '256MB';</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>-- Gestion des rôles
+CREATE ROLE app_read WITH
+    LOGIN
+    PASSWORD 'secure_password'
+    CONNECTION LIMIT 100
+    VALID UNTIL '2025-12-31';
+
+-- Permissions granulaires
+GRANT SELECT ON ALL TABLES
+IN SCHEMA public TO app_read;
+
+GRANT SELECT, INSERT, UPDATE
+ON orders, order_items
+TO app_write;
+
+-- Row Level Security (RLS)
+ALTER TABLE user_data ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY user_data_access ON user_data
+USING (user_id = current_user_id());</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Monitoring et Logging</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>-- Configuration du logging
+ALTER SYSTEM SET
+    log_min_duration_statement = '1s';
+ALTER SYSTEM SET
+    log_statement = 'mod';
+ALTER SYSTEM SET
+    log_connections = on;
+
+-- Surveillance des requêtes longues
+SELECT pid, datname, usename, query_start,
+    now() - query_start as duration,
+    state, query
+FROM pg_stat_activity
+WHERE state != 'idle'
+ORDER BY duration DESC;
+
+-- Index inutilisés
+SELECT schemaname, tablename, indexname,
+    idx_scan, idx_tup_read, idx_tup_fetch
+FROM pg_stat_user_indexes
+WHERE idx_scan = 0
+AND idx_tup_read = 0;</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

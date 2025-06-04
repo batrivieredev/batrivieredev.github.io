@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailwind CSS - Concepts Avancés</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Tailwind CSS - Concepts Avancés</h1>
+
+        <div class="alert alert-info">
+            Explorez les fonctionnalités avancées de Tailwind CSS pour créer des interfaces complexes et optimisées.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Plugins personnalisés</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// plugins/aspect-ratio.js
+const plugin = require('tailwindcss/plugin')
+
+module.exports = plugin(function({ addUtilities, theme, variants }) {
+  const ratios = {
+    'aspect-square': {
+      aspectRatio: '1 / 1'
+    },
+    'aspect-video': {
+      aspectRatio: '16 / 9'
+    },
+    'aspect-portrait': {
+      aspectRatio: '3 / 4'
+    }
+  }
+
+  addUtilities(ratios, variants('aspectRatio'))
+})
+
+// tailwind.config.js
+module.exports = {
+  plugins: [
+    require('./plugins/aspect-ratio'),
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography')
+  ]
+}</code></pre>
+
+                <h3 class="h6 mt-4">Utilisation du plugin</h3>
+                <pre><code>&lt;div class="aspect-video bg-gray-200"&gt;
+  &lt;img src="video-thumbnail.jpg" class="w-full h-full object-cover"&gt;
+&lt;/div&gt;</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration avancée des thèmes</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// tailwind.config.js
+const defaultTheme = require('tailwindcss/defaultTheme')
+
+module.exports = {
+  theme: {
+    // Remplacement complet
+    screens: {
+      'tablet': '640px',
+      'laptop': '1024px',
+      'desktop': '1280px',
+    },
+
+    extend: {
+      // Extension du thème par défaut
+      colors: {
+        primary: {
+          50: '#f0f9ff',
+          100: '#e0f2fe',
+          500: '#0ea5e9',
+          900: '#0c4a6e',
+        }
+      },
+
+      fontSize: {
+        'tiny': '.65rem',
+        'mega': '4rem',
+      },
+
+      spacing: {
+        '128': '32rem',
+        'screen-10': '10vh',
+      },
+
+      animation: {
+        'bounce-slow': 'bounce 3s linear infinite',
+      },
+
+      keyframes: {
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(-3deg)' },
+          '50%': { transform: 'rotate(3deg)' },
+        }
+      }
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">JIT (Just-In-Time) Mode</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// tailwind.config.js
+module.exports = {
+  mode: 'jit',
+  content: [
+    './src/**/*.{html,js,vue,tsx}'
+  ],
+
+  theme: {
+    extend: {
+      // Valeurs arbitraires
+      'width-[32.5%]': 'width: 32.5%',
+      'rotate-[17deg]': 'transform: rotate(17deg)',
+      'grid-cols-[1fr,500px,2fr]':
+        'grid-template-columns: 1fr 500px 2fr'
+    }
+  }
+}
+
+// Utilisation
+&lt;div class="w-[32.5%] rotate-[17deg]"&gt;
+  Contenu avec valeurs arbitraires
+&lt;/div&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Directives avancées</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>/* styles.css */
+@layer base {
+  h1 {
+    @apply text-2xl font-bold mb-4;
+  }
+  a {
+    @apply text-blue-600 hover:text-blue-800;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
+  }
+}
+
+@layer utilities {
+  .scroll-snap-none {
+    scroll-snap-type: none;
+  }
+  .scroll-snap-x {
+    scroll-snap-type: x mandatory;
+  }
+}
+
+/* Modification des variants */
+@variants hover, focus, disabled {
+  .custom-class {
+    background-color: purple;
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Optimisation des performances</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">PurgeCSS Configuration</h3>
+                        <pre><code>// tailwind.config.js
+module.exports = {
+  purge: {
+    enabled: process.env.NODE_ENV === 'production',
+    content: [
+      './src/**/*.html',
+      './src/**/*.vue',
+      './src/**/*.jsx',
+    ],
+    options: {
+      safelist: [
+        /^bg-/,
+        /^text-/,
+        'rotate-90',
+      ],
+    },
+  }
+}</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Minification</h3>
+                        <pre><code>// postcss.config.js
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+    cssnano: process.env.NODE_ENV === 'production' ? {
+      preset: ['default', {
+        discardComments: {
+          removeAll: true,
+        },
+        normalizeWhitespace: false,
+      }]
+    } : false
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

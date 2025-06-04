@@ -1,107 +1,192 @@
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Introduction</title>
+    <title>Scriptorium - Documentation développement</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-    <!-- Placeholder pour le header -->
     <div id="header"></div>
 
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center mb-5">
+                <h1 class="display-3">Scriptorium<br><small class="text-muted h4">by batrivieredev</small></h1>
+                <p class="lead mt-4">Documentation complète pour le développement web, mobile et desktop</p>
+            </div>
+        </div>
 
+        <div class="row g-4">
+            <!-- Éditeurs -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5 card-title mb-3">
+                            <i class="bi bi-keyboard-fill me-2"></i>
+                            Éditeurs
+                        </h2>
+                        <ul class="list-unstyled">
+                            <li><a href="/editors/vim.html">Vim</a></li>
+                            <li><a href="/editors/emacs.html">Emacs</a></li>
+                            <li><a href="/editors/nano.html">Nano</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Frontend -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5 card-title mb-3">
+                            <i class="bi bi-window-fullscreen me-2"></i>
+                            Frontend Web
+                        </h2>
+                        <ul class="list-unstyled">
+                            <li><a href="/frontend/html/introduction.html">HTML</a></li>
+                            <li><a href="/frontend/css/introduction.html">CSS</a></li>
+                            <li><a href="/frontend/javascript/introduction.html">JavaScript</a></li>
+                            <li><a href="/frontend/react/introduction.html">React</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backend -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5 card-title mb-3">
+                            <i class="bi bi-hdd-rack-fill me-2"></i>
+                            Backend
+                        </h2>
+                        <ul class="list-unstyled">
+                            <li><a href="/backend/python/flask/introduction.html">Flask</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bases de données -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5 card-title mb-3">
+                            <i class="bi bi-database-fill me-2"></i>
+                            Bases de données
+                        </h2>
+                        <ul class="list-unstyled">
+                            <li><a href="/databases/mysql/introduction.html">MySQL</a></li>
+                            <li><a href="/databases/mongodb/introduction.html">MongoDB</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5 card-title mb-3">
+                            <i class="bi bi-phone-fill me-2"></i>
+                            Apps Mobiles
+                        </h2>
+                        <ul class="list-unstyled">
+                            <li><a href="/mobile/react-native/introduction.html">React Native</a></li>
+                            <li><a href="/mobile/flutter/introduction.html">Flutter</a></li>
+                            <li><a href="/mobile/native/introduction.html">Native iOS/Android</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5 card-title mb-3">
+                            <i class="bi bi-pc-display-horizontal me-2"></i>
+                            Apps Desktop
+                        </h2>
+                        <ul class="list-unstyled">
+                            <li><a href="/desktop/electron/introduction.html">Electron</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sécurité -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5 card-title mb-3">
+                            <i class="bi bi-shield-lock-fill me-2"></i>
+                            Sécurité
+                        </h2>
+                        <ul class="list-unstyled">
+                            <li><a href="/security/authentication/introduction.html">Authentification</a></li>
+                            <li><a href="/security/password/introduction.html">Mots de passe</a></li>
+                            <li><a href="/security/http/introduction.html">Sécurité HTTP</a></li>
+                            <li><a href="/security/api/introduction.html">Protection API</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tests -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5 card-title mb-3">
+                            <i class="bi bi-bug-fill me-2"></i>
+                            Tests & Qualité
+                        </h2>
+                        <ul class="list-unstyled">
+                            <li><a href="/tests/javascript/introduction.html">JavaScript</a></li>
+                            <li><a href="/tests/python/introduction.html">Python</a></li>
+                            <li><a href="/tests/e2e/introduction.html">E2E</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-8 mx-auto text-center">
+                <div class="card hover-shadow">
+                    <div class="card-body">
+                        <h2 class="h5 mb-4">Configuration de l'interface</h2>
+                        <div class="d-flex justify-content-center gap-4">
+                            <button class="btn btn-theme" id="theme-toggle">
+                                <i class="bi bi-moon-stars-fill me-2"></i>
+                                Mode sombre
+                            </button>
+                            <button class="btn btn-theme" id="font-toggle">
+                                <i class="bi bi-fonts me-2"></i>
+                                Police Luciole
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/accessibility.js"></script>
     <script>
-        // Charger le contenu du fichier header.html
         fetch("/header.html")
             .then(response => response.text())
-            .then(data => document.getElementById("header").innerHTML = data)
+            .then(data => {
+                document.getElementById("header").innerHTML = data;
+                // Re-init Bootstrap components after dynamic content load
+                const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+            })
             .catch(error => console.error('Erreur lors du chargement du header:', error));
     </script>
 </body>
 </html>
-
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Introduction</title>
-	<link rel="stylesheet" href="/static/css/styles.css">
-</head>
-
-
-<div class="content"> &nbsp; </div>
-
-<body>
-    <h1>Introduction aux Langages de Programmation</h1>
-    <p>
-        Les langages de programmation sont les outils fondamentaux permettant aux humains de communiquer avec les machines.
-        Ils servent à écrire des instructions que les ordinateurs peuvent comprendre et exécuter pour accomplir des tâches
-        spécifiques, qu'il s'agisse de calculs complexes, de gestion de données ou de création d'applications interactives.
-    </p>
-    <p>
-        Un langage de programmation est constitué d’un ensemble de règles (<strong>sa syntaxe</strong>) et d’un vocabulaire spécifique
-        qui définissent comment écrire des programmes. Chaque langage a ses propres caractéristiques, adaptées à des contextes et des
-        objectifs différents. Par exemple, certains langages sont conçus pour gérer des systèmes complexes (comme le C ou le Java),
-        tandis que d'autres sont plus orientés vers la création rapide d'applications web (comme JavaScript ou Python).
-    </p>
-
-    <h2>Classification des langages de programmation</h2>
-    <ul>
-        <li>
-            <strong>Langages de bas niveau :</strong> Ces langages, comme l’<em>assembleur</em>, sont proches du langage machine.
-            Ils offrent un contrôle précis des ressources matérielles, mais sont souvent difficiles à maîtriser.
-        </li>
-        <li>
-            <strong>Langages de haut niveau :</strong> Plus proches de la langue humaine, ces langages (comme Python, Java, ou C++)
-            permettent aux développeurs d’écrire du code de manière plus intuitive. Ils sont souvent accompagnés de bibliothèques
-            et de frameworks facilitant le développement.
-        </li>
-        <li>
-            <strong>Langages compilés et interprétés :</strong>
-            <ul>
-                <li>
-                    <em>Langages compilés</em> (ex : C, Rust) nécessitent un processus de compilation qui transforme le code source
-                    en un programme exécutable.
-                </li>
-                <li>
-                    <em>Langages interprétés</em> (ex : Python, JavaScript) sont directement exécutés par un interpréteur sans étape
-                    de compilation préalable.
-                </li>
-            </ul>
-        </li>
-        <li>
-            <strong>Langages spécifiques au domaine :</strong> Certains langages, comme SQL pour la gestion des bases de données
-            ou MATLAB pour les calculs mathématiques, sont conçus pour des usages spécialisés.
-        </li>
-    </ul>
-
-    <h2>Importance des langages de programmation</h2>
-    <p>
-        Les langages de programmation jouent un rôle clé dans :
-    </p>
-    <ul>
-        <li><strong>Le développement logiciel :</strong> Ils permettent de créer des applications mobiles, des logiciels métiers ou des jeux vidéo.</li>
-        <li><strong>L’automatisation des tâches :</strong> Avec des langages comme Python, il est possible d'automatiser des processus complexes.</li>
-        <li><strong>La manipulation de données :</strong> Des langages comme R ou Python sont largement utilisés dans le domaine de la science des données.</li>
-        <li><strong>L’innovation technologique :</strong> Des technologies modernes comme l’intelligence artificielle et l’Internet des objets reposent sur des langages comme Python, Java ou C++.</li>
-    </ul>
-
-    <h2>Conclusion</h2>
-    <p>
-        Les langages de programmation sont à la base de toutes les technologies modernes. Apprendre à programmer ouvre la porte
-        à de nombreuses opportunités, qu'il s'agisse de résoudre des problèmes, de créer des solutions innovantes ou de contribuer
-        au développement des outils numériques de demain.
-    </p>
-
-
-	<footer>
-        <p>&nbsp;</p>
-		<p>&copy; 2024 Baptiste RIVIÈRE. Tous droits réservés.</p>
-    </footer>
-
-</body>
-</html>
-

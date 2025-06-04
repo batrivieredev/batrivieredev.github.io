@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction à Nginx</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction à Nginx</h1>
+
+        <div class="alert alert-info">
+            Nginx est un serveur web performant qui peut aussi servir de reverse proxy, load balancer et cache HTTP.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># /etc/nginx/nginx.conf
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log notice;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent"';
+
+    access_log /var/log/nginx/access.log main;
+
+    sendfile on;
+    keepalive_timeout 65;
+
+    include /etc/nginx/conf.d/*.conf;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Virtual Host</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># /etc/nginx/conf.d/myapp.conf
+server {
+    listen 80;
+    server_name myapp.com www.myapp.com;
+    root /var/www/myapp;
+    index index.html;
+
+    # Logs
+    access_log /var/log/nginx/myapp.access.log;
+    error_log /var/log/nginx/myapp.error.log;
+
+    # Gestion des erreurs
+    error_page 404 /404.html;
+    error_page 500 502 503 504 /50x.html;
+
+    # Configuration SSL
+    listen 443 ssl;
+    ssl_certificate /etc/nginx/ssl/myapp.crt;
+    ssl_certificate_key /etc/nginx/ssl/myapp.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    # Redirection HTTP vers HTTPS
+    if ($scheme != "https") {
+        return 301 https://$host$request_uri;
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Cas d'utilisation courants</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Reverse Proxy</h3>
+                        <pre><code>server {
+    listen 80;
+    server_name api.example.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Load Balancer</h3>
+                        <pre><code>upstream backend {
+    server backend1.example.com:8080;
+    server backend2.example.com:8080;
+    server backend3.example.com:8080;
+}
+
+server {
+    listen 80;
+    server_name example.com;
+
+    location / {
+        proxy_pass http://backend;
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Headers de sécurité
+add_header X-Frame-Options "SAMEORIGIN";
+add_header X-XSS-Protection "1; mode=block";
+add_header X-Content-Type-Options "nosniff";
+add_header Strict-Transport-Security "max-age=31536000";
+
+# Limitation de connexions
+limit_conn_zone $binary_remote_addr zone=addr:10m;
+limit_conn addr 100;
+
+# Rate limiting
+limit_req_zone $binary_remote_addr zone=one:10m rate=1r/s;
+location /api/ {
+    limit_req zone=one burst=5;
+    proxy_pass http://backend;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Optimisation</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Compression Gzip
+gzip on;
+gzip_types text/plain text/css application/json application/javascript text/xml;
+gzip_min_length 1000;
+
+# Cache
+location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+    expires 30d;
+    add_header Cache-Control "public, no-transform";
+}
+
+# Buffer size
+client_body_buffer_size 10K;
+client_header_buffer_size 1k;
+client_max_body_size 8m;
+large_client_header_buffers 2 1k;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

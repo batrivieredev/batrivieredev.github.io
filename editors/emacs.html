@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emacs - Documentation complète</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Documentation complète d'Emacs</h1>
+
+        <div class="alert alert-info">
+            Guide complet des commandes et fonctionnalités d'Emacs.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Commandes de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Commande</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>C-x C-c</td><td>Quitter Emacs</td></tr>
+                                <tr><td>C-x C-s</td><td>Sauvegarder fichier</td></tr>
+                                <tr><td>C-x C-f</td><td>Ouvrir fichier</td></tr>
+                                <tr><td>C-x C-w</td><td>Sauvegarder sous</td></tr>
+                                <tr><td>C-g</td><td>Annuler commande</td></tr>
+                                <tr><td>C-x u</td><td>Annuler modification</td></tr>
+                                <tr><td>C-_</td><td>Annuler modification (alt)</td></tr>
+                                <tr><td>M-x</td><td>Exécuter commande</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Navigation</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Commande</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>C-f</td><td>Caractère suivant</td></tr>
+                                <tr><td>C-b</td><td>Caractère précédent</td></tr>
+                                <tr><td>C-n</td><td>Ligne suivante</td></tr>
+                                <tr><td>C-p</td><td>Ligne précédente</td></tr>
+                                <tr><td>C-a</td><td>Début de ligne</td></tr>
+                                <tr><td>C-e</td><td>Fin de ligne</td></tr>
+                                <tr><td>M-f</td><td>Mot suivant</td></tr>
+                                <tr><td>M-b</td><td>Mot précédent</td></tr>
+                                <tr><td>M-a</td><td>Début de phrase</td></tr>
+                                <tr><td>M-e</td><td>Fin de phrase</td></tr>
+                                <tr><td>C-v</td><td>Page suivante</td></tr>
+                                <tr><td>M-v</td><td>Page précédente</td></tr>
+                                <tr><td>M-<</td><td>Début du buffer</td></tr>
+                                <tr><td>M-></td><td>Fin du buffer</td></tr>
+                                <tr><td>M-g g</td><td>Aller à la ligne</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Édition</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Commande</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>C-d</td><td>Supprimer caractère</td></tr>
+                                <tr><td>M-d</td><td>Supprimer mot</td></tr>
+                                <tr><td>C-k</td><td>Couper fin de ligne</td></tr>
+                                <tr><td>M-k</td><td>Couper fin de phrase</td></tr>
+                                <tr><td>C-w</td><td>Couper région</td></tr>
+                                <tr><td>M-w</td><td>Copier région</td></tr>
+                                <tr><td>C-y</td><td>Coller</td></tr>
+                                <tr><td>M-y</td><td>Cycle buffer kill</td></tr>
+                                <tr><td>C-/</td><td>Annuler</td></tr>
+                                <tr><td>C-space</td><td>Début de sélection</td></tr>
+                                <tr><td>C-x h</td><td>Sélectionner tout</td></tr>
+                                <tr><td>M-q</td><td>Reformater paragraphe</td></tr>
+                                <tr><td>C-o</td><td>Nouvelle ligne après</td></tr>
+                                <tr><td>C-j</td><td>Nouvelle ligne et indentation</td></tr>
+                                <tr><td>M-\\</td><td>Supprimer espaces</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Recherche et remplacement</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Commande</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>C-s</td><td>Rechercher avant</td></tr>
+                                <tr><td>C-r</td><td>Rechercher arrière</td></tr>
+                                <tr><td>M-%</td><td>Rechercher/remplacer</td></tr>
+                                <tr><td>M-x replace-string</td><td>Remplacer chaîne</td></tr>
+                                <tr><td>M-x replace-regexp</td><td>Remplacer regexp</td></tr>
+                                <tr><td>M-x occur</td><td>Lister occurrences</td></tr>
+                                <tr><td>M-s o</td><td>Occur mode</td></tr>
+                                <tr><td>M-x grep</td><td>Grep dans fichiers</td></tr>
+                                <tr><td>M-x rgrep</td><td>Grep récursif</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Fenêtres et buffers</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Commande</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>C-x 2</td><td>Diviser horizontalement</td></tr>
+                                <tr><td>C-x 3</td><td>Diviser verticalement</td></tr>
+                                <tr><td>C-x o</td><td>Changer de fenêtre</td></tr>
+                                <tr><td>C-x 0</td><td>Fermer fenêtre courante</td></tr>
+                                <tr><td>C-x 1</td><td>Fermer autres fenêtres</td></tr>
+                                <tr><td>C-x 4 f</td><td>Ouvrir dans autre fenêtre</td></tr>
+                                <tr><td>C-x b</td><td>Changer de buffer</td></tr>
+                                <tr><td>C-x k</td><td>Tuer buffer</td></tr>
+                                <tr><td>C-x C-b</td><td>Liste des buffers</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Macros et registres</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Commande</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>C-x (</td><td>Début macro</td></tr>
+                                <tr><td>C-x )</td><td>Fin macro</td></tr>
+                                <tr><td>C-x e</td><td>Exécuter macro</td></tr>
+                                <tr><td>C-u n C-x e</td><td>Exécuter n fois</td></tr>
+                                <tr><td>C-x C-k n</td><td>Nommer macro</td></tr>
+                                <tr><td>M-x name-last-kbd-macro</td><td>Nommer dernière macro</td></tr>
+                                <tr><td>C-x r s r</td><td>Copier dans registre r</td></tr>
+                                <tr><td>C-x r i r</td><td>Insérer registre r</td></tr>
+                                <tr><td>C-x r SPC r</td><td>Sauver position dans r</td></tr>
+                                <tr><td>C-x r j r</td><td>Aller à position r</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Modes et configuration</h2>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Commande</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>M-x fundamental-mode</td><td>Mode fondamental</td></tr>
+                        <tr><td>M-x text-mode</td><td>Mode texte</td></tr>
+                        <tr><td>M-x prog-mode</td><td>Mode programmation</td></tr>
+                        <tr><td>M-x python-mode</td><td>Mode Python</td></tr>
+                        <tr><td>M-x js-mode</td><td>Mode JavaScript</td></tr>
+                        <tr><td>M-x html-mode</td><td>Mode HTML</td></tr>
+                        <tr><td>M-x css-mode</td><td>Mode CSS</td></tr>
+                        <tr><td>M-x markdown-mode</td><td>Mode Markdown</td></tr>
+                        <tr><td>M-x customize</td><td>Interface de configuration</td></tr>
+                        <tr><td>M-x customize-group</td><td>Configurer groupe</td></tr>
+                        <tr><td>M-x describe-variable</td><td>Décrire variable</td></tr>
+                        <tr><td>M-x describe-function</td><td>Décrire fonction</td></tr>
+                        <tr><td>M-x describe-key</td><td>Décrire touche</td></tr>
+                        <tr><td>M-x describe-mode</td><td>Décrire mode courant</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

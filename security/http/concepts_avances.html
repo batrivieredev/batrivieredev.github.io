@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concepts avancés - Sécurité HTTP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Concepts avancés de sécurité HTTP</h1>
+
+        <div class="alert alert-info">
+            Concepts avancés pour la sécurisation des applications web avec Helmet.js et les headers HTTP.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">CSP Avancé</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// CSP dynamique et nonces
+const generateNonce = () => {
+  return crypto.randomBytes(16).toString('base64');
+};
+
+app.use((req, res, next) => {
+  const scriptNonce = generateNonce();
+  const styleNonce = generateNonce();
+
+  // Stocker les nonces pour le template
+  res.locals.scriptNonce = scriptNonce;
+  res.locals.styleNonce = styleNonce;
+
+  // Configuration CSP
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        `'nonce-${scriptNonce}'`,
+        // Hashes des scripts inline autorisés
+        "'sha256-xyz123...'",
+      ],
+      styleSrc: [
+        "'self'",
+        `'nonce-${styleNonce}'`
+      ],
+      connectSrc: [
+        "'self'",
+        'https://api.example.com'
+      ],
+      imgSrc: [
+        "'self'",
+        'data:',
+        'https:',
+        'blob:'
+      ],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+      upgradeInsecureRequests: [],
+      reportUri: '/csp-report'
+    }
+  });
+
+  next();
+});
+
+// Reporting endpoint
+app.post('/csp-report', (req, res) => {
+  const report = req.body['csp-report'];
+  logger.warn('CSP Violation:', {
+    blockedUri: report.blockedUri,
+    violatedDirective: report.violatedDirective,
+    documentUri: report.documentUri
+  });
+  res.status(204).end();
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration HSTS avancée</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// HSTS avec preload
+app.use(helmet.hsts({
+  maxAge: 31536000, // 1 an
+  includeSubDomains: true,
+  preload: true,
+  // Gestion des exemptions
+  setIf: (req, res) => {
+    // Désactiver pour les sous-domaines spécifiques
+    const host = req.hostname;
+    if (host.startsWith('legacy.')) {
+      return false;
+    }
+    return true;
+  }
+}));
+
+// Redirection HTTPS
+const requireHTTPS = (req, res, next) => {
+  if (
+    !req.secure &&
+    req.get('x-forwarded-proto') !== 'https' &&
+    process.env.NODE_ENV === 'production'
+  ) {
+    const host = req.get('host');
+    const url = `https://${host}${req.url}`;
+    return res.redirect(301, url);
+  }
+  next();
+};
+
+app.use(requireHTTPS);
+
+// Configuration du proxy
+app.set('trust proxy', 1);</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Subresource Integrity</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Middleware SRI
+const sriMiddleware = (req, res, next) => {
+  const calculateHash = (content) => {
+    return crypto
+      .createHash('sha384')
+      .update(content)
+      .digest('base64');
+  };
+
+  // Ajouter les hashes aux ressources
+  res.locals.addIntegrity = (url) => {
+    const content = fs.readFileSync(
+      path.join(__dirname, 'public', url)
+    );
+    const hash = calculateHash(content);
+    return `sha384-${hash}`;
+  };
+
+  next();
+};
+
+app.use(sriMiddleware);
+
+// Template avec SRI
+&lt;script
+  src="/js/main.js"
+  integrity="&lt;%= addIntegrity('/js/main.js') %&gt;"
+  crossorigin="anonymous"&gt;
+&lt;/script&gt;
+
+// Auto-génération des hashes pour le build
+const generateIntegrityMap = () => {
+  const files = glob.sync('public/**/*.{js,css}');
+  const integrityMap = {};
+
+  files.forEach(file => {
+    const content = fs.readFileSync(file);
+    const hash = calculateHash(content);
+    integrityMap[file] = `sha384-${hash}`;
+  });
+
+  fs.writeFileSync(
+    'integrity-map.json',
+    JSON.stringify(integrityMap, null, 2)
+  );
+};</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Trusted Types</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Configuration Trusted Types
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    trustedTypes: {
+      defaultPolicy: 'default',
+      allowDuplicates: true
+    },
+    requireTrustedTypesFor: ["'script'"]
+  }
+}));
+
+// Client-side implementation
+if (window.trustedTypes && trustedTypes.createPolicy) {
+  // Politique par défaut
+  trustedTypes.createPolicy('default', {
+    createHTML: (string) => {
+      const sanitized = DOMPurify.sanitize(string);
+      return sanitized;
+    },
+    createScriptURL: (string) => {
+      const url = new URL(string, location.href);
+      if (url.origin === location.origin) {
+        return url.toString();
+      }
+      throw new Error('URL non autorisée');
+    },
+    createScript: (string) => {
+      // Validation du script
+      if (validateScript(string)) {
+        return string;
+      }
+      throw new Error('Script non autorisé');
+    }
+  });
+}
+
+// Utilisation avec les APIs dynamiques
+const sanitizer = new Sanitizer();
+const template = document.createElement('template');
+
+function setInnerHTML(element, string) {
+  const content = sanitizer.sanitize(string);
+  element.setHTML(content);
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Permissions Policy</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Configuration Permissions Policy
+app.use(helmet.permissionsPolicy({
+  features: {
+    geolocation: ["'self'"],
+    camera: ["'none'"],
+    microphone: ["'none'"],
+    payment: ["'self'", "https://payment.example.com"],
+    fullscreen: ["'self'"],
+    accelerometer: ["'none'"],
+    autoplay: ["'none'"],
+    battery: ["'none'"],
+    displayCapture: ["'none'"],
+    document-domain: ["'none'"],
+    encrypted-media: ["'self'"],
+    execution-while-not-rendered: ["'none'"],
+    execution-while-out-of-viewport: ["'none'"],
+    gyroscope: ["'none'"],
+    magnetometer: ["'none'"],
+    midi: ["'none'"],
+    navigation-override: ["'none'"],
+    picture-in-picture: ["'none'"],
+    publickey-credentials-get: ["'self'"],
+    sync-xhr: ["'none'"],
+    usb: ["'none'"],
+    xr-spatial-tracking: ["'none'"]
+  }
+}));
+
+// Gestionnaire d'autorisations
+class PermissionsManager {
+  constructor() {
+    this.requiredPermissions = [
+      'geolocation',
+      'notifications'
+    ];
+  }
+
+  async checkPermissions() {
+    const results = {};
+
+    for (const permission of this.requiredPermissions) {
+      const status = await navigator.permissions.query({
+        name: permission
+      });
+      results[permission] = status.state;
+    }
+
+    return results;
+  }
+
+  async requestPermission(name) {
+    switch (name) {
+      case 'geolocation':
+        return new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(
+            () => resolve('granted'),
+            () => reject('denied')
+          );
+        });
+
+      case 'notifications':
+        const result = await Notification.requestPermission();
+        return result;
+
+      default:
+        throw new Error(`Permission non supportée: ${name}`);
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

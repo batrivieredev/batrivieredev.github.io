@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django - Concepts Avancés</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Django - Concepts Avancés</h1>
+
+        <div class="alert alert-info">
+            Découvrez les fonctionnalités avancées de Django pour créer des applications web sophistiquées.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Middlewares</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># middleware.py
+from django.utils.deprecation import MiddlewareMixin
+from django.http import HttpResponseForbidden
+import time
+
+class RequestTimingMiddleware(MiddlewareMixin):
+    def process_request(self, request):
+        request.start_time = time.time()
+
+    def process_response(self, request, response):
+        if hasattr(request, 'start_time'):
+            duration = time.time() - request.start_time
+            response['X-Request-Duration'] = f"{duration:.2f}s"
+        return response
+
+class IPFilterMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.blacklisted_ips = ['192.168.1.1', '10.0.0.1']
+
+    def __call__(self, request):
+        ip = request.META.get('REMOTE_ADDR')
+        if ip in self.blacklisted_ips:
+            return HttpResponseForbidden('IP non autorisée')
+        response = self.get_response(request)
+        return response
+
+# settings.py
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'myapp.middleware.RequestTimingMiddleware',
+    'myapp.middleware.IPFilterMiddleware',
+]</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Signaux</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># signals.py
+from django.db.models.signals import post_save, pre_delete
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+from .models import UserProfile
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
+# Signaux personnalisés
+from django.dispatch import Signal
+
+article_published = Signal()
+
+class Article(models.Model):
+    # ... champs du modèle
+
+    def publish(self):
+        self.is_published = True
+        self.save()
+        article_published.send(
+            sender=self.__class__,
+            article=self
+        )
+
+@receiver(article_published)
+def notify_subscribers(sender, article, **kwargs):
+    subscribers = article.category.subscribers.all()
+    for subscriber in subscribers:
+        send_notification(subscriber, article)</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Cache</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># settings.py
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+    }
+}
+
+# Cache de vue
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+
+@cache_page(60 * 15)  # Cache pour 15 minutes
+def article_list(request):
+    articles = Article.objects.all()
+    return render(request, 'article_list.html', {
+        'articles': articles
+    })
+
+# Cache de template
+{% load cache %}
+{% cache 500 sidebar request.user.username %}
+    ... contenu coûteux ...
+{% endcache %}
+
+# Cache de requête
+def get_articles():
+    cache_key = 'all_articles'
+    articles = cache.get(cache_key)
+
+    if articles is None:
+        articles = list(
+            Article.objects.all().select_related('author')
+        )
+        cache.set(cache_key, articles, timeout=300)
+
+    return articles
+
+# Invalidation du cache
+def update_article(request, pk):
+    article = get_object_or_404(Article, pk=pk)
+    if request.method == 'POST':
+        form = ArticleForm(request.POST, instance=article)
+        if form.is_valid():
+            form.save()
+            cache.delete('all_articles')
+            return redirect('article_detail', pk=pk)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Tâches asynchrones</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># tasks.py
+from celery import shared_task
+from django.core.mail import send_mail
+
+@shared_task
+def send_notification_email(user_id, article_id):
+    try:
+        user = User.objects.get(id=user_id)
+        article = Article.objects.get(id=article_id)
+
+        send_mail(
+            subject=f'Nouvel article : {article.title}',
+            message=article.content,
+            from_email='noreply@example.com',
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        logger.error(f'Erreur envoi email: {str(e)}')
+
+# views.py
+def publish_article(request, article_id):
+    article = get_object_or_404(Article, id=article_id)
+    article.is_published = True
+    article.save()
+
+    subscribers = article.category.subscribers.all()
+    for subscriber in subscribers:
+        send_notification_email.delay(
+            subscriber.id,
+            article.id
+        )
+
+    return redirect('article_detail', pk=article.id)
+
+# settings.py
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Paris'</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Authentification personnalisée</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># auth.py
+from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import AbstractUser
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('Email obligatoire')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(email, password, **extra_fields)
+
+class CustomUser(AbstractUser):
+    username = None
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=15, blank=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
+
+# settings.py
+AUTH_USER_MODEL = 'myapp.CustomUser'
+
+# Authentication backend
+class EmailBackend:
+    def authenticate(self, request, email=None, password=None):
+        try:
+            user = CustomUser.objects.get(email=email)
+            if user.check_password(password):
+                return user
+        except CustomUser.DoesNotExist:
+            return None
+
+    def get_user(self, user_id):
+        try:
+            return CustomUser.objects.get(pk=user_id)
+        except CustomUser.DoesNotExist:
+            return None</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">API REST</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># serializers.py
+from rest_framework import serializers
+
+class ArticleSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(
+        source='author.username'
+    )
+
+    class Meta:
+        model = Article
+        fields = ['id', 'title', 'content', 'author',
+                 'created_at', 'is_published']
+
+# views.py
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+class ArticleViewSet(viewsets.ModelViewSet):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def publish(self, request, pk=None):
+        article = self.get_object()
+        article.is_published = True
+        article.save()
+        return Response({'status': 'publié'})
+
+# urls.py
+from rest_framework.routers import DefaultRouter
+from . import views
+
+router = DefaultRouter()
+router.register(r'articles', views.ArticleViewSet)
+
+urlpatterns = [
+    path('api/', include(router.urls)),
+]</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

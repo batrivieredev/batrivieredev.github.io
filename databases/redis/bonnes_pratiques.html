@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redis - Bonnes Pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Redis - Bonnes Pratiques</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour utiliser Redis de manière efficace, sécurisée et maintenable.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Gestion des clés</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="h6 text-success">✅ Bonnes pratiques</h3>
+                        <pre><code># Nommage explicite avec séparateurs
+SET user:1234:profile '{"name":"John"}'
+HSET order:5678:details amount 99.99
+
+# TTL pour éviter l'accumulation
+SET session:abc123 "data" EX 3600
+SET cache:product:1 "data" EX 86400
+
+# Préfixes par domaine
+users:*     # Données utilisateurs
+cache:*     # Cache
+queue:*     # Files de messages
+temp:*      # Données temporaires</code></pre>
+
+                        <h3 class="h6 text-danger mt-3">❌ À éviter</h3>
+                        <pre><code># Clés sans contexte
+SET 12345 "data"  # ❌
+
+# Pas de TTL sur données temporaires
+SET temp_data "value"  # ❌
+
+# Noms de clés trop longs
+SET very:long:key:name:with:many:parts "data" # ❌</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Gestion de la mémoire</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Configuration mémoire
+maxmemory 2gb
+maxmemory-policy allkeys-lru
+
+# Surveillance utilisation
+INFO memory
+MEMORY DOCTOR
+MEMORY USAGE key_name
+
+# Nettoyage périodique
+# Scan et suppression TTL expirés
+SCAN 0 COUNT 100
+    -> Pour chaque clé:
+    TTL key_name
+    Si TTL < 0, DEL key_name
+
+# Éviter les grosses valeurs
+STRLEN large_value
+    -> Si > 10kb, considérer autre stockage
+
+# Compression si nécessaire
+SET key COMPRESS(value)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Sécurité</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># Configuration sécurisée
+bind 127.0.0.1
+protected-mode yes
+requirepass "strong_password"
+rename-command FLUSHALL ""
+rename-command CONFIG ""
+
+# ACLs (Redis 6+)
+ACL SETUSER alice on >secret ~objects:* +get +set
+ACL SETUSER bob on >secret ~cache:* +get
+
+# TLS
+tls-port 6379
+tls-cert-file /path/to/cert.pem
+tls-key-file /path/to/key.pem
+tls-ca-cert-file /path/to/ca.pem
+
+# Surveillance
+CONFIG SET notify-keyspace-events AKE
+MONITOR
+INFO clients</code></pre>
+
+                <div class="alert alert-warning mt-3">
+                    <h4 class="h6">Attention :</h4>
+                    <ul class="mb-0">
+                        <li>Ne jamais exposer Redis directement à Internet</li>
+                        <li>Utiliser des mots de passe forts</li>
+                        <li>Limiter les commandes dangereuses</li>
+                        <li>Restreindre l'accès par IP</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Performance</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Pipeline pour réduire les RTT
+PIPELINE
+SET key1 value1
+SET key2 value2
+INCR counter
+EXEC
+
+# Transactions atomiques
+MULTI
+HINCRBY user:123:stats visits 1
+EXPIRE user:123:stats 86400
+EXEC
+
+# Éviter les requêtes N+1
+# ❌ Mauvais
+for id in user_ids:
+    GET user:${id}:data
+
+# ✅ Bon
+MGET user:1:data user:2:data user:3:data
+
+# Utiliser les types adaptés
+# ❌ Mauvais (SET pour chaque tag)
+SET user:1:tag:1 "redis"
+SET user:1:tag:2 "cache"
+
+# ✅ Bon (SADD une fois)
+SADD user:1:tags "redis" "cache"</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Haute disponibilité</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Configuration réplication
+# Master
+bind 192.168.1.10
+requirepass master_pass
+
+# Replica
+replicaof 192.168.1.10 6379
+masterauth master_pass
+
+# Sentinel
+sentinel monitor mymaster
+    192.168.1.10 6379 2
+sentinel down-after-milliseconds
+    mymaster 5000
+sentinel failover-timeout
+    mymaster 60000
+
+# Cluster
+cluster-enabled yes
+cluster-node-timeout 5000
+cluster-require-full-coverage no
+
+# Backup
+BGSAVE
+CONFIG GET dir
+CONFIG GET dbfilename</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Monitoring</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># Métriques clés à surveiller
+INFO commandstats    # Utilisation commandes
+INFO memory         # Utilisation mémoire
+INFO clients        # Connexions clients
+INFO keyspace       # Stats des clés
+
+# Alertes importantes
+connected_clients > max_clients
+used_memory > maxmemory * 0.8
+master_link_status:down
+rejected_connections > 0
+
+# Logs à activer
+slowlog-log-slower-than 10000
+slowlog-max-len 128
+latency-monitor-threshold 100
+
+# Export métriques
+INFO ALL | grep -E '(used_memory|connected|
+    rejected|keyspace)'</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Outils recommandés :</h3>
+                    <ul class="mb-0">
+                        <li>Redis Commander pour l'interface web</li>
+                        <li>RedisInsight pour le monitoring</li>
+                        <li>Prometheus + Redis Exporter</li>
+                        <li>Grafana pour les dashboards</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

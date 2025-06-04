@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction au développement natif iOS/Android</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction au développement natif iOS/Android</h1>
+
+        <div class="alert alert-info">
+            Développement d'applications mobiles natives avec Swift (iOS) et Kotlin (Android).
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Swift (iOS)</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Vue de base
+import SwiftUI
+
+struct ContentView: View {
+    @State private var text = ""
+
+    var body: some View {
+        NavigationView {
+            VStack {
+                TextField("Entrez du texte", text: $text)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+
+                Button(action: {
+                    // Action
+                }) {
+                    Text("Valider")
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(8)
+                }
+
+                List {
+                    ForEach(1...5, id: \.self) { item in
+                        Text("Item \(item)")
+                    }
+                }
+            }
+            .navigationTitle("Mon App")
+        }
+    }
+}
+
+// Modèle de données
+struct User: Identifiable, Codable {
+    var id: UUID
+    var name: String
+    var email: String
+
+    init(name: String, email: String) {
+        self.id = UUID()
+        self.name = name
+        self.email = email
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Kotlin (Android)</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Activity principale
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val textInput = findViewById<EditText>(R.id.textInput)
+        val button = findViewById<Button>(R.id.submitButton)
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+
+        button.setOnClickListener {
+            // Action
+        }
+
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = MyAdapter(listItems)
+        }
+    }
+}
+
+// Modèle de données
+data class User(
+    val id: String = UUID.randomUUID().toString(),
+    val name: String,
+    val email: String
+)
+
+// ViewModel
+class MainViewModel : ViewModel() {
+    private val _users = MutableLiveData<List<User>>()
+    val users: LiveData<List<User>> = _users
+
+    fun addUser(user: User) {
+        val currentList = _users.value?.toMutableList() ?: mutableListOf()
+        currentList.add(user)
+        _users.value = currentList
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Navigation et vues</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Swift Navigation</h3>
+                        <pre><code>// Navigation SwiftUI
+struct NavigationExample: View {
+    var body: some View {
+        NavigationView {
+            List {
+                NavigationLink(destination: DetailView(item: item)) {
+                    Text("Voir détails")
+                }
+            }
+        }
+    }
+}
+
+// Gestion des routes
+struct AppView: View {
+    var body: some View {
+        TabView {
+            HomeView()
+                .tabItem {
+                    Label("Accueil", systemImage: "house")
+                }
+            ProfileView()
+                .tabItem {
+                    Label("Profil", systemImage: "person")
+                }
+        }
+    }
+}</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Kotlin Navigation</h3>
+                        <pre><code>// Navigation avec Jetpack
+// nav_graph.xml
+&lt;navigation xmlns:android="..."&gt;
+    &lt;fragment
+        android:id="@+id/homeFragment"
+        android:name=".HomeFragment"&gt;
+        &lt;action
+            android:id="@+id/toDetail"
+            app:destination="@id/detailFragment" /&gt;
+    &lt;/fragment&gt;
+&lt;/navigation&gt;
+
+// Fragment
+class HomeFragment : Fragment() {
+    private val navController by lazy {
+        findNavController()
+    }
+
+    fun navigateToDetail() {
+        navController.navigate(
+            R.id.toDetail,
+            bundleOf("itemId" to itemId)
+        )
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Fonctionnalités natives</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Swift - Accès caméra
+import AVFoundation
+
+class CameraManager {
+    func requestAccess() {
+        AVCaptureDevice.requestAccess(for: .video) { granted in
+            if granted {
+                self.setupCamera()
+            }
+        }
+    }
+}
+
+// Swift - Localisation
+import CoreLocation
+
+class LocationManager: NSObject, CLLocationManagerDelegate {
+    private let manager = CLLocationManager()
+
+    func requestLocation() {
+        manager.requestWhenInUseAuthorization()
+        manager.startUpdatingLocation()
+    }
+
+    func locationManager(_ manager: CLLocationManager,
+                        didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        print("Location: \(location)")
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">APIs système</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Kotlin - Permissions
+private fun checkCameraPermission() {
+    when {
+        ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED -> {
+            startCamera()
+        }
+        else -> {
+            requestPermissions(
+                arrayOf(Manifest.permission.CAMERA),
+                CAMERA_PERMISSION_CODE
+            )
+        }
+    }
+}
+
+// Kotlin - Services en arrière-plan
+class MyService : Service() {
+    override fun onBind(intent: Intent): IBinder? = null
+
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int
+    ): Int {
+        // Logique du service
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

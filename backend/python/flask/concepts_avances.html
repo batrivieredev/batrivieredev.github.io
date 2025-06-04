@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask - Concepts Avancés</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Flask - Concepts Avancés</h1>
+
+        <div class="alert alert-info">
+            Explorez les fonctionnalités avancées de Flask pour construire des applications web robustes et scalables.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Blueprints</h2>
+                    </div>
+                    <div class="card-body">
+                        <p>Les Blueprints permettent d'organiser une application en composants réutilisables.</p>
+                        <pre><code># auth/routes.py
+from flask import Blueprint
+
+auth = Blueprint('auth', __name__)
+
+@auth.route('/login')
+def login():
+    return 'Page de connexion'
+
+# app/__init__.py
+from flask import Flask
+from .auth.routes import auth
+
+app = Flask(__name__)
+app.register_blueprint(auth, url_prefix='/auth')</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Authentification</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>from flask_login import (
+    LoginManager,
+    UserMixin,
+    login_required
+)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80))
+
+@login_required
+def profile():
+    return 'Page protégée'</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">API RESTful</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Définition de l'API</h3>
+                        <pre><code>from flask_restful import (
+    Resource, Api, reqparse
+)
+
+api = Api(app)
+
+class UserAPI(Resource):
+    def get(self, user_id):
+        user = User.query.get(user_id)
+        return user.to_dict()
+
+    def put(self, user_id):
+        args = parser.parse_args()
+        user = User.query.get(user_id)
+        user.update(args)
+        return user.to_dict()
+
+api.add_resource(UserAPI,
+    '/api/users/<int:user_id>')</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Sérialisation</h3>
+                        <pre><code>from flask_marshmallow import (
+    Marshmallow,
+    fields
+)
+
+ma = Marshmallow(app)
+
+class UserSchema(ma.Schema):
+    id = fields.Int(dump_only=True)
+    username = fields.Str()
+    email = fields.Email()
+
+user_schema = UserSchema()</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>def test_home_page():
+    client = app.test_client()
+    response = client.get('/')
+    assert response.status_code == 200
+
+def test_create_user():
+    client = app.test_client()
+    response = client.post('/users',
+        json={'username': 'test'})
+    assert response.status_code == 201</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Gestion des erreurs</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>@app.errorhandler(404)
+def not_found(error):
+    return {
+        'error': 'Resource not found'
+    }, 404
+
+class APIError(Exception):
+    status_code = 400
+
+@app.errorhandler(APIError)
+def handle_api_error(error):
+    return {
+        'error': str(error)
+    }, error.status_code</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Bonnes pratiques avancées</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <h5>Configuration par environnement</h5>
+                        <pre><code>config = {
+    'development': DevConfig,
+    'production': ProdConfig,
+    'testing': TestConfig
+}[os.getenv('FLASK_ENV', 'development')]</code></pre>
+                    </li>
+                    <li class="list-group-item">
+                        <h5>Migrations de base de données</h5>
+                        <pre><code>flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade</code></pre>
+                    </li>
+                    <li class="list-group-item">
+                        <h5>Caching</h5>
+                        <pre><code>from flask_caching import Cache
+
+cache = Cache(app)
+
+@cache.memoize(timeout=300)
+def get_user(user_id):
+    return User.query.get(user_id)</code></pre>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

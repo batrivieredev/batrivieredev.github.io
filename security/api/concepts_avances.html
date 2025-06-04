@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concepts avancés - Protection API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Concepts avancés de protection API</h1>
+
+        <div class="alert alert-info">
+            Concepts avancés pour la sécurisation des API avec CORS et CSRF.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">CORS avancé</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// CORS dynamique avec vérification d'origine
+class CorsManager {
+  constructor() {
+    this.allowedOrigins = new Set([
+      'https://app.example.com',
+      'https://admin.example.com'
+    ]);
+    this.allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'];
+  }
+
+  generateOptions(req) {
+    const origin = req.header('Origin');
+
+    // Vérification dynamique de l'origine
+    const isAllowed = this.verifyOrigin(origin);
+    if (!isAllowed) {
+      return null;
+    }
+
+    return {
+      origin,
+      methods: this.getAllowedMethods(origin),
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-CSRF-Token'
+      ],
+      exposedHeaders: ['X-Total-Count'],
+      credentials: true,
+      maxAge: 3600,
+      optionsSuccessStatus: 204,
+      preflightContinue: false
+    };
+  }
+
+  verifyOrigin(origin) {
+    // Vérification de base
+    if (!origin || !this.allowedOrigins.has(origin)) {
+      return false;
+    }
+
+    // Vérification supplémentaire avec wildcard
+    if (origin.endsWith('.example.com')) {
+      const subdomain = origin.split('.')[0];
+      return this.isValidSubdomain(subdomain);
+    }
+
+    return false;
+  }
+
+  getAllowedMethods(origin) {
+    // Permissions selon l'origine
+    if (origin === 'https://admin.example.com') {
+      return this.allowedMethods;
+    }
+    return ['GET', 'POST'];
+  }
+
+  isValidSubdomain(subdomain) {
+    const validPattern = /^[a-z0-9-]+$/;
+    return (
+      validPattern.test(subdomain) &&
+      subdomain.length <= 63
+    );
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">CSRF avancé</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Protection CSRF avec double soumission
+class CsrfProtection {
+  constructor() {
+    this.tokenStore = new Map();
+    this.tokenTimeout = 3600000; // 1 heure
+  }
+
+  generateToken(sessionId) {
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiry = Date.now() + this.tokenTimeout;
+
+    // Stockage du token avec expiration
+    this.tokenStore.set(sessionId, {
+      token,
+      expiry,
+      attempts: 0
+    });
+
+    // Nettoyage périodique
+    this.cleanupExpiredTokens();
+
+    return token;
+  }
+
+  verifyToken(sessionId, token) {
+    const storedData = this.tokenStore.get(sessionId);
+    if (!storedData) {
+      return false;
+    }
+
+    // Vérification de l'expiration
+    if (Date.now() > storedData.expiry) {
+      this.tokenStore.delete(sessionId);
+      return false;
+    }
+
+    // Limite de tentatives
+    if (storedData.attempts >= 3) {
+      this.tokenStore.delete(sessionId);
+      return false;
+    }
+
+    // Vérification du token
+    const isValid = storedData.token === token;
+    if (!isValid) {
+      storedData.attempts++;
+      this.tokenStore.set(sessionId, storedData);
+    }
+
+    return isValid;
+  }
+
+  cleanupExpiredTokens() {
+    const now = Date.now();
+    for (const [sessionId, data] of this.tokenStore) {
+      if (now > data.expiry) {
+        this.tokenStore.delete(sessionId);
+      }
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Double protection</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Middleware de double protection
+const doubleProtection = (cors, csrf) => {
+  return async (req, res, next) => {
+    try {
+      // Protection CORS
+      const corsOptions = cors.generateOptions(req);
+      if (!corsOptions) {
+        return res.status(403).json({
+          error: 'Origine non autorisée'
+        });
+      }
+
+      // Application des options CORS
+      res.set('Access-Control-Allow-Origin', corsOptions.origin);
+      res.set('Access-Control-Allow-Methods',
+              corsOptions.methods.join(', '));
+      res.set('Access-Control-Allow-Headers',
+              corsOptions.allowedHeaders.join(', '));
+      res.set('Access-Control-Expose-Headers',
+              corsOptions.exposedHeaders.join(', '));
+      res.set('Access-Control-Max-Age',
+              corsOptions.maxAge.toString());
+
+      if (corsOptions.credentials) {
+        res.set('Access-Control-Allow-Credentials', 'true');
+      }
+
+      // Preflight OPTIONS
+      if (req.method === 'OPTIONS') {
+        return res.status(204).end();
+      }
+
+      // Protection CSRF pour les méthodes non sécurisées
+      if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
+        const token = req.headers['x-csrf-token'];
+        const sessionId = req.sessionID;
+
+        if (!token || !sessionId) {
+          return res.status(403).json({
+            error: 'Token CSRF manquant'
+          });
+        }
+
+        const isValid = await csrf.verifyToken(
+          sessionId,
+          token
+        );
+
+        if (!isValid) {
+          return res.status(403).json({
+            error: 'Token CSRF invalide'
+          });
+        }
+      }
+
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+};</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Points clés :</h3>
+                    <ul>
+                        <li>Vérification dynamique des origines</li>
+                        <li>Gestion des tokens avec expiration</li>
+                        <li>Limitation des tentatives</li>
+                        <li>Nettoyage automatique</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">SameSite Cookies</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Configuration des cookies sécurisés
+const cookieConfig = {
+  // Session cookie
+  session: {
+    name: 'sessionId',
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    domain: '.example.com',
+    path: '/',
+    maxAge: 3600000
+  },
+
+  // CSRF cookie
+  csrf: {
+    name: 'csrf-token',
+    httpOnly: false,
+    secure: true,
+    sameSite: 'strict',
+    domain: '.example.com',
+    path: '/',
+    maxAge: 3600000
+  },
+
+  // API key cookie
+  apiKey: {
+    name: 'api-key',
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    domain: '.api.example.com',
+    path: '/v1',
+    maxAge: 86400000
+  }
+};
+
+// Middleware de gestion des cookies
+const setCookies = (req, res, next) => {
+  const { type, value } = req.cookies;
+  const config = cookieConfig[type];
+
+  if (config) {
+    res.cookie(config.name, value, {
+      ...config,
+      signed: true
+    });
+  }
+
+  next();
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Signature de requête</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Service de signature HMAC
+class RequestSigner {
+  constructor(secret) {
+    this.secret = secret;
+  }
+
+  sign(method, url, body = '') {
+    const timestamp = Date.now().toString();
+    const path = new URL(url).pathname;
+    const data = `${method}${path}${timestamp}${body}`;
+
+    const signature = crypto
+      .createHmac('sha256', this.secret)
+      .update(data)
+      .digest('hex');
+
+    return {
+      signature,
+      timestamp
+    };
+  }
+
+  verify(signature, timestamp, method, url, body = '') {
+    // Vérification de l'expiration
+    const now = Date.now();
+    const age = now - parseInt(timestamp);
+    if (age > 300000) { // 5 minutes
+      return false;
+    }
+
+    // Recalculer la signature
+    const path = new URL(url).pathname;
+    const data = `${method}${path}${timestamp}${body}`;
+    const expected = crypto
+      .createHmac('sha256', this.secret)
+      .update(data)
+      .digest('hex');
+
+    // Comparaison sécurisée
+    return crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expected)
+    );
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

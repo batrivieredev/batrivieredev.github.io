@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concepts avancés - Hachage des mots de passe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Concepts avancés du hachage des mots de passe</h1>
+
+        <div class="alert alert-info">
+            Concepts avancés pour le hachage sécurisé des mots de passe avec bcrypt et argon2.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Paramétrage avancé bcrypt</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Optimisation des coûts bcrypt
+const bcrypt = require('bcrypt');
+
+class BcryptOptimizer {
+  constructor() {
+    this.targetTime = 250; // ms
+    this.minCost = 10;
+    this.maxCost = 16;
+  }
+
+  async findOptimalCost() {
+    let cost = this.minCost;
+    const testPassword = 'test_password';
+
+    while (cost <= this.maxCost) {
+      const start = Date.now();
+      await bcrypt.hash(testPassword, cost);
+      const duration = Date.now() - start;
+
+      if (duration >= this.targetTime) {
+        return cost;
+      }
+      cost++;
+    }
+
+    return this.maxCost;
+  }
+}
+
+// Utilisation de bcrypt avec clé pepper
+class PasswordService {
+  constructor() {
+    this.pepper = process.env.PEPPER_KEY;
+  }
+
+  async hashPassword(password) {
+    // Ajout du pepper au mot de passe
+    const pepperedPassword = this.addPepper(password);
+    const salt = await bcrypt.genSalt(12);
+    return bcrypt.hash(pepperedPassword, salt);
+  }
+
+  async verifyPassword(password, hash) {
+    const pepperedPassword = this.addPepper(password);
+    return bcrypt.compare(pepperedPassword, hash);
+  }
+
+  private addPepper(password) {
+    // HMAC avec le pepper comme clé
+    return crypto
+      .createHmac('sha256', this.pepper)
+      .update(password)
+      .digest('hex');
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration avancée argon2</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// argon2 optimisé
+const argon2 = require('argon2');
+
+class Argon2Optimizer {
+  constructor() {
+    this.targetTime = 500; // ms
+    this.minMemory = 32768; // 32 MB
+    this.maxMemory = 262144; // 256 MB
+  }
+
+  async findOptimalParams() {
+    let memory = this.minMemory;
+    const testPassword = 'test_password';
+    const params = {
+      type: argon2.argon2id,
+      timeCost: 3,
+      memoryCost: memory,
+      parallelism: 4,
+      hashLength: 32
+    };
+
+    while (memory <= this.maxMemory) {
+      params.memoryCost = memory;
+      const start = Date.now();
+
+      await argon2.hash(testPassword, params);
+      const duration = Date.now() - start;
+
+      if (duration >= this.targetTime) {
+        return params;
+      }
+      memory *= 2;
+    }
+
+    params.memoryCost = this.maxMemory;
+    return params;
+  }
+}
+
+// Utilisation avancée d'argon2
+class AdvancedPasswordService {
+  constructor() {
+    this.params = {
+      type: argon2.argon2id,
+      memoryCost: 65536, // 64 MB
+      timeCost: 3,
+      parallelism: 4,
+      hashLength: 32,
+      saltLength: 16,
+      version: 0x13 // Version la plus récente
+    };
+  }
+
+  async hashWithAssociatedData(password, userData) {
+    const associatedData = Buffer.from(
+      JSON.stringify(userData)
+    );
+
+    return argon2.hash(password, {
+      ...this.params,
+      associatedData
+    });
+  }
+
+  async verifyWithAssociatedData(hash, password, userData) {
+    const associatedData = Buffer.from(
+      JSON.stringify(userData)
+    );
+
+    return argon2.verify(hash, password, {
+      associatedData
+    });
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Rotation des hashes</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Système de rotation des hashes
+class HashRotationService {
+  constructor() {
+    this.currentVersion = 2;
+    this.strategies = {
+      0: this.handleLegacyHash,
+      1: this.handleBcryptHash,
+      2: this.handleArgon2Hash
+    };
+  }
+
+  async verifyAndUpgrade(password, hashData) {
+    const { version, hash } = this.parseHashData(hashData);
+
+    // Vérifier avec la stratégie appropriée
+    const strategy = this.strategies[version];
+    const isValid = await strategy(password, hash);
+
+    if (!isValid) return false;
+
+    // Mettre à jour si nécessaire
+    if (version < this.currentVersion) {
+      return {
+        needsUpgrade: true,
+        newHash: await this.hashWithCurrentStrategy(password)
+      };
+    }
+
+    return { needsUpgrade: false };
+  }
+
+  private parseHashData(hashData) {
+    const [version, hash] = hashData.split('$');
+    return {
+      version: parseInt(version),
+      hash
+    };
+  }
+
+  private async hashWithCurrentStrategy(password) {
+    const strategy = this.strategies[this.currentVersion];
+    const hash = await strategy(password);
+    return `${this.currentVersion}$${hash}`;
+  }
+}</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Points clés pour les paramètres :</h3>
+                    <ul>
+                        <li>bcrypt : coût minimum de 12 en production</li>
+                        <li>argon2 : au moins 64MB de mémoire</li>
+                        <li>Adapter les paramètres à votre matériel</li>
+                        <li>Mesurer les performances régulièrement</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sécurité renforcée</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Système de double hachage
+class EnhancedPasswordService {
+  constructor() {
+    this.primaryHasher = new Argon2Service();
+    this.secondaryHasher = new BcryptService();
+    this.pepper = process.env.PEPPER_KEY;
+  }
+
+  async hashPassword(password) {
+    // Premier niveau : argon2
+    const primaryHash = await this.primaryHasher
+      .hash(password);
+
+    // Deuxième niveau : bcrypt avec pepper
+    const peppered = this.addPepper(primaryHash);
+    return this.secondaryHasher.hash(peppered);
+  }
+
+  async verifyPassword(password, finalHash) {
+    const primaryHash = await this.primaryHasher
+      .hash(password);
+
+    const peppered = this.addPepper(primaryHash);
+    return this.secondaryHasher.verify(
+      peppered,
+      finalHash
+    );
+  }
+
+  private addPepper(hash) {
+    return crypto
+      .createHmac('sha256', this.pepper)
+      .update(hash)
+      .digest('hex');
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests de performance</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Benchmark des hashes
+async function benchmarkHashingStrategies() {
+  const password = 'test_password';
+  const iterations = 100;
+  const strategies = [
+    {
+      name: 'bcrypt (cost=12)',
+      fn: () => bcrypt.hash(password, 12)
+    },
+    {
+      name: 'bcrypt (cost=14)',
+      fn: () => bcrypt.hash(password, 14)
+    },
+    {
+      name: 'argon2id (memory=64MB)',
+      fn: () => argon2.hash(password, {
+        type: argon2.argon2id,
+        memoryCost: 65536,
+        timeCost: 3,
+        parallelism: 4
+      })
+    },
+    {
+      name: 'argon2id (memory=128MB)',
+      fn: () => argon2.hash(password, {
+        type: argon2.argon2id,
+        memoryCost: 131072,
+        timeCost: 3,
+        parallelism: 4
+      })
+    }
+  ];
+
+  for (const strategy of strategies) {
+    const times = [];
+    for (let i = 0; i < iterations; i++) {
+      const start = process.hrtime.bigint();
+      await strategy.fn();
+      const end = process.hrtime.bigint();
+      times.push(Number(end - start) / 1e6); // ms
+    }
+
+    const avg = times.reduce((a, b) => a + b) / times.length;
+    const min = Math.min(...times);
+    const max = Math.max(...times);
+
+    console.log(`${strategy.name}:
+      Moyenne: ${avg.toFixed(2)}ms
+      Min: ${min.toFixed(2)}ms
+      Max: ${max.toFixed(2)}ms
+    `);
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

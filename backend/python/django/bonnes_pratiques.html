@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django - Bonnes Pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Django - Bonnes Pratiques</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour développer des applications Django robustes et maintenables.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Structure du projet</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="h6 text-success">✅ Bonnes pratiques</h3>
+                        <pre><code># Structure recommandée
+myproject/
+├── manage.py
+├── requirements.txt
+├── .env
+├── config/
+│   ├── __init__.py
+│   ├── settings/
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── development.py
+│   │   └── production.py
+│   ├── urls.py
+│   └── wsgi.py
+└── apps/
+    ├── users/
+    │   ├── __init__.py
+    │   ├── models.py
+    │   ├── views.py
+    │   ├── urls.py
+    │   └── tests/
+    └── blog/
+        ├── __init__.py
+        ├── models.py
+        ├── views.py
+        ├── urls.py
+        └── tests/</code></pre>
+
+                        <h3 class="h6 text-danger mt-3">❌ À éviter</h3>
+                        <pre><code># Ne pas mélanger les paramètres
+# settings.py avec tout dedans ❌
+
+# Ne pas mettre la logique métier dans les vues
+def view(request):  # ❌
+    # 100 lignes de logique métier
+    pass
+
+# Éviter les applications monolithiques
+myapp/
+    models.py  # ❌ 1000+ lignes
+    views.py   # ❌ 2000+ lignes</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># settings.py
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+DEBUG = False
+ALLOWED_HOSTS = ['example.com']
+
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# Validation des données
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+
+def clean_email(email):
+    try:
+        validate_email(email)
+        return email
+    except ValidationError:
+        raise ValidationError("Email invalide")
+
+# Protection XSS
+from django.utils.html import escape
+
+def safe_content(request):
+    content = request.POST.get('content', '')
+    return escape(content)
+
+# Middleware CSRF
+@csrf_protect
+def my_view(request):
+    # Vue protégée contre CSRF
+    pass</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Performance</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># Optimisation des requêtes
+# Utiliser select_related pour les ForeignKey
+articles = Article.objects.select_related('author').all()
+
+# Utiliser prefetch_related pour les ManyToMany
+articles = Article.objects.prefetch_related('tags').all()
+
+# Utiliser values et values_list pour les données simples
+usernames = User.objects.values_list('username', flat=True)
+
+# Pagination
+from django.core.paginator import Paginator
+
+def article_list(request):
+    article_list = Article.objects.all()
+    paginator = Paginator(article_list, 20)
+    page = request.GET.get('page')
+    articles = paginator.get_page(page)
+    return render(request, 'articles.html', {
+        'articles': articles
+    })
+
+# Cache
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
+
+@cache_page(60 * 15)  # 15 minutes
+def my_view(request):
+    return render(request, 'template.html')
+
+# Cache de requête
+def get_active_users():
+    cache_key = 'active_users'
+    result = cache.get(cache_key)
+    if result is None:
+        result = User.objects.filter(
+            is_active=True
+        ).count()
+        cache.set(cache_key, result, 300)  # 5 minutes
+    return result</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># tests.py
+from django.test import TestCase, Client
+from django.urls import reverse
+
+class ArticleTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username='testuser',
+            password='12345'
+        )
+        self.article = Article.objects.create(
+            title='Test Article',
+            content='Test Content',
+            author=self.user
+        )
+
+    def test_article_list(self):
+        response = self.client.get(
+            reverse('article_list')
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            'blog/article_list.html'
+        )
+
+    def test_article_detail(self):
+        response = self.client.get(
+            reverse('article_detail',
+                   args=[self.article.id])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context['article'],
+            self.article
+        )
+
+# Factories pour les tests
+import factory
+
+class UserFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = User
+
+    username = factory.Sequence(
+        lambda n: f'user{n}'
+    )
+    email = factory.LazyAttribute(
+        lambda o: f'{o.username}@example.com'
+    )</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Documentation</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># models.py
+class Article(models.Model):
+    """
+    Représente un article de blog.
+
+    Attributes:
+        title (str): Titre de l'article
+        content (str): Contenu de l'article
+        author (User): Auteur de l'article
+        created_at (datetime): Date de création
+        updated_at (datetime): Date de mise à jour
+    """
+
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def get_absolute_url(self):
+        """
+        Retourne l'URL absolue de l'article.
+
+        Returns:
+            str: URL de l'article
+        """
+        return reverse('article_detail',
+                      args=[str(self.id)])
+
+    def get_excerpt(self, chars=100):
+        """
+        Retourne un extrait de l'article.
+
+        Args:
+            chars (int): Nombre de caractères
+                        (défaut: 100)
+
+        Returns:
+            str: Extrait de l'article
+        """
+        if len(self.content) <= chars:
+            return self.content
+        return self.content[:chars] + '...'</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

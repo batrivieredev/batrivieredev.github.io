@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction à TypeScript</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction à TypeScript</h1>
+
+        <div class="alert alert-info">
+            TypeScript est un sur-ensemble typé de JavaScript qui compile vers du JavaScript pur. Il ajoute des types statiques optionnels, des classes et des modules à JavaScript.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Types de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Types primitifs
+let isDone: boolean = false;
+let decimal: number = 6;
+let color: string = "blue";
+
+// Tableaux
+let list: number[] = [1, 2, 3];
+let fruits: Array&lt;string&gt; = ['pomme', 'banane'];
+
+// Tuple
+let tuple: [string, number] = ['hello', 10];
+
+// Enum
+enum Color {
+  Red,
+  Green,
+  Blue
+}
+let c: Color = Color.Green;
+
+// Any
+let notSure: any = 4;
+notSure = "maybe a string";
+
+// Void
+function warnUser(): void {
+  console.log("Warning message");
+}
+
+// Null et Undefined
+let u: undefined = undefined;
+let n: null = null;</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Interfaces</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>interface User {
+  name: string;
+  age: number;
+  email?: string; // Optionnel
+  readonly id: number; // Lecture seule
+}
+
+// Implémentation
+const user: User = {
+  name: "John Doe",
+  age: 30,
+  id: 1
+};
+
+// Interface de fonction
+interface SearchFunc {
+  (source: string, subString: string): boolean;
+}
+
+let mySearch: SearchFunc;
+mySearch = function(src, sub) {
+  return src.search(sub) > -1;
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Classes</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>class Animal {
+  private name: string;
+  protected age: number;
+
+  constructor(name: string, age: number) {
+    this.name = name;
+    this.age = age;
+  }
+
+  public makeSound(): void {
+    console.log("Some sound");
+  }
+}
+
+class Dog extends Animal {
+  bark(): void {
+    console.log("Woof!");
+  }
+
+  getInfo(): string {
+    return `Dog is ${this.age} years old`; // age est protected
+  }
+}
+
+// Modificateurs d'accès
+const dog = new Dog("Rex", 5);
+dog.bark(); // OK
+dog.name; // Erreur: 'name' est privé
+dog.getInfo(); // OK</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Génériques</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Fonction générique
+function identity&lt;T&gt;(arg: T): T {
+  return arg;
+}
+
+let output = identity&lt;string&gt;("myString");
+let num = identity(123); // Inférence de type
+
+// Classes génériques
+class Container&lt;T&gt; {
+  private value: T;
+
+  constructor(value: T) {
+    this.value = value;
+  }
+
+  getValue(): T {
+    return this.value;
+  }
+}
+
+let numberContainer = new Container&lt;number&gt;(123);
+let stringContainer = new Container("Hello");</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
+
+// Compilation
+npm install -g typescript
+tsc --init // Crée tsconfig.json
+tsc // Compile le projet</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Types utilitaires</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Partial - Rend toutes les propriétés optionnelles
+interface Todo {
+  title: string;
+  description: string;
+}
+
+function updateTodo(todo: Todo, fieldsToUpdate: Partial&lt;Todo&gt;) {
+  return { ...todo, ...fieldsToUpdate };
+}
+
+// Readonly - Rend toutes les propriétés en lecture seule
+const todo: Readonly&lt;Todo&gt; = {
+  title: "Delete inactive users",
+  description: "..."
+};
+
+// todo.title = "Hello"; // Erreur
+
+// Pick - Sélectionne certaines propriétés
+type TodoPreview = Pick&lt;Todo, "title"&gt;;
+
+// Record - Crée un type avec un ensemble de propriétés
+type PageInfo = {
+  title: string;
+  path: string;
+};
+
+const nav: Record&lt;string, PageInfo&gt; = {
+  home: { title: "Home", path: "/" },
+  about: { title: "About", path: "/about" }
+};</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <!-- Page d'accueil -->
+    <url>
+        <loc>https://scriptorium.com/</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- Éditeurs -->
+    <url>
+        <loc>https://scriptorium.com/editors/vim.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://scriptorium.com/editors/emacs.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://scriptorium.com/editors/nano.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Frontend -->
+    <url>
+        <loc>https://scriptorium.com/frontend/html/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://scriptorium.com/frontend/css/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://scriptorium.com/frontend/javascript/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Backend -->
+    <url>
+        <loc>https://scriptorium.com/backend/python/flask/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Base de données -->
+    <url>
+        <loc>https://scriptorium.com/databases/mysql/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://scriptorium.com/databases/mongodb/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Mobile -->
+    <url>
+        <loc>https://scriptorium.com/mobile/react-native/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://scriptorium.com/mobile/flutter/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Desktop -->
+    <url>
+        <loc>https://scriptorium.com/desktop/electron/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Sécurité -->
+    <url>
+        <loc>https://scriptorium.com/security/authentication/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://scriptorium.com/security/password/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://scriptorium.com/security/http/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://scriptorium.com/security/api/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Tests -->
+    <url>
+        <loc>https://scriptorium.com/tests/javascript/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://scriptorium.com/tests/python/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://scriptorium.com/tests/e2e/introduction.html</loc>
+        <lastmod>2025-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+</urlset>

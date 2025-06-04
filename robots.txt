@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://scriptorium.com/sitemap.xml
+
+# Directories
+Disallow: /static/js/
+Disallow: /static/css/
+Disallow: /static/fonts/

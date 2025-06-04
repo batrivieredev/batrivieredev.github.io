@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonnes pratiques - Sécurité HTTP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Bonnes pratiques de sécurité HTTP</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour sécuriser vos applications web avec Helmet.js et les headers HTTP.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration sécurisée</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Configuration Helmet optimale
+const helmet = require('helmet');
+
+app.use(helmet({
+  // Content Security Policy
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      fontSrc: ["'self'", 'https:'],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"],
+      upgradeInsecureRequests: true
+    }
+  },
+  // Cross-Origin
+  crossOriginEmbedderPolicy: true,
+  crossOriginOpenerPolicy: true,
+  crossOriginResourcePolicy: { policy: "same-origin" },
+  // Autres protections
+  dnsPrefetchControl: true,
+  expectCt: {
+    maxAge: 30,
+    enforce: true
+  },
+  // Frames
+  frameguard: {
+    action: "deny"
+  },
+  // Headers inutiles
+  hidePoweredBy: true,
+  // HSTS
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
+  // IE
+  ieNoOpen: true,
+  // MIME Types
+  noSniff: true,
+  // Referrer
+  referrerPolicy: {
+    policy: "strict-origin-when-cross-origin"
+  },
+  // XSS
+  xssFilter: true
+}));</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Validation entrées/sorties</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Middleware de validation
+const validator = require('validator');
+const sanitizer = require('sanitizer');
+
+const validateInput = (schema) => (req, res, next) => {
+  const errors = [];
+
+  Object.entries(schema).forEach(([field, rules]) => {
+    const value = req.body[field];
+
+    // Vérification requise
+    if (rules.required && !value) {
+      errors.push(`${field} est requis`);
+      return;
+    }
+
+    // Type
+    if (rules.type && typeof value !== rules.type) {
+      errors.push(`${field} doit être de type ${rules.type}`);
+    }
+
+    // Longueur
+    if (rules.minLength && value.length < rules.minLength) {
+      errors.push(
+        `${field} doit faire au moins ${rules.minLength} caractères`
+      );
+    }
+
+    // Format
+    if (rules.format) {
+      switch (rules.format) {
+        case 'email':
+          if (!validator.isEmail(value)) {
+            errors.push(`${field} doit être un email valide`);
+          }
+          break;
+        case 'url':
+          if (!validator.isURL(value)) {
+            errors.push(`${field} doit être une URL valide`);
+          }
+          break;
+      }
+    }
+  });
+
+  if (errors.length > 0) {
+    return res.status(400).json({ errors });
+  }
+
+  // Sanitize après validation
+  Object.keys(req.body).forEach(key => {
+    req.body[key] = sanitizer.escape(req.body[key]);
+  });
+
+  next();
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Protection contre les attaques</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Protection complète
+const rateLimit = require('express-rate-limit');
+const slowDown = require('express-slow-down');
+const hpp = require('hpp');
+const mongoSanitize = require('express-mongo-sanitize');
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Trop de requêtes, réessayez plus tard'
+});
+
+// Ralentissement progressif
+const speedLimiter = slowDown({
+  windowMs: 15 * 60 * 1000,
+  delayAfter: 100,
+  delayMs: 500
+});
+
+// Protection paramètres HTTP
+app.use(hpp());
+
+// Protection injection NoSQL
+app.use(mongoSanitize());
+
+// CORS sécurisé
+const corsOptions = {
+  origin: ['https://example.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Range'],
+  credentials: true,
+  maxAge: 600
+};
+
+app.use(cors(corsOptions));
+
+// Headers sécurité supplémentaires
+app.use((req, res, next) => {
+  res.setHeader(
+    'Feature-Policy',
+    "geolocation 'self'; camera 'none'; microphone 'none'"
+  );
+
+  res.setHeader(
+    'Permissions-Policy',
+    'geolocation=(self), camera=(), microphone=()'
+  );
+
+  next();
+});</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">À ne jamais faire :</h3>
+                    <ul>
+                        <li>❌ Désactiver la protection CSRF</li>
+                        <li>❌ Autoriser tous les domaines en CORS (*)</li>
+                        <li>❌ Désactiver les headers de sécurité</li>
+                        <li>❌ Utiliser eval() ou innerHTML</li>
+                        <li>❌ Accepter les entrées sans validation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Monitoring et audit</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Service de monitoring
+class SecurityMonitor {
+  constructor() {
+    this.logger = winston.createLogger({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+      ),
+      transports: [
+        new winston.transports.File({
+          filename: 'security.log'
+        })
+      ]
+    });
+  }
+
+  logEvent(event) {
+    const {
+      type,
+      ip,
+      path,
+      method,
+      status,
+      userId,
+      details
+    } = event;
+
+    this.logger.info('security_event', {
+      type,
+      ip,
+      path,
+      method,
+      status,
+      userId,
+      details,
+      timestamp: new Date()
+    });
+
+    // Alertes sur seuil
+    if (status >= 400) {
+      this.checkThresholds(ip);
+    }
+  }
+
+  async checkThresholds(ip) {
+    const count = await this.getErrorCount(ip);
+    if (count > 10) {
+      await this.banIp(ip);
+    }
+  }
+
+  notifyAdmin(event) {
+    // Notification en cas d'événement critique
+    if (event.severity === 'high') {
+      this.sendEmail({
+        to: 'admin@example.com',
+        subject: 'Alerte de sécurité',
+        text: `Événement critique détecté:
+          ${JSON.stringify(event, null, 2)}`
+      });
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Checklist de sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <h6>1. Headers HTTP</h6>
+                        <ul>
+                            <li>✅ CSP configuré strictement</li>
+                            <li>✅ HSTS activé</li>
+                            <li>✅ X-Frame-Options à DENY</li>
+                            <li>✅ Referrer-Policy configuré</li>
+                        </ul>
+
+                        <h6>2. Protection des données</h6>
+                        <ul>
+                            <li>✅ Validation des entrées</li>
+                            <li>✅ Échappement des sorties</li>
+                            <li>✅ Protection XSS</li>
+                            <li>✅ Protection CSRF</li>
+                        </ul>
+
+                        <h6>3. Accès</h6>
+                        <ul>
+                            <li>✅ HTTPS uniquement</li>
+                            <li>✅ CORS restrictif</li>
+                            <li>✅ Rate limiting</li>
+                            <li>✅ Authentication sécurisée</li>
+                        </ul>
+
+                        <h6>4. Monitoring</h6>
+                        <ul>
+                            <li>✅ Logging sécurisé</li>
+                            <li>✅ Alertes configurées</li>
+                            <li>✅ Audit régulier</li>
+                            <li>✅ Plan d'incident</li>
+                        </ul>
+
+                        <h6>5. Configuration</h6>
+                        <ul>
+                            <li>✅ Headers inutiles supprimés</li>
+                            <li>✅ Versions à jour</li>
+                            <li>✅ Dépendances analysées</li>
+                            <li>✅ Tests de sécurité</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sécurité HTTP avec Helmet.js</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Sécurité HTTP avec Helmet.js</h1>
+
+        <div class="alert alert-info">
+            Guide d'utilisation de Helmet.js pour sécuriser les applications Express.js avec les en-têtes HTTP de sécurité.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const express = require('express');
+const helmet = require('helmet');
+
+const app = express();
+
+// Configuration simple
+app.use(helmet());
+
+// Configuration détaillée
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://api.example.com"]
+    }
+  },
+  crossOriginEmbedderPolicy: true,
+  crossOriginOpenerPolicy: true,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  dnsPrefetchControl: true,
+  expectCt: {
+    maxAge: 30,
+    enforce: true
+  },
+  frameguard: {
+    action: "deny"
+  },
+  hidePoweredBy: true,
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
+  ieNoOpen: true,
+  noSniff: true,
+  originAgentCluster: true,
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+  xssFilter: true
+}));</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Content Security Policy</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Configuration CSP détaillée
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    // Scripts
+    scriptSrc: [
+      "'self'",
+      "'unsafe-inline'",
+      'https://cdn.jsdelivr.net',
+      'https://ajax.googleapis.com'
+    ],
+    // Styles
+    styleSrc: [
+      "'self'",
+      "'unsafe-inline'",
+      'https://fonts.googleapis.com'
+    ],
+    // Images
+    imgSrc: [
+      "'self'",
+      'data:',
+      'https:',
+      'blob:'
+    ],
+    // Fonts
+    fontSrc: [
+      "'self'",
+      'https://fonts.gstatic.com'
+    ],
+    // API et WebSocket
+    connectSrc: [
+      "'self'",
+      'https://api.example.com',
+      'wss://websocket.example.com'
+    ],
+    // Frames
+    frameSrc: ["'none'"],
+    // Media
+    mediaSrc: ["'self'"],
+    // Object/Embed
+    objectSrc: ["'none'"],
+    // Manifests
+    manifestSrc: ["'self'"],
+    // Forms
+    formAction: ["'self'"],
+    // Base URI
+    baseUri: ["'self'"],
+    // Reporting
+    reportUri: '/csp-report'
+  }
+}));</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Protection avancée</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Protection contre les attaques
+const rateLimit = require('express-rate-limit');
+const slowDown = require('express-slow-down');
+const hpp = require('hpp');
+const mongoSanitize = require('express-mongo-sanitize');
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 100                    // limite par IP
+});
+
+// Ralentissement progressif
+const speedLimiter = slowDown({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  delayAfter: 100,           // commence après 100 requêtes
+  delayMs: 500              // ajoute 500ms par requête
+});
+
+// Protection des paramètres HTTP
+app.use(hpp());
+
+// Protection contre l'injection NoSQL
+app.use(mongoSanitize());
+
+// Sécurisation des cookies
+app.use(session({
+  name: 'sessionId',
+  secret: process.env.SESSION_SECRET,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 1000 * 60 * 60 * 24 // 24 heures
+  },
+  resave: false,
+  saveUninitialized: false
+}));</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">En-têtes de sécurité :</h3>
+                    <ul>
+                        <li><strong>X-Frame-Options</strong> : Protection contre le clickjacking</li>
+                        <li><strong>X-XSS-Protection</strong> : Protection contre les XSS</li>
+                        <li><strong>X-Content-Type-Options</strong> : Prévention du MIME sniffing</li>
+                        <li><strong>Strict-Transport-Security</strong> : Force HTTPS</li>
+                        <li><strong>Referrer-Policy</strong> : Contrôle des informations de référence</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Gestion des erreurs</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Middleware de gestion des erreurs
+app.use((err, req, res, next) => {
+  // Ne pas exposer les détails d'erreur en prod
+  if (process.env.NODE_ENV === 'production') {
+    console.error(err.stack);
+    res.status(500).json({
+      error: 'Internal Server Error'
+    });
+  } else {
+    res.status(500).json({
+      error: err.message,
+      stack: err.stack
+    });
+  }
+});
+
+// Gestion des routes non trouvées
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Not Found'
+  });
+});
+
+// Logging sécurisé
+const winston = require('winston');
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error'
+    }),
+    new winston.transports.File({
+      filename: 'logs/combined.log'
+    })
+  ]
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests de sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const request = require('supertest');
+const app = require('../app');
+
+describe('Security Headers', () => {
+  test('should set security headers', async () => {
+    const response = await request(app)
+      .get('/');
+
+    // CSP Header
+    expect(response.headers['content-security-policy'])
+      .toBeDefined();
+
+    // HSTS
+    expect(response.headers['strict-transport-security'])
+      .toContain('max-age=31536000');
+
+    // X-Frame-Options
+    expect(response.headers['x-frame-options'])
+      .toBe('DENY');
+
+    // XSS Protection
+    expect(response.headers['x-xss-protection'])
+      .toBe('1; mode=block');
+
+    // No Sniff
+    expect(response.headers['x-content-type-options'])
+      .toBe('nosniff');
+  });
+});
+
+// Test de rate limiting
+describe('Rate Limiting', () => {
+  test('should limit requests', async () => {
+    // Faire 101 requêtes
+    for (let i = 0; i < 100; i++) {
+      await request(app).get('/');
+    }
+
+    const response = await request(app).get('/');
+    expect(response.status).toBe(429);
+  });
+});
+
+// Test de validation des entrées
+describe('Input Validation', () => {
+  test('should sanitize query parameters', async () => {
+    const response = await request(app)
+      .get('/?q=$gt:100');
+
+    expect(response.status).toBe(400);
+  });
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

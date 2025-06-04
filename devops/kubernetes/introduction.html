@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction à Kubernetes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction à Kubernetes</h1>
+
+        <div class="alert alert-info">
+            Kubernetes est une plateforme open-source d'orchestration de conteneurs qui permet d'automatiser le déploiement, la mise à l'échelle et la gestion des applications conteneurisées.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Concepts de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Pod - Unité de base
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.24
+    ports:
+    - containerPort: 80
+
+# Déploiement
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.24
+        ports:
+        - containerPort: 80
+
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Composants de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Pod :</strong> Plus petite unité déployable, contient un ou plusieurs conteneurs
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Deployment :</strong> Gère le déploiement et la mise à jour des pods
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Service :</strong> Expose les pods au réseau
+                            </li>
+                            <li class="list-group-item">
+                                <strong>ConfigMap :</strong> Configuration non sensible
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Secret :</strong> Données sensibles (clés, mots de passe)
+                            </li>
+                            <li class="list-group-item">
+                                <strong>PersistentVolume :</strong> Stockage persistant
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Commandes de base</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># Informations sur le cluster
+kubectl cluster-info
+kubectl get nodes
+kubectl get namespaces
+
+# Gestion des ressources
+kubectl get pods
+kubectl get deployments
+kubectl get services
+kubectl get configmaps
+kubectl get secrets
+
+# Création et suppression
+kubectl apply -f manifest.yaml
+kubectl delete -f manifest.yaml
+
+# Logs et debug
+kubectl logs pod-name
+kubectl describe pod pod-name
+kubectl exec -it pod-name -- /bin/bash
+
+# Scale
+kubectl scale deployment nginx-deployment --replicas=5
+
+# Port-forward
+kubectl port-forward service/nginx-service 8080:80
+
+# Contextes
+kubectl config get-contexts
+kubectl config use-context my-cluster</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Architecture :</h3>
+                    <ul class="mb-0">
+                        <li>Control Plane (Master)
+                            <ul>
+                                <li>API Server</li>
+                                <li>Scheduler</li>
+                                <li>Controller Manager</li>
+                                <li>etcd</li>
+                            </ul>
+                        </li>
+                        <li>Worker Nodes
+                            <ul>
+                                <li>Kubelet</li>
+                                <li>Container Runtime</li>
+                                <li>Kube Proxy</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Stockage et configuration</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  database_url: "postgres://db:5432"
+  api_url: "http://api:8080"
+
+# Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+type: Opaque
+data:
+  db_password: cGFzc3dvcmQ=
+  api_key: c2VjcmV0
+
+# PersistentVolumeClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Réseau</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Service LoadBalancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: web
+
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-ingress
+spec:
+  rules:
+  - host: app.example.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: api-service
+            port:
+              number: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-service
+            port:
+              number: 80
+
+# NetworkPolicy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: api
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: web</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

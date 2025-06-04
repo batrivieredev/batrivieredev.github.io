@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemples Electron.js</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Exemples Electron.js</h1>
+
+        <div class="alert alert-info">
+            Applications d'exemple Electron.js montrant différents cas d'utilisation.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Éditeur de texte</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// main.js
+const { app, BrowserWindow, dialog, ipcMain } = require('electron');
+const fs = require('fs').promises;
+
+let mainWindow;
+
+app.whenReady().then(() => {
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  });
+
+  mainWindow.loadFile('index.html');
+});
+
+// Gestionnaire de fichiers
+ipcMain.handle('file-open', async () => {
+  const { filePaths } = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [
+      { name: 'Text Files', extensions: ['txt', 'md'] }
+    ]
+  });
+
+  if (filePaths.length > 0) {
+    const content = await fs.readFile(filePaths[0], 'utf8');
+    return { path: filePaths[0], content };
+  }
+});
+
+ipcMain.handle('file-save', async (event, { path, content }) => {
+  if (!path) {
+    const { filePath } = await dialog.showSaveDialog({
+      filters: [
+        { name: 'Text Files', extensions: ['txt'] }
+      ]
+    });
+    path = filePath;
+  }
+
+  await fs.writeFile(path, content, 'utf8');
+  return path;
+});
+
+// renderer/index.html
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Éditeur&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="toolbar"&gt;
+    &lt;button id="openBtn"&gt;Ouvrir&lt;/button&gt;
+    &lt;button id="saveBtn"&gt;Enregistrer&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;textarea id="editor"&gt;&lt;/textarea&gt;
+
+  &lt;script&gt;
+    let currentPath = null;
+    const editor = document.getElementById('editor');
+
+    document.getElementById('openBtn').onclick = async () => {
+      const result = await window.api.openFile();
+      if (result) {
+        currentPath = result.path;
+        editor.value = result.content;
+      }
+    };
+
+    document.getElementById('saveBtn').onclick = async () => {
+      currentPath = await window.api.saveFile({
+        path: currentPath,
+        content: editor.value
+      });
+    };
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Gestionnaire de tâches</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// main.js
+const Store = require('electron-store');
+const store = new Store();
+
+ipcMain.handle('tasks-get', () => {
+  return store.get('tasks', []);
+});
+
+ipcMain.handle('task-add', (event, task) => {
+  const tasks = store.get('tasks', []);
+  task.id = Date.now();
+  tasks.push(task);
+  store.set('tasks', tasks);
+  return task;
+});
+
+ipcMain.handle('task-update', (event, task) => {
+  const tasks = store.get('tasks', []);
+  const index = tasks.findIndex(t => t.id === task.id);
+  if (index !== -1) {
+    tasks[index] = task;
+    store.set('tasks', tasks);
+  }
+  return task;
+});
+
+// renderer/app.jsx
+function TaskApp() {
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  const loadTasks = async () => {
+    const tasks = await window.api.getTasks();
+    setTasks(tasks);
+  };
+
+  const addTask = async (title) => {
+    const task = await window.api.addTask({
+      title,
+      completed: false,
+      created: new Date()
+    });
+    setTasks([...tasks, task]);
+  };
+
+  const toggleTask = async (task) => {
+    const updated = {
+      ...task,
+      completed: !task.completed
+    };
+    await window.api.updateTask(updated);
+    setTasks(tasks.map(t =>
+      t.id === task.id ? updated : t
+    ));
+  };
+
+  return (
+    &lt;div className="container"&gt;
+      &lt;h1&gt;Tâches&lt;/h1&gt;
+      &lt;TaskForm onSubmit={addTask} /&gt;
+      &lt;TaskList
+        tasks={tasks}
+        onToggle={toggleTask}
+      /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Lecteur multimédia</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// main.js
+const mm = require('music-metadata');
+const path = require('path');
+
+ipcMain.handle('media-scan', async () => {
+  const { filePaths } = await dialog.showOpenDialog({
+    properties: ['openDirectory']
+  });
+
+  if (filePaths.length > 0) {
+    const mediaFiles = await scanDirectory(filePaths[0]);
+    return mediaFiles;
+  }
+  return [];
+});
+
+async function scanDirectory(dir) {
+  const files = await fs.readdir(dir);
+  const mediaFiles = [];
+
+  for (const file of files) {
+    const filePath = path.join(dir, file);
+    const stat = await fs.stat(filePath);
+
+    if (stat.isDirectory()) {
+      mediaFiles.push(...await scanDirectory(filePath));
+    } else if (path.extname(file).match(/\.(mp3|wav|flac)$/i)) {
+      const metadata = await mm.parseFile(filePath);
+      mediaFiles.push({
+        path: filePath,
+        title: metadata.common.title || path.basename(file),
+        artist: metadata.common.artist || 'Unknown',
+        album: metadata.common.album || 'Unknown',
+        duration: metadata.format.duration
+      });
+    }
+  }
+
+  return mediaFiles;
+}
+
+// renderer/player.jsx
+function MediaPlayer() {
+  const [playlist, setPlaylist] = useState([]);
+  const [current, setCurrent] = useState(null);
+  const audioRef = useRef(null);
+
+  const scanMedia = async () => {
+    const files = await window.api.scanMedia();
+    setPlaylist(files);
+  };
+
+  const playFile = (file) => {
+    setCurrent(file);
+    audioRef.current.src = `file://${file.path}`;
+    audioRef.current.play();
+  };
+
+  return (
+    &lt;div className="player"&gt;
+      &lt;div className="controls"&gt;
+        &lt;button onClick={scanMedia}&gt;
+          Scan Media
+        &lt;/button&gt;
+        &lt;audio ref={audioRef} controls /&gt;
+      &lt;/div&gt;
+
+      &lt;div className="playlist"&gt;
+        {playlist.map(file => (
+          &lt;div
+            key={file.path}
+            className={`track ${
+              current?.path === file.path ? 'active' : ''
+            }`}
+            onClick={() => playFile(file)}
+          &gt;
+            &lt;div className="title"&gt;{file.title}&lt;/div&gt;
+            &lt;div className="artist"&gt;{file.artist}&lt;/div&gt;
+            &lt;div className="duration"&gt;
+              {formatDuration(file.duration)}
+            &lt;/div&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

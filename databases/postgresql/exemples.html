@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL - Exemples Pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>PostgreSQL - Exemples Pratiques</h1>
+
+        <div class="alert alert-info">
+            Exemples pratiques d'utilisation de PostgreSQL pour différents types d'applications.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Système de blog</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>-- Structure de la base
+CREATE TABLE categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    slug VARCHAR(50) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    slug VARCHAR(200) UNIQUE NOT NULL,
+    content TEXT NOT NULL,
+    excerpt TEXT,
+    author_id INTEGER REFERENCES users(id),
+    category_id INTEGER REFERENCES categories(id),
+    status VARCHAR(20) DEFAULT 'draft',
+    published_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tags (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    slug VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE posts_tags (
+    post_id INTEGER REFERENCES posts(id),
+    tag_id INTEGER REFERENCES tags(id),
+    PRIMARY KEY (post_id, tag_id)
+);
+
+-- Requêtes courantes
+-- Récupérer les articles publiés avec leurs catégories et tags
+SELECT
+    p.id,
+    p.title,
+    p.excerpt,
+    p.published_at,
+    c.name as category,
+    ARRAY_AGG(t.name) as tags,
+    u.name as author
+FROM posts p
+JOIN categories c ON c.id = p.category_id
+JOIN users u ON u.id = p.author_id
+LEFT JOIN posts_tags pt ON pt.post_id = p.id
+LEFT JOIN tags t ON t.id = pt.tag_id
+WHERE p.status = 'published'
+AND p.published_at <= CURRENT_TIMESTAMP
+GROUP BY p.id, c.name, u.name
+ORDER BY p.published_at DESC;</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">E-commerce</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>-- Structure de la base
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    stock INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    status VARCHAR(20) NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER REFERENCES orders(id),
+    product_id INTEGER REFERENCES products(id),
+    quantity INTEGER NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Fonction de création de commande
+CREATE OR REPLACE FUNCTION create_order(
+    p_user_id INTEGER,
+    p_items JSON
+) RETURNS INTEGER AS $$
+DECLARE
+    v_order_id INTEGER;
+    v_total DECIMAL(10,2) := 0;
+    v_item JSON;
+    v_product_id INTEGER;
+    v_quantity INTEGER;
+    v_price DECIMAL(10,2);
+BEGIN
+    -- Créer la commande
+    INSERT INTO orders (user_id, status, total_amount)
+    VALUES (p_user_id, 'pending', 0)
+    RETURNING id INTO v_order_id;
+
+    -- Ajouter les articles
+    FOR v_item IN SELECT * FROM json_array_elements(p_items)
+    LOOP
+        v_product_id := (v_item->>'product_id')::INTEGER;
+        v_quantity := (v_item->>'quantity')::INTEGER;
+
+        -- Vérifier et mettre à jour le stock
+        UPDATE products
+        SET stock = stock - v_quantity
+        WHERE id = v_product_id
+        AND stock >= v_quantity
+        RETURNING price INTO v_price;
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Stock insuffisant';
+        END IF;
+
+        -- Ajouter l'article
+        INSERT INTO order_items (
+            order_id,
+            product_id,
+            quantity,
+            price
+        ) VALUES (
+            v_order_id,
+            v_product_id,
+            v_quantity,
+            v_price
+        );
+
+        v_total := v_total + (v_price * v_quantity);
+    END LOOP;
+
+    -- Mettre à jour le total
+    UPDATE orders
+    SET total_amount = v_total
+    WHERE id = v_order_id;
+
+    RETURN v_order_id;
+END;
+$$ LANGUAGE plpgsql;</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Système de notifications</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>-- Structure de la base
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    type VARCHAR(50) NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    content TEXT,
+    data JSONB,
+    read_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_notifications_user_unread
+ON notifications(user_id)
+WHERE read_at IS NULL;
+
+-- Fonction d'envoi de notification
+CREATE OR REPLACE FUNCTION notify_user(
+    p_user_id INTEGER,
+    p_type VARCHAR,
+    p_title VARCHAR,
+    p_content TEXT,
+    p_data JSONB DEFAULT '{}'::JSONB
+) RETURNS INTEGER AS $$
+DECLARE
+    v_notification_id INTEGER;
+BEGIN
+    INSERT INTO notifications (
+        user_id,
+        type,
+        title,
+        content,
+        data
+    ) VALUES (
+        p_user_id,
+        p_type,
+        p_title,
+        p_content,
+        p_data
+    ) RETURNING id INTO v_notification_id;
+
+    -- Notifier via LISTEN/NOTIFY
+    PERFORM pg_notify(
+        'new_notification',
+        json_build_object(
+            'notification_id', v_notification_id,
+            'user_id', p_user_id,
+            'type', p_type
+        )::text
+    );
+
+    RETURN v_notification_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Vue notifications non lues
+CREATE OR REPLACE VIEW unread_notifications AS
+SELECT
+    user_id,
+    COUNT(*) as count,
+    ARRAY_AGG(id) as notification_ids,
+    MAX(created_at) as latest_at
+FROM notifications
+WHERE read_at IS NULL
+GROUP BY user_id;
+
+-- Marquer comme lu
+CREATE OR REPLACE FUNCTION mark_notifications_read(
+    p_user_id INTEGER,
+    p_notification_ids INTEGER[]
+) RETURNS VOID AS $$
+BEGIN
+    UPDATE notifications
+    SET read_at = CURRENT_TIMESTAMP
+    WHERE user_id = p_user_id
+    AND id = ANY(p_notification_ids);
+END;
+$$ LANGUAGE plpgsql;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Système de commentaires hiérarchiques</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>-- Structure avec Closure Table
+CREATE TABLE comments (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    user_id INTEGER REFERENCES users(id),
+    post_id INTEGER REFERENCES posts(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE comment_paths (
+    ancestor_id INTEGER REFERENCES comments(id),
+    descendant_id INTEGER REFERENCES comments(id),
+    depth INTEGER NOT NULL,
+    PRIMARY KEY (ancestor_id, descendant_id)
+);
+
+-- Trigger pour maintenir les chemins
+CREATE OR REPLACE FUNCTION maintain_comment_paths()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Insérer le chemin vers lui-même
+    INSERT INTO comment_paths (
+        ancestor_id,
+        descendant_id,
+        depth
+    ) VALUES (
+        NEW.id,
+        NEW.id,
+        0
+    );
+
+    -- Si c'est une réponse, ajouter tous les chemins
+    IF NEW.parent_id IS NOT NULL THEN
+        INSERT INTO comment_paths (
+            ancestor_id,
+            descendant_id,
+            depth
+        )
+        SELECT
+            ancestor_id,
+            NEW.id,
+            depth + 1
+        FROM comment_paths
+        WHERE descendant_id = NEW.parent_id;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Récupération des commentaires avec ordre
+WITH RECURSIVE CommentTree AS (
+    -- Commentaires racines
+    SELECT
+        c.id,
+        c.content,
+        c.user_id,
+        0 as level,
+        ARRAY[c.id] as path
+    FROM comments c
+    WHERE c.post_id = 1
+    AND NOT EXISTS (
+        SELECT 1
+        FROM comment_paths cp
+        WHERE cp.descendant_id = c.id
+        AND cp.depth > 0
+    )
+
+    UNION ALL
+
+    -- Réponses récursives
+    SELECT
+        c.id,
+        c.content,
+        c.user_id,
+        ct.level + 1,
+        ct.path || c.id
+    FROM comments c
+    JOIN comment_paths cp ON cp.descendant_id = c.id
+    JOIN CommentTree ct ON ct.id = cp.ancestor_id
+    WHERE cp.depth = 1
+)
+SELECT *
+FROM CommentTree
+ORDER BY path;</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

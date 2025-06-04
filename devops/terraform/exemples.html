@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform - Exemples Pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Terraform - Exemples Pratiques</h1>
+
+        <div class="alert alert-info">
+            Exemples pratiques d'utilisation de Terraform pour déployer différentes architectures cloud.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Application Web 3-tiers</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># VPC et réseaux
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = "app-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["eu-west-3a", "eu-west-3b"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
+  database_subnets = ["10.0.201.0/24", "10.0.202.0/24"]
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
+}
+
+# Base de données RDS
+module "db" {
+  source  = "terraform-aws-modules/rds/aws"
+
+  identifier = "app-db"
+  engine     = "postgres"
+  engine_version = "14.5"
+  instance_class = "db.t3.medium"
+
+  allocated_storage = 20
+  storage_encrypted = true
+
+  name     = "appdb"
+  username = var.db_username
+  password = var.db_password
+  port     = "5432"
+
+  vpc_security_group_ids = [aws_security_group.db.id]
+  subnet_ids = module.vpc.database_subnets
+
+  family = "postgres14"
+  major_engine_version = "14"
+
+  deletion_protection = true
+}
+
+# Application (ECS)
+resource "aws_ecs_cluster" "main" {
+  name = "app-cluster"
+}
+
+resource "aws_ecs_service" "app" {
+  name            = "app-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.app.arn
+  desired_count   = 2
+
+  network_configuration {
+    subnets         = module.vpc.private_subnets
+    security_groups = [aws_security_group.app.id]
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.app.arn
+    container_name   = "app"
+    container_port   = 3000
+  }
+}
+
+# Load Balancer
+resource "aws_lb" "app" {
+  name               = "app-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb.id]
+  subnets           = module.vpc.public_subnets
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Cluster Kubernetes (EKS)</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "19.0.0"
+
+  cluster_name    = "app-cluster"
+  cluster_version = "1.24"
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
+
+  eks_managed_node_group_defaults = {
+    ami_type = "AL2_x86_64"
+    disk_size = 50
+  }
+
+  eks_managed_node_groups = {
+    general = {
+      desired_size = 2
+      min_size     = 1
+      max_size     = 4
+
+      instance_types = ["t3.medium"]
+      capacity_type  = "ON_DEMAND"
+
+      labels = {
+        Environment = "prod"
+        GithubRepo = "terraform-aws-eks"
+      }
+
+      tags = {
+        Environment = "prod"
+      }
+    }
+  }
+
+  aws_auth_roles = [
+    {
+      rolearn  = aws_iam_role.admin.arn
+      username = "admin"
+      groups   = ["system:masters"]
+    },
+  ]
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Architecture Serverless</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>resource "aws_apigateway_rest_api" "api" {
+  name = "app-api"
+}
+
+resource "aws_lambda_function" "api" {
+  filename      = "api.zip"
+  function_name = "app-api"
+  role          = aws_iam_role.lambda.arn
+  handler       = "index.handler"
+  runtime       = "nodejs18.x"
+
+  environment {
+    variables = {
+      TABLE_NAME = aws_dynamodb_table.app.name
+    }
+  }
+}
+
+resource "aws_dynamodb_table" "app" {
+  name           = "app-data"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "id"
+  stream_enabled = true
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+}
+
+resource "aws_s3_bucket" "static" {
+  bucket = "app-static-content"
+}
+
+resource "aws_cloudfront_distribution" "static" {
+  origin {
+    domain_name = aws_s3_bucket.static.bucket_regional_domain_name
+    origin_id   = "S3Origin"
+  }
+
+  enabled = true
+  default_root_object = "index.html"
+
+  default_cache_behavior {
+    allowed_methods = ["GET", "HEAD"]
+    cached_methods  = ["GET", "HEAD"]
+    target_origin_id = "S3Origin"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl = 0
+    default_ttl = 3600
+    max_ttl = 86400
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Monitoring et Logging</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># Elasticsearch
+resource "aws_elasticsearch_domain" "logs" {
+  domain_name           = "app-logs"
+  elasticsearch_version = "7.10"
+
+  cluster_config {
+    instance_type = "t3.small.elasticsearch"
+    instance_count = 2
+  }
+
+  ebs_options {
+    ebs_enabled = true
+    volume_size = 10
+  }
+
+  snapshot_options {
+    automated_snapshot_start_hour = 23
+  }
+}
+
+# CloudWatch
+resource "aws_cloudwatch_log_group" "app" {
+  name              = "/app/logs"
+  retention_in_days = 30
+}
+
+resource "aws_cloudwatch_dashboard" "main" {
+  dashboard_name = "app-dashboard"
+
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type = "metric"
+        properties = {
+          metrics = [
+            ["AWS/EC2", "CPUUtilization", "AutoScalingGroupName", "app-asg"]
+          ]
+          period = 300
+          stat = "Average"
+          region = "eu-west-3"
+          title = "EC2 CPU"
+        }
+      }
+    ]
+  })
+}
+
+# Alerting
+resource "aws_cloudwatch_metric_alarm" "cpu_high" {
+  alarm_name          = "cpu-utilization-high"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period             = "300"
+  statistic          = "Average"
+  threshold          = "80"
+  alarm_description  = "CPU utilization has exceeded 80%"
+  alarm_actions      = [aws_sns_topic.alerts.arn]
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.app.name
+  }
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express.js - Concepts Avancés</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Express.js - Concepts Avancés</h1>
+
+        <div class="alert alert-info">
+            Découvrez les fonctionnalités avancées d'Express.js pour créer des applications robustes et sécurisées.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Authentification JWT</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
+// Middleware d'authentification
+const auth = async (req, res, next) => {
+  try {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({
+      _id: decoded._id,
+      'tokens.token': token
+    });
+
+    if (!user) {
+      throw new Error();
+    }
+
+    req.token = token;
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).send({ error: 'Authentification requise' });
+  }
+};
+
+// Route de connexion
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user || !await bcrypt.compare(password, user.password)) {
+      return res.status(401).json({
+        error: 'Identifiants invalides'
+      });
+    }
+
+    const token = jwt.sign(
+      { _id: user._id.toString() },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    user.tokens = user.tokens.concat({ token });
+    await user.save();
+
+    res.json({ user, token });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Rate Limiting</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const rateLimit = require('express-rate-limit');
+const RedisStore = require('rate-limit-redis');
+const Redis = require('ioredis');
+
+const redis = new Redis({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT
+});
+
+// Limiteur de requêtes global
+const limiter = rateLimit({
+  store: new RedisStore({
+    client: redis,
+    prefix: 'rate_limit:'
+  }),
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limite par IP
+  message: {
+    error: 'Trop de requêtes, réessayez plus tard'
+  }
+});
+
+// Limiteur pour l'API de connexion
+const loginLimiter = rateLimit({
+  store: new RedisStore({
+    client: redis,
+    prefix: 'login_limit:'
+  }),
+  windowMs: 60 * 60 * 1000, // 1 heure
+  max: 5, // 5 tentatives
+  message: {
+    error: 'Trop de tentatives de connexion'
+  }
+});
+
+app.use(limiter);
+app.use('/api/login', loginLimiter);</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Cache avec Redis</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const Redis = require('ioredis');
+const redis = new Redis();
+
+// Middleware de cache
+const cache = (duration) => {
+  return async (req, res, next) => {
+    const key = `__express__${req.originalUrl}`;
+
+    try {
+      const cachedResponse = await redis.get(key);
+
+      if (cachedResponse) {
+        return res.json(JSON.parse(cachedResponse));
+      }
+
+      res.originalSend = res.json;
+      res.json = async (body) => {
+        await redis.setex(key, duration, JSON.stringify(body));
+        res.originalSend(body);
+      };
+
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+};
+
+// Utilisation
+router.get('/posts', cache(300), async (req, res) => {
+  const posts = await Post.find();
+  res.json(posts);
+});
+
+// Invalidation du cache
+const invalidateCache = async (key) => {
+  await redis.del(key);
+};
+
+router.post('/posts', async (req, res) => {
+  const post = await Post.create(req.body);
+  await invalidateCache('__express__/posts');
+  res.json(post);
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">WebSockets avec Socket.IO</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>const express = require('express');
+const app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+
+// Middleware d'authentification pour Socket.IO
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = decoded._id;
+    next();
+  } catch (err) {
+    next(new Error('Authentication error'));
+  }
+});
+
+// Gestion des connexions
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.userId);
+
+  // Rejoindre une room
+  socket.on('join-room', (roomId) => {
+    socket.join(roomId);
+    io.to(roomId).emit('user-joined', socket.userId);
+  });
+
+  // Envoi de message
+  socket.on('message', async (data) => {
+    const message = await Message.create({
+      user: socket.userId,
+      room: data.roomId,
+      content: data.content
+    });
+
+    io.to(data.roomId).emit('new-message', {
+      message,
+      user: socket.userId
+    });
+  });
+
+  // Déconnexion
+  socket.on('disconnect', () => {
+    const rooms = Object.keys(socket.rooms);
+    rooms.forEach(room => {
+      io.to(room).emit('user-left', socket.userId);
+    });
+  });
+});</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">GraphQL avec Express</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const { ApolloServer } = require('apollo-server-express');
+const { gql } = require('graphql-tag');
+
+// Schéma
+const typeDefs = gql`
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+    posts: [Post!]!
+  }
+
+  type Post {
+    id: ID!
+    title: String!
+    content: String!
+    author: User!
+  }
+
+  type Query {
+    users: [User!]!
+    user(id: ID!): User
+    posts: [Post!]!
+    post(id: ID!): Post
+  }
+
+  type Mutation {
+    createPost(title: String!, content: String!): Post!
+    updatePost(id: ID!, title: String, content: String): Post!
+    deletePost(id: ID!): Boolean!
+  }
+`;
+
+// Resolvers
+const resolvers = {
+  Query: {
+    users: () => User.find(),
+    user: (_, { id }) => User.findById(id),
+    posts: () => Post.find(),
+    post: (_, { id }) => Post.findById(id)
+  },
+  Mutation: {
+    createPost: (_, args, { user }) => {
+      if (!user) throw new Error('Non authentifié');
+      return Post.create({ ...args, author: user.id });
+    }
+  },
+  User: {
+    posts: (user) => Post.find({ author: user.id })
+  },
+  Post: {
+    author: (post) => User.findById(post.author)
+  }
+};
+
+// Configuration Apollo Server
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: ({ req }) => ({
+    user: req.user
+  })
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests avec Jest</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const request = require('supertest');
+const app = require('../app');
+const User = require('../models/user');
+
+describe('Auth API', () => {
+  beforeEach(async () => {
+    await User.deleteMany();
+  });
+
+  test('Should signup a new user', async () => {
+    const response = await request(app)
+      .post('/api/signup')
+      .send({
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'testpass123'
+      })
+      .expect(201);
+
+    // Vérifications
+    const user = await User.findById(response.body.user._id);
+    expect(user).not.toBeNull();
+    expect(response.body).toMatchObject({
+      user: {
+        name: 'Test User',
+        email: 'test@example.com'
+      },
+      token: expect.any(String)
+    });
+  });
+
+  test('Should login existing user', async () => {
+    const user = await User.create({
+      name: 'Test User',
+      email: 'test@example.com',
+      password: 'testpass123'
+    });
+
+    const response = await request(app)
+      .post('/api/login')
+      .send({
+        email: 'test@example.com',
+        password: 'testpass123'
+      })
+      .expect(200);
+
+    expect(response.body.token).not.toBeNull();
+  });
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

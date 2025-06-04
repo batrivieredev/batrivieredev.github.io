@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS - Introduction | Scriptorium</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="bi bi-house"></i></a></li>
+                <li class="breadcrumb-item">Frontend</li>
+                <li class="breadcrumb-item">CSS</li>
+                <li class="breadcrumb-item active">Introduction</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Introduction à CSS3</h1>
+            <div class="btn-group">
+                <a href="/frontend/css/introduction.html" class="btn btn-primary active">Introduction</a>
+                <a href="/frontend/css/selectors.html" class="btn btn-outline-primary">Sélecteurs</a>
+                <a href="/frontend/css/layout.html" class="btn btn-outline-primary">Mise en page</a>
+                <a href="/frontend/css/advanced.html" class="btn btn-outline-primary">Avancé</a>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            CSS (Cascading Style Sheets) est le langage utilisé pour styliser et mettre en forme les pages web.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Syntaxe de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>sélecteur {
+    propriété: valeur;
+    autre-propriété: valeur;
+}
+
+/* Exemple */
+.ma-classe {
+    color: #333;
+    font-size: 16px;
+    margin: 10px;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sélecteurs CSS</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><code>élément</code> - Sélecteur de type</li>
+                            <li class="list-group-item"><code>.classe</code> - Sélecteur de classe</li>
+                            <li class="list-group-item"><code>#id</code> - Sélecteur d'ID</li>
+                            <li class="list-group-item"><code>parent > enfant</code> - Sélecteur d'enfant direct</li>
+                            <li class="list-group-item"><code>élément[attribut]</code> - Sélecteur d'attribut</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Flexbox et Grid</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Flexbox</h3>
+                        <pre><code>.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item {
+    flex: 1;
+    margin: 10px;
+}</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Grid</h3>
+                        <pre><code>.container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.item {
+    grid-column: span 2;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Nouveautés CSS3</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Variables CSS (custom properties)</li>
+                            <li class="list-group-item">Animations et transitions</li>
+                            <li class="list-group-item">Flexbox et Grid</li>
+                            <li class="list-group-item">Media queries</li>
+                            <li class="list-group-item">Transformations et filtres</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Bonnes pratiques</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Utiliser une méthodologie (BEM, SMACSS)</li>
+                            <li class="list-group-item">Minimiser la spécificité</li>
+                            <li class="list-group-item">Organiser le code par composants</li>
+                            <li class="list-group-item">Utiliser des préprocesseurs (Sass, Less)</li>
+                            <li class="list-group-item">Optimiser les performances</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Ressources utiles</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><a href="https://developer.mozilla.org/fr/docs/Web/CSS" target="_blank">MDN Web Docs - CSS</a></li>
+                    <li class="list-group-item"><a href="https://css-tricks.com/" target="_blank">CSS-Tricks</a></li>
+                    <li class="list-group-item"><a href="https://caniuse.com/" target="_blank">Can I use</a></li>
+                    <li class="list-group-item"><a href="https://cssguidelin.es/" target="_blank">CSS Guidelines</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Baptiste RIVIERE - Scriptorium</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/accessibility.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("header").innerHTML = data;
+                // Re-init Bootstrap components after dynamic content load
+                const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+            })
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

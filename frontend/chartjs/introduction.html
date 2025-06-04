@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction à Chart.js</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction à Chart.js</h1>
+
+        <div class="alert alert-info">
+            Chart.js est une bibliothèque JavaScript pour créer des graphiques interactifs et responsifs sur le web.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Installation et configuration</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Installation via npm
+npm install chart.js
+
+// Import
+import Chart from 'chart.js/auto';
+
+// Via CDN
+&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;
+
+// Configuration de base
+const ctx = document.getElementById('myChart');
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai'],
+    datasets: [{
+      label: 'Ventes 2024',
+      data: [12, 19, 3, 5, 2],
+      borderColor: 'rgb(75, 192, 192)',
+      tension: 0.1
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Évolution des ventes'
+      }
+    }
+  }
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Types de graphiques</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Graphique en barres
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['A', 'B', 'C'],
+    datasets: [{
+      label: 'Données',
+      data: [10, 20, 30],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.5)',
+        'rgba(54, 162, 235, 0.5)',
+        'rgba(255, 206, 86, 0.5)'
+      ]
+    }]
+  }
+});
+
+// Graphique camembert
+new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: ['Rouge', 'Bleu', 'Jaune'],
+    datasets: [{
+      data: [300, 50, 100],
+      backgroundColor: [
+        'rgb(255, 99, 132)',
+        'rgb(54, 162, 235)',
+        'rgb(255, 206, 86)'
+      ]
+    }]
+  }
+});
+
+// Graphique radar
+new Chart(ctx, {
+  type: 'radar',
+  data: {
+    labels: ['A', 'B', 'C', 'D', 'E'],
+    datasets: [{
+      label: 'Données',
+      data: [65, 59, 90, 81, 56],
+      fill: true,
+      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      borderColor: 'rgb(54, 162, 235)',
+      pointBackgroundColor: 'rgb(54, 162, 235)'
+    }]
+  }
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Options de configuration</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>const options = {
+  responsive: true,
+  maintainAspectRatio: false,
+
+  plugins: {
+    title: {
+      display: true,
+      text: 'Titre du graphique',
+      font: {
+        size: 16
+      }
+    },
+    legend: {
+      position: 'top',
+      labels: {
+        usePointStyle: true
+      }
+    },
+    tooltip: {
+      mode: 'index',
+      intersect: false
+    }
+  },
+
+  scales: {
+    x: {
+      grid: {
+        display: false
+      },
+      title: {
+        display: true,
+        text: 'Mois'
+      }
+    },
+    y: {
+      beginAtZero: true,
+      title: {
+        display: true,
+        text: 'Valeur'
+      }
+    }
+  },
+
+  animation: {
+    duration: 1000,
+    easing: 'easeInOutQuart'
+  },
+
+  interaction: {
+    mode: 'nearest',
+    axis: 'x',
+    intersect: false
+  }
+};
+
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: data,
+  options: options
+});</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Mise à jour dynamique</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Ajout de données
+function addData(chart, label, data) {
+  chart.data.labels.push(label);
+  chart.data.datasets.forEach((dataset) => {
+    dataset.data.push(data);
+  });
+  chart.update();
+}
+
+// Suppression de données
+function removeData(chart) {
+  chart.data.labels.pop();
+  chart.data.datasets.forEach((dataset) => {
+    dataset.data.pop();
+  });
+  chart.update();
+}
+
+// Mise à jour en temps réel
+setInterval(() => {
+  const value = Math.random() * 100;
+  const now = new Date();
+
+  addData(
+    chart,
+    now.toLocaleTimeString(),
+    value
+  );
+
+  // Limite à 10 points
+  if (chart.data.labels.length > 10) {
+    removeData(chart);
+  }
+}, 1000);</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Événements et interactions</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Gestion des événements
+chart.canvas.addEventListener('click', (evt) => {
+  const points = chart.getElementsAtEventForMode(
+    evt,
+    'nearest',
+    { intersect: true },
+    false
+  );
+
+  if (points.length) {
+    const point = points[0];
+    const data = chart.data.datasets[point.datasetIndex]
+      .data[point.index];
+    console.log('Point cliqué:', data);
+  }
+});
+
+// Configuration des tooltips personnalisés
+options: {
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          const label = context.dataset.label || '';
+          const value = context.parsed.y;
+          return `${label}: ${value}€`;
+        },
+        title: function(tooltipItems) {
+          return 'Données pour ' +
+            tooltipItems[0].label;
+        }
+      }
+    }
+  }
+}
+
+// Légendes interactives
+options: {
+  plugins: {
+    legend: {
+      onClick: function(e, legendItem, legend) {
+        const index = legendItem.datasetIndex;
+        const ci = legend.chart;
+
+        ci.data.datasets[index].hidden =
+          !ci.data.datasets[index].hidden;
+
+        ci.update();
+      }
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

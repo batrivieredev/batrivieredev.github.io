@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concepts avancés développement natif iOS/Android</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Concepts avancés développement natif iOS/Android</h1>
+
+        <div class="alert alert-info">
+            Exploration des fonctionnalités avancées pour le développement d'applications natives iOS et Android.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Concurrence iOS (Swift)</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Async/Await
+@MainActor
+class DataLoader {
+    func loadData() async throws -> [Item] {
+        let (data, _) = try await URLSession.shared
+            .data(from: apiURL)
+        return try JSONDecoder()
+            .decode([Item].self, from: data)
+    }
+}
+
+// Actors pour la sécurité des données
+actor SharedStorage {
+    private var data: [String: Any] = [:]
+
+    func setValue(_ value: Any, forKey key: String) {
+        data[key] = value
+    }
+
+    func getValue(forKey key: String) -> Any? {
+        return data[key]
+    }
+}
+
+// Gestionnaire de tâches
+final class TaskManager {
+    private var tasks: [Task<Void, Never>] = []
+
+    func startTask(_ operation: @escaping () async -> Void) {
+        let task = Task {
+            await operation()
+        }
+        tasks.append(task)
+    }
+
+    func cancelAllTasks() {
+        tasks.forEach { $0.cancel() }
+        tasks.removeAll()
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Coroutines Android (Kotlin)</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Coroutines et Flow
+class DataRepository @Inject constructor(
+    private val api: ApiService,
+    private val db: AppDatabase
+) {
+    fun getData(): Flow<Resource<List<Item>>> = flow {
+        emit(Resource.Loading)
+
+        try {
+            // Cache
+            emit(Resource.Loading(db.items().first()))
+
+            // API
+            val items = api.getItems()
+            db.itemDao().insertAll(items)
+
+            // Résultat final
+            emitAll(db.items()
+                .map { Resource.Success(it) })
+        } catch (e: Exception) {
+            emit(Resource.Error(e))
+        }
+    }.flowOn(Dispatchers.IO)
+}
+
+// Gestion du cycle de vie
+@OptIn(ExperimentalCoroutinesApi::class)
+class LocationManager(
+    private val context: Context,
+    private val scope: CoroutineScope
+) {
+    private val locationFlow = callbackFlow {
+        val locationClient = LocationServices
+            .getFusedLocationProviderClient(context)
+
+        val callback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                result.lastLocation?.let { location ->
+                    trySend(location)
+                }
+            }
+        }
+
+        val request = LocationRequest.create()
+            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+
+        locationClient.requestLocationUpdates(
+            request,
+            callback,
+            Looper.getMainLooper()
+        )
+
+        awaitClose {
+            locationClient.removeLocationUpdates(callback)
+        }
+    }.shareIn(scope, SharingStarted.WhileSubscribed())</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Animations avancées</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">iOS</h3>
+                        <pre><code>// Animations personnalisées
+class CustomTransition: NSObject, UIViewControllerAnimatedTransitioning {
+    func transitionDuration(
+        using transitionContext: UIViewControllerContextTransitioning?
+    ) -> TimeInterval {
+        return 0.5
+    }
+
+    func animateTransition(
+        using transitionContext: UIViewControllerContextTransitioning
+    ) {
+        guard let toView = transitionContext.view(
+            forKey: .to
+        ) else {
+            return
+        }
+
+        let containerView = transitionContext.containerView
+        toView.alpha = 0
+        containerView.addSubview(toView)
+
+        UIView.animate(
+            withDuration: transitionDuration(using: transitionContext),
+            animations: {
+                toView.alpha = 1
+            },
+            completion: { _ in
+                transitionContext.completeTransition(true)
+            }
+        )
+    }
+}
+
+// Animations de forme
+class MorphingView: UIView {
+    private var shapeLayer = CAShapeLayer()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        layer.addSublayer(shapeLayer)
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        layer.addSublayer(shapeLayer)
+    }
+
+    func morphTo(path: UIBezierPath) {
+        let animation = CABasicAnimation(
+            keyPath: "path"
+        )
+        animation.toValue = path.cgPath
+        animation.duration = 0.3
+        animation.timingFunction = CAMediaTimingFunction(
+            name: .easeInEaseOut
+        )
+
+        shapeLayer.path = path.cgPath
+        shapeLayer.add(animation, forKey: "path")
+    }
+}</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Android</h3>
+                        <pre><code>// Animations composées
+class CustomMotion @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null
+) : MotionLayout(context, attrs) {
+
+    private val springForce = SpringForce().apply {
+        finalPosition = 1f
+        dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+        stiffness = SpringForce.STIFFNESS_MEDIUM
+    }
+
+    fun startSpringAnimation(view: View) {
+        val animation = SpringAnimation(
+            view,
+            DynamicAnimation.TRANSLATION_Y
+        ).apply {
+            spring = springForce
+            setStartValue(0f)
+        }
+        animation.start()
+    }
+}
+
+// Transitions partagées
+class SharedElementActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        postponeEnterTransition()
+
+        window.sharedElementEnterTransition =
+            TransitionInflater.from(this)
+                .inflateTransition(R.transition.shared_image)
+
+        image.doOnLayout {
+            startPostponedEnterTransition()
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Services système</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// iOS Core Services
+class BiometricAuth {
+    enum AuthError: Error {
+        case notAvailable
+        case notEnrolled
+        case failed
+    }
+
+    func authenticate() async throws {
+        let context = LAContext()
+        var error: NSError?
+
+        guard context.canEvaluatePolicy(
+            .deviceOwnerAuthenticationWithBiometrics,
+            error: &error
+        ) else {
+            throw AuthError.notAvailable
+        }
+
+        return try await withCheckedThrowingContinuation { continuation in
+            context.evaluatePolicy(
+                .deviceOwnerAuthenticationWithBiometrics,
+                localizedReason: "Authentication required"
+            ) { success, error in
+                if success {
+                    continuation.resume()
+                } else {
+                    continuation.resume(throwing: AuthError.failed)
+                }
+            }
+        }
+    }
+}
+
+// Gestion des notifications
+class NotificationManager {
+    func requestPermission() async throws -> Bool {
+        let center = UNUserNotificationCenter.current()
+        let options: UNAuthorizationOptions = [
+            .alert, .sound, .badge
+        ]
+
+        return try await center.requestAuthorization(
+            options: options
+        )
+    }
+
+    func scheduleNotification(title: String, body: String) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+
+        let trigger = UNTimeIntervalNotificationTrigger(
+            timeInterval: 60,
+            repeats: false
+        )
+
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current()
+            .add(request)
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Services Android</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Service en arrière-plan
+@AndroidEntryPoint
+class DataSyncService : Service() {
+    private val scope = CoroutineScope(SupervisorJob())
+
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int
+    ): Int {
+        startForeground(
+            NOTIFICATION_ID,
+            createNotification()
+        )
+
+        scope.launch {
+            try {
+                syncData()
+            } finally {
+                stopSelf()
+            }
+        }
+
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
+    }
+}
+
+// WorkManager
+@HiltWorker
+class DataSyncWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted params: WorkerParameters,
+    private val repository: DataRepository
+) : CoroutineWorker(context, params) {
+
+    override suspend fun doWork(): Result {
+        return try {
+            repository.syncData()
+            Result.success()
+        } catch (e: Exception) {
+            if (runAttemptCount < 3) {
+                Result.retry()
+            } else {
+                Result.failure()
+            }
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

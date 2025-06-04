@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React - Concepts Avancés | Scriptorium</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="bi bi-house-fill"></i></a></li>
+                <li class="breadcrumb-item"><a href="#"><i class="bi bi-window"></i> Frontend</a></li>
+                <li class="breadcrumb-item"><a href="#"><i class="bi bi-react"></i> React</a></li>
+                <li class="breadcrumb-item"><a href="introduction.html"><i class="bi bi-book"></i> Introduction</a></li>
+                <li class="breadcrumb-item active"><i class="bi bi-stars"></i> Concepts avancés</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>React - Concepts Avancés</h1>
+            <div class="btn-group">
+                <a href="introduction.html" class="btn btn-theme"><i class="bi bi-book"></i> Introduction</a>
+                <a href="concepts_avances.html" class="btn btn-theme active"><i class="bi bi-stars"></i> Concepts avancés</a>
+                <a href="exemples.html" class="btn btn-theme"><i class="bi bi-code-square"></i> Exemples</a>
+                <a href="bonnes_pratiques.html" class="btn btn-theme"><i class="bi bi-check-circle"></i> Bonnes pratiques</a>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            Explorez les fonctionnalités avancées de React pour construire des applications complexes et performantes.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Context API</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Création du contexte
+const ThemeContext = React.createContext('light');
+
+// Provider au niveau supérieur
+function App() {
+  const [theme, setTheme] = useState('light');
+
+  return (
+    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;
+      &lt;Layout /&gt;
+    &lt;/ThemeContext.Provider&gt;
+  );
+}
+
+// Utilisation du contexte
+function Button() {
+  const { theme, setTheme } = useContext(ThemeContext);
+
+  return (
+    &lt;button
+      className={`btn-${theme}`}
+      onClick={() => setTheme(
+        theme === 'light' ? 'dark' : 'light'
+      )}
+    &gt;
+      Changer le thème
+    &lt;/button&gt;
+  );
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Hooks personnalisés</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Hook pour gérer un formulaire
+function useForm(initialState = {}) {
+  const [values, setValues] = useState(initialState);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setValues(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const resetForm = () => {
+    setValues(initialState);
+  };
+
+  return {
+    values,
+    handleChange,
+    resetForm
+  };
+}
+
+// Utilisation
+function LoginForm() {
+  const {
+    values,
+    handleChange,
+    resetForm
+  } = useForm({
+    email: '',
+    password: ''
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Traiter le formulaire
+    resetForm();
+  };
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input
+        name="email"
+        value={values.email}
+        onChange={handleChange}
+      /&gt;
+      &lt;input
+        name="password"
+        type="password"
+        value={values.password}
+        onChange={handleChange}
+      /&gt;
+      &lt;button type="submit"&gt;
+        Connexion
+      &lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Gestion d'état avec useReducer</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Définir le reducer
+const todoReducer = (state, action) => {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return [...state, {
+        id: Date.now(),
+        text: action.payload,
+        completed: false
+      }];
+
+    case 'TOGGLE_TODO':
+      return state.map(todo =>
+        todo.id === action.payload
+          ? { ...todo, completed: !todo.completed }
+          : todo
+      );
+
+    case 'DELETE_TODO':
+      return state.filter(
+        todo => todo.id !== action.payload
+      );
+
+    default:
+      return state;
+  }
+};
+
+// Utilisation dans un composant
+function TodoList() {
+  const [todos, dispatch] = useReducer(
+    todoReducer,
+    []
+  );
+
+  const addTodo = (text) => {
+    dispatch({
+      type: 'ADD_TODO',
+      payload: text
+    });
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;TodoForm onSubmit={addTodo} /&gt;
+      {todos.map(todo => (
+        &lt;TodoItem
+          key={todo.id}
+          todo={todo}
+          onToggle={() => dispatch({
+            type: 'TOGGLE_TODO',
+            payload: todo.id
+          })}
+          onDelete={() => dispatch({
+            type: 'DELETE_TODO',
+            payload: todo.id
+          })}
+        /&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Performance et Optimisation</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">React.memo</h3>
+                        <pre><code>const TodoItem = React.memo(({ todo, onToggle }) => (
+  &lt;div&gt;
+    &lt;input
+      type="checkbox"
+      checked={todo.completed}
+      onChange={onToggle}
+    /&gt;
+    &lt;span&gt;{todo.text}&lt;/span&gt;
+  &lt;/div&gt;
+));
+
+// Comparaison personnalisée
+const areEqual = (prevProps, nextProps) => {
+  return prevProps.todo.id === nextProps.todo.id &&
+         prevProps.todo.completed ===
+           nextProps.todo.completed;
+};</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">useMemo et useCallback</h3>
+                        <pre><code>function TodoList({ todos, filter }) {
+  const filteredTodos = useMemo(() =>
+    todos.filter(todo =>
+      todo.status === filter
+    ),
+    [todos, filter]
+  );
+
+  const handleToggle = useCallback((id) => {
+    toggleTodo(id);
+  }, []);
+
+  return (
+    &lt;div&gt;
+      {filteredTodos.map(todo => (
+        &lt;TodoItem
+          key={todo.id}
+          todo={todo}
+          onToggle={handleToggle}
+        /&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Baptiste RIVIERE - Scriptorium</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/accessibility.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("header").innerHTML = data;
+                // Re-init Bootstrap components after dynamic content load
+                const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+            })
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

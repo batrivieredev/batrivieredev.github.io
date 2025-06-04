@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonnes pratiques - Authentification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Bonnes pratiques d'authentification</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour sécuriser l'authentification dans vos applications.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Gestion des tokens</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Bonnes pratiques JWT
+class TokenManager {
+  static generateToken(payload, expiresIn = '15m') {
+    // Limiter les données dans le payload
+    const minimalPayload = {
+      id: payload.id,
+      role: payload.role
+    };
+
+    // Toujours spécifier une expiration
+    return jwt.sign(
+      minimalPayload,
+      process.env.JWT_SECRET,
+      {
+        expiresIn,
+        algorithm: 'HS256',
+        audience: process.env.JWT_AUDIENCE,
+        issuer: process.env.JWT_ISSUER
+      }
+    );
+  }
+
+  static verifyToken(token) {
+    try {
+      return jwt.verify(token, process.env.JWT_SECRET, {
+        algorithms: ['HS256'],
+        audience: process.env.JWT_AUDIENCE,
+        issuer: process.env.JWT_ISSUER
+      });
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        throw new Error('Token expiré');
+      }
+      throw new Error('Token invalide');
+    }
+  }
+
+  // Rotation des secrets
+  static async rotateSecret() {
+    const newSecret = crypto.randomBytes(64).toString('hex');
+    await redis.set(
+      'jwt_secret_new',
+      newSecret,
+      'EX',
+      86400 // 24h
+    );
+    return newSecret;
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sécurité des sessions</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Configuration sécurisée des sessions
+const session = require('express-session');
+
+app.use(session({
+  // Générer un secret aléatoire fort
+  secret: crypto.randomBytes(32).toString('hex'),
+
+  // Empêcher les attaques par fixation de session
+  name: 'sessionId',
+  rolling: true,
+  resave: false,
+  saveUninitialized: false,
+
+  // Sécuriser les cookies
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    domain: process.env.COOKIE_DOMAIN,
+    path: '/',
+    maxAge: 3600000 // 1 heure
+  }
+}));
+
+// Middleware de nettoyage
+app.use((req, res, next) => {
+  // Empêcher le clickjacking
+  res.setHeader('X-Frame-Options', 'DENY');
+
+  // Éviter la mise en cache des pages sensibles
+  res.setHeader(
+    'Cache-Control',
+    'no-store, no-cache, must-revalidate'
+  );
+
+  next();
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Validation des entrées</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Validation avec express-validator
+const { body, validationResult } = require('express-validator');
+
+const loginValidation = [
+  // Email
+  body('email')
+    .trim()
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Email invalide'),
+
+  // Mot de passe
+  body('password')
+    .trim()
+    .isLength({ min: 8 })
+    .withMessage('Mot de passe trop court')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+    .withMessage('Mot de passe trop faible')
+];
+
+// Rate limiting
+const rateLimit = require('express-rate-limit');
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 tentatives
+  message: 'Trop de tentatives, réessayez plus tard.',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Application des validations
+app.post(
+  '/login',
+  loginLimiter,
+  loginValidation,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        errors: errors.array()
+      });
+    }
+    // Suite du traitement...
+  }
+);</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Points clés de sécurité :</h3>
+                    <ul>
+                        <li>Utiliser HTTPS uniquement</li>
+                        <li>Implémenter le rate limiting</li>
+                        <li>Valider toutes les entrées utilisateur</li>
+                        <li>Ne pas stocker d'informations sensibles dans les tokens</li>
+                        <li>Rotation régulière des secrets</li>
+                        <li>Audit des connexions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Audit et logging</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Service d'audit
+class AuditService {
+  constructor() {
+    this.logger = winston.createLogger({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+      ),
+      transports: [
+        new winston.transports.File({
+          filename: 'logs/auth.log'
+        })
+      ]
+    });
+  }
+
+  async logAuthEvent(event) {
+    const {
+      userId,
+      action,
+      ip,
+      userAgent,
+      success,
+      reason
+    } = event;
+
+    await this.logger.info('auth_event', {
+      userId,
+      action,
+      ip,
+      userAgent,
+      success,
+      reason,
+      timestamp: new Date()
+    });
+
+    if (!success) {
+      await this.checkSuspiciousActivity(userId, ip);
+    }
+  }
+
+  async checkSuspiciousActivity(userId, ip) {
+    const recentFailures = await this.getRecentFailures(
+      userId,
+      ip
+    );
+
+    if (recentFailures > 10) {
+      await this.notifySecurityTeam({
+        userId,
+        ip,
+        failures: recentFailures
+      });
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests de sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Tests de sécurité
+describe('Authentication Security', () => {
+  test('should block brute force attempts', async () => {
+    const attempts = [];
+
+    // Faire plusieurs tentatives
+    for (let i = 0; i < 6; i++) {
+      attempts.push(
+        request(app)
+          .post('/login')
+          .send({
+            email: 'test@example.com',
+            password: 'wrong'
+          })
+      );
+    }
+
+    const responses = await Promise.all(attempts);
+    const lastResponse = responses[5];
+
+    expect(lastResponse.status).toBe(429);
+  });
+
+  test('should enforce password policy', async () => {
+    const response = await request(app)
+      .post('/register')
+      .send({
+        email: 'test@example.com',
+        password: 'weak'
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.errors[0].msg)
+      .toContain('Mot de passe trop faible');
+  });
+
+  test('should prevent session fixation', async () => {
+    const agent = request.agent(app);
+
+    // Première requête
+    const res1 = await agent.get('/');
+    const session1 = res1.headers['set-cookie'][0];
+
+    // Login
+    await agent.post('/login').send({
+      email: 'test@example.com',
+      password: 'correct'
+    });
+
+    // Vérifier le changement de session
+    const res2 = await agent.get('/');
+    const session2 = res2.headers['set-cookie'][0];
+
+    expect(session1).not.toBe(session2);
+  });
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

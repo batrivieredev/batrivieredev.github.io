@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests Python avec Pytest et unittest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Tests Python avec Pytest et unittest</h1>
+
+        <div class="alert alert-info">
+            Guide d'utilisation de Pytest et unittest pour tester des applications Python.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests avec Pytest</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Installation
+pip install pytest
+
+# test_calculator.py
+def test_addition():
+    assert 1 + 1 == 2
+    assert 2 + 2 == 4
+
+def test_subtraction():
+    assert 3 - 1 == 2
+    assert 5 - 2 == 3
+
+# Tests paramétrés
+import pytest
+
+@pytest.mark.parametrize("a,b,expected", [
+    (2, 3, 5),
+    (0, 0, 0),
+    (-1, 1, 0),
+])
+def test_add(a, b, expected):
+    assert a + b == expected
+
+# Fixtures
+@pytest.fixture
+def db_connection():
+    conn = create_connection()
+    yield conn
+    conn.close()
+
+def test_database(db_connection):
+    result = db_connection.query("SELECT 1")
+    assert result == 1
+
+# Tests asynchrones
+@pytest.mark.asyncio
+async def test_async_function():
+    result = await fetch_data()
+    assert result is not None
+
+# Tests avec contexte
+def test_exception():
+    with pytest.raises(ValueError):
+        raise ValueError("Test error")</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests avec unittest</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>import unittest
+
+class TestCalculator(unittest.TestCase):
+    def setUp(self):
+        self.calc = Calculator()
+
+    def tearDown(self):
+        pass
+
+    def test_addition(self):
+        self.assertEqual(self.calc.add(2, 2), 4)
+        self.assertEqual(self.calc.add(-1, 1), 0)
+
+    def test_division(self):
+        self.assertEqual(self.calc.divide(6, 2), 3)
+        with self.assertRaises(ZeroDivisionError):
+            self.calc.divide(1, 0)
+
+class TestAsync(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        self.client = await create_client()
+
+    async def test_fetch(self):
+        data = await self.client.fetch_data()
+        self.assertIsNotNone(data)
+
+    async def asyncTearDown(self):
+        await self.client.close()
+
+# Mock et patch
+from unittest.mock import Mock, patch
+
+class TestAPI(unittest.TestCase):
+    @patch('requests.get')
+    def test_api_call(self, mock_get):
+        mock_get.return_value.json.return_value = {
+            'id': 1,
+            'name': 'Test'
+        }
+
+        api = APIClient()
+        result = api.get_user(1)
+
+        self.assertEqual(result['name'], 'Test')
+        mock_get.assert_called_once()</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Configuration et bonnes pratiques</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># pytest.ini
+[pytest]
+testpaths = tests
+python_files = test_*.py
+python_classes = Test
+python_functions = test_*
+addopts = -v --cov=app
+
+# conftest.py
+import pytest
+from app.database import Database
+
+@pytest.fixture(scope="session")
+def db():
+    db = Database()
+    db.connect()
+    yield db
+    db.disconnect()
+
+@pytest.fixture(scope="function")
+def clean_db(db):
+    db.clean()
+    yield db
+
+# Markers personnalisés
+@pytest.mark.slow
+def test_slow_operation():
+    result = long_running_operation()
+    assert result is not None
+
+# Tests de Flask
+@pytest.fixture
+def client():
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
+
+def test_home_page(client):
+    rv = client.get('/')
+    assert b'Welcome' in rv.data</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Organisation des tests :</h3>
+                    <pre><code>project/
+├── tests/
+│   ├── unit/
+│   │   ├── test_models.py
+│   │   └── test_utils.py
+│   ├── integration/
+│   │   ├── test_api.py
+│   │   └── test_database.py
+│   ├── conftest.py
+│   └── pytest.ini
+└── app/
+    ├── models.py
+    ├── utils.py
+    └── api.py</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests d'API FastAPI</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>from fastapi.testclient import TestClient
+from app.main import app
+
+client = TestClient(app)
+
+def test_read_main():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"msg": "Hello World"}
+
+def test_create_user():
+    response = client.post(
+        "/users/",
+        json={"email": "test@example.com", "name": "Test"}
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["email"] == "test@example.com"
+    assert "id" in data
+
+@pytest.mark.asyncio
+async def test_websocket():
+    async with client.websocket_connect("/ws") as websocket:
+        data = await websocket.receive_json()
+        assert data["msg"] == "Connected"</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests de performances</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>import pytest
+import time
+from functools import wraps
+
+def timing_decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        print(f"{func.__name__} took {end - start:.2f} seconds")
+        return result
+    return wrapper
+
+@pytest.mark.benchmark
+@timing_decorator
+def test_large_operation():
+    result = process_large_dataset()
+    assert result is not None
+
+# Pytest-benchmark
+def test_fibonacci(benchmark):
+    def fib(n):
+        if n < 2:
+            return n
+        return fib(n-1) + fib(n-2)
+
+    result = benchmark(fib, 10)
+    assert result == 55
+
+# Tests de charge
+from locust import HttpUser, task, between
+
+class WebsiteUser(HttpUser):
+    wait_time = between(1, 2.5)
+
+    @task(1)
+    def test_homepage(self):
+        self.client.get("/")
+
+    @task(2)
+    def test_search(self):
+        self.client.post("/search", json={
+            "query": "test"
+        })</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

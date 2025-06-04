@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonnes pratiques MySQL</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Bonnes pratiques MySQL</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour optimiser et sécuriser vos bases de données MySQL.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Configuration sécurisée
+[mysqld]
+# Désactiver les logins root distants
+bind-address = 127.0.0.1
+
+# Activer SSL
+require_secure_transport = ON
+ssl-cert = /path/to/server-cert.pem
+ssl-key = /path/to/server-key.pem
+
+# Limiter les tentatives de connexion
+max_connect_errors = 10
+
+# Protection contre injection SQL
+sql_mode = "STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION"
+
+# Exemple d'utilisation de requêtes préparées
+PREPARE stmt FROM
+'SELECT * FROM users WHERE id = ?';
+SET @id = 5;
+EXECUTE stmt USING @id;
+DEALLOCATE PREPARE stmt;</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Conception de schéma</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>-- Utiliser les bons types de données
+CREATE TABLE utilisateurs (
+    id BIGINT UNSIGNED AUTO_INCREMENT,
+    email VARCHAR(255),         -- Pour les emails
+    status ENUM('actif','inactif'),  -- Pour les statuts fixes
+    description TEXT,           -- Pour le texte long
+    montant DECIMAL(10,2),     -- Pour la monnaie
+    created_at TIMESTAMP       -- Pour les dates
+);
+
+-- Normalisation
+-- Mauvais exemple (non normalisé)
+CREATE TABLE commandes (
+    id INT,
+    client_nom VARCHAR(100),
+    client_email VARCHAR(255),
+    client_adresse TEXT
+);
+
+-- Bon exemple (normalisé)
+CREATE TABLE clients (
+    id INT PRIMARY KEY,
+    nom VARCHAR(100),
+    email VARCHAR(255),
+    adresse TEXT
+);
+
+CREATE TABLE commandes (
+    id INT PRIMARY KEY,
+    client_id INT,
+    FOREIGN KEY (client_id)
+    REFERENCES clients(id)
+);</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Performance</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Optimisation des requêtes</h3>
+                        <pre><code>-- Utiliser EXPLAIN
+EXPLAIN SELECT * FROM users
+WHERE email = 'test@example.com';
+
+-- Éviter les sous-requêtes
+-- Mauvais
+SELECT *
+FROM commandes
+WHERE client_id IN (
+    SELECT id FROM clients
+    WHERE pays = 'France'
+);
+
+-- Bon
+SELECT c.*
+FROM commandes c
+JOIN clients cl ON c.client_id = cl.id
+WHERE cl.pays = 'France';
+
+-- Utiliser LIMIT avec ORDER BY
+SELECT * FROM logs
+ORDER BY date DESC
+LIMIT 10;</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Indexation</h3>
+                        <pre><code>-- Index appropriés
+CREATE INDEX idx_email ON users(email);
+CREATE INDEX idx_status ON orders(status);
+
+-- Index composés pour les requêtes fréquentes
+CREATE INDEX idx_user_status
+ON users(status, created_at);
+
+-- Éviter trop d'index
+-- Vérifier l'utilisation des index
+SHOW INDEX FROM users;
+SELECT * FROM
+    information_schema.statistics
+WHERE table_name = 'users';</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Maintenance</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Sauvegardes régulières
+mysqldump -u user -p database > backup.sql
+
+# Avec compression
+mysqldump -u user -p database | gzip > backup.sql.gz
+
+# Restauration
+mysql -u user -p database < backup.sql
+
+# Optimisation des tables
+OPTIMIZE TABLE users;
+ANALYZE TABLE orders;
+
+# Surveillance des processus
+SHOW PROCESSLIST;
+KILL process_id;</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Monitoring</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Variables système
+SHOW VARIABLES LIKE 'max_connections';
+SHOW VARIABLES LIKE 'innodb_buffer_pool_size';
+
+# Status
+SHOW STATUS LIKE 'Threads_connected';
+SHOW STATUS LIKE 'Slow_queries';
+
+# Logs lents
+SET GLOBAL slow_query_log = 'ON';
+SET GLOBAL long_query_time = 2;
+
+# Tables les plus utilisées
+SELECT table_name, table_rows
+FROM information_schema.tables
+WHERE table_schema = 'database'
+ORDER BY table_rows DESC;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

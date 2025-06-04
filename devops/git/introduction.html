@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction à Git et GitHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction à Git et GitHub</h1>
+
+        <div class="alert alert-info">
+            Git est un système de contrôle de version distribué, tandis que GitHub est une plateforme d'hébergement de code qui utilise Git.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Commandes Git essentielles</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Configuration initiale
+git config --global user.name "John Doe"
+git config --global user.email "john@example.com"
+
+# Initialisation et clonage
+git init                   # Nouveau dépôt
+git clone repo_url         # Cloner un dépôt
+
+# Gestion des modifications
+git status                # État des fichiers
+git add fichier          # Ajouter des fichiers
+git add .                # Ajouter tous les fichiers
+git commit -m "message"  # Valider les changements
+
+# Branches
+git branch               # Lister les branches
+git branch nom          # Créer une branche
+git checkout nom        # Changer de branche
+git checkout -b nom     # Créer et changer
+git merge branche       # Fusionner une branche
+
+# Remote
+git remote add origin url  # Ajouter un dépôt distant
+git push origin main      # Envoyer les modifications
+git pull origin main      # Récupérer les modifications
+git fetch origin         # Mettre à jour les références</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Workflow GitHub</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Fork et Clone
+# 1. Fork sur GitHub
+# 2. Cloner localement
+git clone https://github.com/user/repo.git
+
+# Créer une branche pour la fonctionnalité
+git checkout -b feature/nouvelle-fonc
+
+# Développer et commiter
+git add .
+git commit -m "Ajout nouvelle fonctionnalité"
+
+# Mettre à jour depuis upstream
+git remote add upstream original_repo_url
+git fetch upstream
+git rebase upstream/main
+
+# Pousser les modifications
+git push origin feature/nouvelle-fonc
+
+# Créer une Pull Request sur GitHub
+# 1. Aller sur GitHub
+# 2. Cliquer "New Pull Request"
+# 3. Sélectionner les branches
+# 4. Décrire les modifications</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Fonctionnalités avancées</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Git avancé</h3>
+                        <pre><code># Rebase interactif
+git rebase -i HEAD~3
+
+# Cherry-pick
+git cherry-pick commit_hash
+
+# Reset et Revert
+git reset --hard HEAD~1  # Annuler dernier commit
+git revert commit_hash   # Créer commit inverse
+
+# Stash
+git stash                # Sauvegarder modifications
+git stash list          # Lister les stash
+git stash pop           # Appliquer et supprimer
+git stash apply         # Appliquer sans supprimer
+
+# Tags
+git tag v1.0.0           # Créer un tag
+git push origin v1.0.0   # Pousser un tag</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">GitHub Actions</h3>
+                        <pre><code># .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+    - name: Install dependencies
+      run: npm ci
+    - name: Run tests
+      run: npm test
+    - name: Build
+      run: npm run build</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">.gitignore et hooks</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># .gitignore
+node_modules/
+.env
+*.log
+dist/
+coverage/
+.DS_Store
+
+# Git hooks (.git/hooks/pre-commit)
+#!/bin/sh
+npm run lint
+npm test
+
+if [ $? -ne 0 ]; then
+  echo "Les tests ont échoué"
+  exit 1
+fi
+
+# Git hooks (.git/hooks/pre-push)
+#!/bin/sh
+npm audit
+npm run build
+
+if [ $? -ne 0 ]; then
+  echo "Build a échoué"
+  exit 1
+fi</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">GitHub Features</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Issues :</strong> Suivi de bugs et fonctionnalités
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Projects :</strong> Gestion de projet Kanban
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Wiki :</strong> Documentation du projet
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Discussions :</strong> Forum communautaire
+                            </li>
+                            <li class="list-group-item">
+                                <strong>GitHub Pages :</strong> Hébergement statique
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Security :</strong> Analyse de vulnérabilités
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Codespaces :</strong> IDE en ligne
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

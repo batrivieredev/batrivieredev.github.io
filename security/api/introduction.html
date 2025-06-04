@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protection des API avec CORS et CSRF</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Protection des API avec CORS et CSRF</h1>
+
+        <div class="alert alert-info">
+            Guide d'implémentation des protections CORS et CSRF pour sécuriser les API web.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration CORS</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Express.js avec cors
+const express = require('express');
+const cors = require('cors');
+
+const app = express();
+
+// Configuration simple
+app.use(cors());
+
+// Configuration détaillée
+const corsOptions = {
+  origin: ['https://example.com', 'https://admin.example.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  credentials: true,
+  maxAge: 3600,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+
+// CORS dynamique
+app.use(cors((req, callback) => {
+  const origin = req.header('Origin');
+  const allowedOrigins = [
+    'https://example.com',
+    'https://admin.example.com'
+  ];
+
+  callback(null, {
+    origin: allowedOrigins.includes(origin),
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true
+  });
+}));
+
+// CORS par route
+app.get('/api/public', cors(), (req, res) => {
+  res.json({ message: 'Public API' });
+});
+
+app.get('/api/private', cors(corsOptions), (req, res) => {
+  res.json({ message: 'Private API' });
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Protection CSRF</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Express.js avec csurf
+const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
+
+// Middleware CSRF
+app.use(cookieParser());
+app.use(csrf({ cookie: true }));
+
+// Middleware pour envoyer le token
+app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
+
+// Route pour le formulaire
+app.get('/form', (req, res) => {
+  res.render('form', {
+    csrfToken: req.csrfToken()
+  });
+});
+
+// Protection des routes POST
+app.post('/submit', (req, res) => {
+  // CSRF vérifié automatiquement
+  res.json({ success: true });
+});
+
+// Gestion des erreurs CSRF
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    res.status(403).json({
+      error: 'Session invalide'
+    });
+  } else {
+    next(err);
+  }
+});
+
+// Template form.ejs
+&lt;form action="/submit" method="POST"&gt;
+  &lt;input type="hidden"
+         name="_csrf"
+         value="&lt;%= csrfToken %&gt;"&gt;
+  &lt;!-- autres champs --&gt;
+&lt;/form&gt;
+
+// React avec Axios
+axios.defaults.xsrfCookieName = 'XSRF-TOKEN';
+axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
+axios.defaults.withCredentials = true;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Double protection avec token</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Backend (Express)
+const crypto = require('crypto');
+
+// Générer un token
+function generateToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+// Stockage des tokens (en mémoire pour l'exemple)
+const tokenStore = new Map();
+
+// Middleware de vérification
+const verifyToken = (req, res, next) => {
+  const csrfToken = req.header('X-CSRF-Token');
+  const sessionToken = tokenStore.get(req.sessionID);
+
+  if (!csrfToken || !sessionToken || csrfToken !== sessionToken) {
+    return res.status(403).json({
+      error: 'Invalid CSRF token'
+    });
+  }
+
+  next();
+};
+
+// Route pour obtenir un token
+app.get('/csrf-token', (req, res) => {
+  const token = generateToken();
+  tokenStore.set(req.sessionID, token);
+  res.json({ token });
+});
+
+// Frontend (React)
+class Api {
+  constructor() {
+    this.csrfToken = null;
+  }
+
+  async getCsrfToken() {
+    if (!this.csrfToken) {
+      const response = await fetch('/csrf-token', {
+        credentials: 'include'
+      });
+      const { token } = await response.json();
+      this.csrfToken = token;
+    }
+    return this.csrfToken;
+  }
+
+  async post(url, data) {
+    const token = await this.getCsrfToken();
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': token
+      },
+      credentials: 'include',
+      body: JSON.stringify(data)
+    });
+  }
+}</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Recommandations de sécurité :</h3>
+                    <ul>
+                        <li>Toujours utiliser HTTPS</li>
+                        <li>Valider l'origine des requêtes</li>
+                        <li>Implémenter une double protection (CSRF + token personnalisé)</li>
+                        <li>Utiliser SameSite=Strict pour les cookies</li>
+                        <li>Nettoyer régulièrement les tokens expirés</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Protection WebSocket</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Backend (Express + ws)
+const WebSocket = require('ws');
+const url = require('url');
+
+const wss = new WebSocket.Server({
+  server,
+  verifyClient: (info, cb) => {
+    const token = url.parse(info.req.url, true).query.token;
+
+    // Vérifier le token
+    if (!isValidToken(token)) {
+      cb(false, 403, 'Unauthorized');
+      return;
+    }
+
+    cb(true);
+  }
+});
+
+wss.on('connection', (ws, req) => {
+  const origin = req.headers.origin;
+  if (!isAllowedOrigin(origin)) {
+    ws.close();
+    return;
+  }
+
+  ws.on('message', (data) => {
+    // Traiter les messages
+  });
+});
+
+// Frontend
+class SecureWebSocket {
+  constructor(url) {
+    this.url = url;
+    this.token = null;
+  }
+
+  async connect() {
+    if (!this.token) {
+      this.token = await this.getCsrfToken();
+    }
+
+    this.ws = new WebSocket(
+      `${this.url}?token=${this.token}`
+    );
+
+    this.ws.onmessage = this.onMessage.bind(this);
+  }
+
+  async getCsrfToken() {
+    const response = await fetch('/csrf-token', {
+      credentials: 'include'
+    });
+    const { token } = await response.json();
+    return token;
+  }
+
+  onMessage(event) {
+    // Traiter les messages
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests de sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const request = require('supertest');
+const app = require('../app');
+
+describe('CORS', () => {
+  test('should allow requests from allowed origin', async () => {
+    const response = await request(app)
+      .get('/api/data')
+      .set('Origin', 'https://example.com');
+
+    expect(response.headers['access-control-allow-origin'])
+      .toBe('https://example.com');
+  });
+
+  test('should reject requests from invalid origin', async () => {
+    const response = await request(app)
+      .get('/api/data')
+      .set('Origin', 'https://evil.com');
+
+    expect(response.headers['access-control-allow-origin'])
+      .toBeUndefined();
+  });
+});
+
+describe('CSRF Protection', () => {
+  let csrfToken;
+
+  beforeEach(async () => {
+    const response = await request(app)
+      .get('/csrf-token')
+      .set('Cookie', ['connect.sid=test']);
+
+    csrfToken = response.body.token;
+  });
+
+  test('should accept valid CSRF token', async () => {
+    const response = await request(app)
+      .post('/api/data')
+      .set('Cookie', ['connect.sid=test'])
+      .set('X-CSRF-Token', csrfToken)
+      .send({ data: 'test' });
+
+    expect(response.status).toBe(200);
+  });
+
+  test('should reject invalid CSRF token', async () => {
+    const response = await request(app)
+      .post('/api/data')
+      .set('Cookie', ['connect.sid=test'])
+      .set('X-CSRF-Token', 'invalid')
+      .send({ data: 'test' });
+
+    expect(response.status).toBe(403);
+  });
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

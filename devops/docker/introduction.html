@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction à Docker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction à Docker</h1>
+
+        <div class="alert alert-info">
+            Docker est une plateforme de conteneurisation qui permet de créer, déployer et exécuter des applications dans des conteneurs.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Concepts de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Image :</strong> Template en lecture seule pour créer des conteneurs
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Conteneur :</strong> Instance exécutable d'une image
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Dockerfile :</strong> Instructions pour construire une image
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Registry :</strong> Dépôt d'images (ex: Docker Hub)
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Volume :</strong> Stockage persistant pour les conteneurs
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Commandes de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Construire une image
+docker build -t mon-app:1.0 .
+
+# Lister les images
+docker images
+
+# Exécuter un conteneur
+docker run -d -p 8080:80 mon-app:1.0
+
+# Lister les conteneurs
+docker ps
+
+# Arrêter un conteneur
+docker stop &lt;container_id&gt;
+
+# Supprimer un conteneur
+docker rm &lt;container_id&gt;
+
+# Supprimer une image
+docker rmi mon-app:1.0</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Dockerfile</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># Utiliser une image de base
+FROM node:18-alpine
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier les fichiers de dépendances
+COPY package*.json ./
+
+# Installer les dépendances
+RUN npm install
+
+# Copier le reste des fichiers
+COPY . .
+
+# Exposer le port
+EXPOSE 3000
+
+# Commande de démarrage
+CMD ["npm", "start"]</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Instructions courantes :</h3>
+                    <ul class="mb-0">
+                        <li><code>FROM</code> - Image de base</li>
+                        <li><code>WORKDIR</code> - Répertoire de travail</li>
+                        <li><code>COPY</code> - Copier des fichiers</li>
+                        <li><code>RUN</code> - Exécuter des commandes</li>
+                        <li><code>EXPOSE</code> - Déclarer les ports</li>
+                        <li><code>ENV</code> - Variables d'environnement</li>
+                        <li><code>CMD</code> - Commande par défaut</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Docker Compose</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># docker-compose.yml
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=myapp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Réseaux Docker</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Créer un réseau
+docker network create mon-reseau
+
+# Connecter un conteneur
+docker run -d \
+  --name api \
+  --network mon-reseau \
+  mon-api:1.0
+
+# Types de réseaux :
+- bridge (défaut)
+- host
+- none
+- overlay (swarm)
+
+# Lister les réseaux
+docker network ls
+
+# Inspecter un réseau
+docker network inspect mon-reseau</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Architecture Docker</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Composants clés</h3>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Docker Engine :</strong> Cœur de Docker, gère les conteneurs
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Docker Client :</strong> Interface en ligne de commande
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Docker Registry :</strong> Stockage et distribution d'images
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Docker Compose :</strong> Gestion d'applications multi-conteneurs
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Cycle de vie</h3>
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item">Création du Dockerfile</li>
+                            <li class="list-group-item">Construction de l'image</li>
+                            <li class="list-group-item">Push vers un registry</li>
+                            <li class="list-group-item">Pull depuis un registry</li>
+                            <li class="list-group-item">Exécution du conteneur</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

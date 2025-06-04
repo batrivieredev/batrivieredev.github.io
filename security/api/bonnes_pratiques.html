@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonnes pratiques - Protection API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Bonnes pratiques de protection API</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour la sécurisation des API avec CORS et CSRF.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration CORS sécurisée</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Mauvaise pratique ❌
+app.use(cors());  // Autorise tout
+
+// Bonne pratique ✅
+const corsOptions = {
+  origin: ['https://app.example.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization'
+  ],
+  exposedHeaders: ['X-Total-Count'],
+  credentials: true,
+  maxAge: 3600,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+
+// Middleware personnalisé
+const corsCheck = (req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'https://app.example.com',
+    'https://admin.example.com'
+  ];
+
+  if (!origin || !allowedOrigins.includes(origin)) {
+    return res.status(403).json({
+      error: 'Origine non autorisée'
+    });
+  }
+
+  // Vérification supplémentaire pour les admins
+  if (origin === 'https://admin.example.com') {
+    const token = req.headers.authorization;
+    if (!isAdminToken(token)) {
+      return res.status(403).json({
+        error: 'Accès non autorisé'
+      });
+    }
+  }
+
+  next();
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Protection CSRF robuste</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Mauvaise pratique ❌
+app.disable('csrf');  // Désactive la protection
+
+// Bonne pratique ✅
+const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
+
+app.use(cookieParser());
+app.use(csrf({
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict'
+  }
+}));
+
+// Gestion personnalisée des erreurs CSRF
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    // Log de la tentative
+    logger.warn('CSRF attempt', {
+      ip: req.ip,
+      path: req.path,
+      headers: req.headers
+    });
+
+    return res.status(403).json({
+      error: 'Session invalide'
+    });
+  }
+  next(err);
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Bonnes pratiques générales</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// 1. Validation des entrées
+const { body, validationResult } = require('express-validator');
+
+const validateUser = [
+  body('email')
+    .trim()
+    .isEmail()
+    .normalizeEmail(),
+  body('password')
+    .trim()
+    .isLength({ min: 8 }),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        errors: errors.array()
+      });
+    }
+    next();
+  }
+];
+
+// 2. Rate Limiting
+const rateLimit = require('express-rate-limit');
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Trop de requêtes'
+});
+
+// 3. Security Headers
+const helmet = require('helmet');
+
+app.use(helmet());
+app.use(helmet.noSniff());
+app.use(helmet.xssFilter());
+app.use(helmet.hidePoweredBy());
+
+// 4. Logging sécurisé
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({
+      filename: 'security.log',
+      level: 'warn'
+    })
+  ]
+});</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">À ne jamais faire :</h3>
+                    <ul>
+                        <li>❌ Utiliser cors({ origin: '*' })</li>
+                        <li>❌ Désactiver la protection CSRF</li>
+                        <li>❌ Accepter tous les domaines</li>
+                        <li>❌ Négliger la validation des entrées</li>
+                        <li>❌ Exposer des informations sensibles</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sécurité des cookies</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Configuration des cookies
+const session = require('express-session');
+
+app.use(session({
+  name: 'sessionId',
+  secret: process.env.SESSION_SECRET,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    domain: '.example.com',
+    path: '/',
+    maxAge: 3600000
+  },
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Rotation des secrets
+const crypto = require('crypto');
+const redis = require('redis');
+
+class SessionManager {
+  constructor() {
+    this.redis = redis.createClient();
+    this.secretRotationInterval = 24 * 60 * 60 * 1000;
+  }
+
+  async rotateSecret() {
+    const newSecret = crypto
+      .randomBytes(32)
+      .toString('hex');
+
+    await this.redis.set(
+      'session_secret',
+      newSecret,
+      'EX',
+      this.secretRotationInterval
+    );
+
+    return newSecret;
+  }
+
+  async getSecret() {
+    let secret = await this.redis.get('session_secret');
+    if (!secret) {
+      secret = await this.rotateSecret();
+    }
+    return secret;
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Checklist de sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <h6>1. Configuration CORS</h6>
+                        <ul>
+                            <li>✅ Liste blanche d'origines</li>
+                            <li>✅ Méthodes HTTP limitées</li>
+                            <li>✅ Headers autorisés limités</li>
+                            <li>✅ Credentials sécurisés</li>
+                        </ul>
+
+                        <h6>2. Protection CSRF</h6>
+                        <ul>
+                            <li>✅ Tokens par session</li>
+                            <li>✅ Validation à chaque requête</li>
+                            <li>✅ Gestion des erreurs</li>
+                            <li>✅ Logging des tentatives</li>
+                        </ul>
+
+                        <h6>3. Cookies</h6>
+                        <ul>
+                            <li>✅ HttpOnly activé</li>
+                            <li>✅ Secure en production</li>
+                            <li>✅ SameSite strict</li>
+                            <li>✅ Domaine limité</li>
+                        </ul>
+
+                        <h6>4. Headers</h6>
+                        <ul>
+                            <li>✅ CSP configuré</li>
+                            <li>✅ XSS Protection</li>
+                            <li>✅ No Sniff</li>
+                            <li>✅ HSTS activé</li>
+                        </ul>
+
+                        <h6>5. Monitoring</h6>
+                        <ul>
+                            <li>✅ Rate limiting</li>
+                            <li>✅ Logging sécurisé</li>
+                            <li>✅ Alertes configurées</li>
+                            <li>✅ Audit régulier</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

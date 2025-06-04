@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concepts avancés - Authentification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Concepts avancés d'authentification</h1>
+
+        <div class="alert alert-info">
+            Concepts avancés pour l'authentification avec JWT et OAuth2.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Refresh Tokens</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>class TokenService {
+  constructor() {
+    this.accessTokenExpiry = '15m';
+    this.refreshTokenExpiry = '7d';
+  }
+
+  generateTokens(user) {
+    const accessToken = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: this.accessTokenExpiry }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user.id },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: this.refreshTokenExpiry }
+    );
+
+    return { accessToken, refreshToken };
+  }
+
+  async verifyRefreshToken(token) {
+    try {
+      const decoded = jwt.verify(
+        token,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+
+      const user = await User.findById(decoded.id);
+      if (!user || user.refreshToken !== token) {
+        throw new Error('Invalid refresh token');
+      }
+
+      return this.generateTokens(user);
+    } catch (error) {
+      throw new Error('Invalid refresh token');
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">OAuth2 avec Scopes</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: '/auth/google/callback',
+    passReqToCallback: true
+  },
+  async (req, accessToken, refreshToken, profile, done) => {
+    try {
+      const existingUser = await User.findOne({
+        'google.id': profile.id
+      });
+
+      if (existingUser) {
+        existingUser.google.accessToken = accessToken;
+        existingUser.google.refreshToken = refreshToken;
+        await existingUser.save();
+        return done(null, existingUser);
+      }
+
+      const newUser = await User.create({
+        email: profile.emails[0].value,
+        google: {
+          id: profile.id,
+          accessToken,
+          refreshToken,
+          scope: req.query.scope
+        }
+      });
+
+      done(null, newUser);
+    } catch (error) {
+      done(error, null);
+    }
+  }
+));</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Sessions sécurisées</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
+const Redis = require('ioredis');
+
+const redis = new Redis({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  password: process.env.REDIS_PASSWORD
+});
+
+app.use(session({
+  store: new RedisStore({ client: redis }),
+  secret: process.env.SESSION_SECRET,
+  name: 'sessionId',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    domain: process.env.COOKIE_DOMAIN,
+    path: '/',
+    sameSite: 'strict',
+    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 jours
+  },
+  rolling: true
+}));
+
+// Middleware de vérification de session
+const checkSession = async (req, res, next) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({
+      error: 'Session invalide'
+    });
+  }
+
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) {
+      req.session.destroy();
+      return res.status(401).json({
+        error: 'Utilisateur non trouvé'
+      });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    next(error);
+  }
+};</code></pre>
+                </div>
+            </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Multi-facteur (2FA)</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const speakeasy = require('speakeasy');
+const qrcode = require('qrcode');
+
+class TwoFactorService {
+  async generateSecret(user) {
+    const secret = speakeasy.generateSecret({
+      name: `MyApp:${user.email}`
+    });
+
+    user.twoFactorSecret = secret.base32;
+    await user.save();
+
+    return await qrcode.toDataURL(secret.otpauth_url);
+  }
+
+  verifyToken(user, token) {
+    return speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: 'base32',
+      token: token,
+      window: 1
+    });
+  }
+
+  generateBackupCodes() {
+    const codes = [];
+    for (let i = 0; i < 10; i++) {
+      codes.push(crypto.randomBytes(4).toString('hex'));
+    }
+    return codes;
+  }
+}
+
+// Utilisation
+app.post('/2fa/verify', async (req, res) => {
+  const { token } = req.body;
+  const user = req.user;
+
+  if (!user.twoFactorEnabled) {
+    return res.status(400).json({
+      error: '2FA non activé'
+    });
+  }
+
+  const isValid = twoFactorService.verifyToken(
+    user,
+    token
+  );
+
+  if (!isValid) {
+    return res.status(401).json({
+      error: 'Code invalide'
+    });
+  }
+
+  // Créer une session authentifiée
+  req.session.twoFactorVerified = true;
+  res.json({ success: true });
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Authentification biométrique</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const { createWebAuthnServer } = require('@simplewebauthn/server');
+const webauthn = createWebAuthnServer({
+  origin: 'https://example.com',
+  rpName: 'MyApp',
+  rpID: 'example.com'
+});
+
+// Générer challenge d'enregistrement
+app.post('/auth/webauthn/register', async (req, res) => {
+  const user = req.user;
+
+  const options = await webauthn.generateRegistrationOptions({
+    rpName: 'MyApp',
+    rpID: 'example.com',
+    userID: user.id,
+    userName: user.email,
+    attestationType: 'none',
+    authenticatorSelection: {
+      authenticatorAttachment: 'platform',
+      userVerification: 'preferred'
+    }
+  });
+
+  req.session.challenge = options.challenge;
+  res.json(options);
+});
+
+// Vérifier l'enregistrement
+app.post('/auth/webauthn/verify', async (req, res) => {
+  const { credential } = req.body;
+  const challenge = req.session.challenge;
+  const user = req.user;
+
+  try {
+    const verification = await webauthn.verifyRegistrationResponse({
+      credential,
+      expectedChallenge: challenge,
+      expectedOrigin: 'https://example.com',
+      expectedRPID: 'example.com'
+    });
+
+    if (verification.verified) {
+      user.webauthnCredentials.push({
+        credentialID: credential.id,
+        publicKey: credential.publicKey,
+        counter: credential.counter
+      });
+      await user.save();
+
+      res.json({ success: true });
+    }
+  } catch (error) {
+    res.status(400).json({
+      error: 'Vérification échouée'
+    });
+  }
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask - Introduction | Scriptorium</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="bi bi-house"></i></a></li>
+                <li class="breadcrumb-item">Backend</li>
+                <li class="breadcrumb-item">Python</li>
+                <li class="breadcrumb-item">Flask</li>
+                <li class="breadcrumb-item active">Introduction</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Introduction à Flask</h1>
+            <div class="btn-group">
+                <a href="introduction.html" class="btn btn-primary active">Introduction</a>
+                <a href="concepts_avances.html" class="btn btn-outline-primary">Concepts avancés</a>
+                <a href="exemples.html" class="btn btn-outline-primary">Exemples</a>
+                <a href="bonnes_pratiques.html" class="btn btn-outline-primary">Bonnes pratiques</a>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            Flask est un micro-framework web Python léger et flexible, idéal pour créer des applications web et des API.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Application minimale</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return 'Hello, World!'
+
+if __name__ == '__main__':
+    app.run(debug=True)</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Structure du projet</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>mon_projet/
+├── app/
+│   ├── __init__.py
+│   ├── routes.py
+│   ├── models.py
+│   └── templates/
+├── config.py
+├── requirements.txt
+└── run.py</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Routes et Vues</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Routes de base</h3>
+                        <pre><code>@app.route('/utilisateur/<int:id>')
+def profil(id):
+    return f'Profil de l\'utilisateur {id}'
+
+@app.route('/article', methods=['GET', 'POST'])
+def article():
+    if request.method == 'POST':
+        return 'Créer article'
+    return 'Liste des articles'</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Templates</h3>
+                        <pre><code>from flask import render_template
+
+@app.route('/accueil')
+def accueil():
+    return render_template(
+        'accueil.html',
+        titre='Bienvenue',
+        articles=articles
+    )</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Extensions populaires</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Flask-SQLAlchemy (ORM)</li>
+                            <li class="list-group-item">Flask-Login (Authentification)</li>
+                            <li class="list-group-item">Flask-WTF (Formulaires)</li>
+                            <li class="list-group-item">Flask-RESTful (API REST)</li>
+                            <li class="list-group-item">Flask-Migrate (Migrations BD)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Bonnes pratiques</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Utiliser une structure modulaire</li>
+                            <li class="list-group-item">Séparer la configuration</li>
+                            <li class="list-group-item">Utiliser des blueprints</li>
+                            <li class="list-group-item">Gérer les erreurs proprement</li>
+                            <li class="list-group-item">Tester son application</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Ressources utiles</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><a href="https://flask.palletsprojects.com/" target="_blank">Documentation Flask</a></li>
+                    <li class="list-group-item"><a href="https://flask.palletsprojects.com/en/2.0.x/tutorial/" target="_blank">Tutorial officiel</a></li>
+                    <li class="list-group-item"><a href="https://github.com/pallets/flask" target="_blank">GitHub Flask</a></li>
+                    <li class="list-group-item"><a href="https://exploreflask.com/" target="_blank">Explore Flask</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Baptiste RIVIERE - Scriptorium</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/accessibility.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("header").innerHTML = data;
+                // Re-init Bootstrap components after dynamic content load
+                const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+            })
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

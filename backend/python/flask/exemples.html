@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask - Exemples pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Flask - Exemples pratiques</h1>
+
+        <div class="alert alert-info">
+            Découvrez comment construire une application Flask complète à travers des exemples concrets.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Application de Blog</h2>
+            </div>
+            <div class="card-body">
+                <h3 class="h6">Structure du projet</h3>
+                <pre><code>blog/
+├── app/
+│   ├── __init__.py
+│   ├── models.py
+│   ├── routes.py
+│   ├── forms.py
+│   └── templates/
+│       ├── base.html
+│       ├── index.html
+│       └── post.html
+├── config.py
+└── run.py</code></pre>
+
+                <h3 class="h6 mt-4">Modèles</h3>
+                <pre><code># models.py
+from app import db
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True)
+    posts = db.relationship('Post', backref='author')</code></pre>
+
+                <h3 class="h6 mt-4">Formulaires</h3>
+                <pre><code># forms.py
+from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField
+from wtforms.validators import DataRequired
+
+class PostForm(FlaskForm):
+    title = StringField('Titre', validators=[DataRequired()])
+    content = TextAreaField('Contenu', validators=[DataRequired()])</code></pre>
+
+                <h3 class="h6 mt-4">Routes</h3>
+                <pre><code># routes.py
+@app.route('/')
+def index():
+    posts = Post.query.order_by(Post.created_at.desc()).all()
+    return render_template('index.html', posts=posts)
+
+@app.route('/post/new', methods=['GET', 'POST'])
+@login_required
+def new_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data,
+                   content=form.content.data,
+                   author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template('post_form.html', form=form)</code></pre>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">API REST</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># api.py
+from flask import Blueprint, jsonify
+from flask_restful import Resource, Api
+
+api_bp = Blueprint('api', __name__)
+api = Api(api_bp)
+
+class PostAPI(Resource):
+    def get(self, post_id):
+        post = Post.query.get_or_404(post_id)
+        return {
+            'id': post.id,
+            'title': post.title,
+            'content': post.content,
+            'author': post.author.username
+        }
+
+api.add_resource(PostAPI, '/posts/<int:post_id>')</code></pre>
+
+                <h3 class="h6 mt-4">Tests API</h3>
+                <pre><code># test_api.py
+def test_get_post():
+    response = client.get('/api/posts/1')
+    assert response.status_code == 200
+    data = response.get_json()
+    assert 'title' in data
+    assert 'content' in data</code></pre>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Templates</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Base Template</h3>
+                        <pre><code><!-- base.html -->
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;{% block title %}{% endblock %}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    {% block content %}{% endblock %}
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Page Template</h3>
+                        <pre><code><!-- post.html -->
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+    &lt;h1&gt;{{ post.title }}&lt;/h1&gt;
+    &lt;p&gt;{{ post.content }}&lt;/p&gt;
+    &lt;small&gt;Par {{ post.author.username }}&lt;/small&gt;
+{% endblock %}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Extensions utiles</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <h5>Flask-Login</h5>
+                        <pre><code>from flask_login import login_user
+
+@app.route('/login', methods=['POST'])
+def login():
+    user = User.query.filter_by(
+        username=form.username.data).first()
+    if user and user.check_password(form.password.data):
+        login_user(user)
+        return redirect(url_for('index'))</code></pre>
+                    </li>
+                    <li class="list-group-item">
+                        <h5>Flask-Migrate</h5>
+                        <pre><code>from flask_migrate import Migrate
+
+migrate = Migrate(app, db)
+
+# Dans le terminal:
+# flask db init
+# flask db migrate
+# flask db upgrade</code></pre>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

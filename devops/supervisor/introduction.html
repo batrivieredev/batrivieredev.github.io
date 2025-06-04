@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction à Supervisor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction à Supervisor</h1>
+
+        <div class="alert alert-info">
+            Supervisor est un système de contrôle de processus pour Unix qui permet de monitorer et contrôler de nombreux processus sur des systèmes Unix-like.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># /etc/supervisor/conf.d/myapp.conf
+[program:myapp]
+command=/usr/local/bin/python app.py
+directory=/var/www/myapp
+user=www-data
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/myapp.err.log
+stdout_logfile=/var/log/myapp.out.log
+environment=PYTHONPATH="/var/www/myapp",
+            PORT="8000",
+            DJANGO_SETTINGS_MODULE="myapp.settings"
+
+# Commandes de base
+supervisord         # Démarrer le daemon
+supervisorctl status  # Voir le status
+supervisorctl start myapp  # Démarrer un programme
+supervisorctl stop myapp   # Arrêter un programme
+supervisorctl restart myapp # Redémarrer</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration avancée</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Configuration supervisord
+[supervisord]
+logfile=/var/log/supervisor/supervisord.log
+pidfile=/var/run/supervisord.pid
+childlogdir=/var/log/supervisor
+directory=/tmp
+
+# Configuration du serveur web
+[inet_http_server]
+port=127.0.0.1:9001
+username=admin
+password=secret
+
+# Configuration du client
+[supervisorctl]
+serverurl=http://127.0.0.1:9001
+username=admin
+password=secret
+
+# Configuration des groupes
+[group:myapps]
+programs=myapp1,myapp2,myapp3
+
+# Configuration du programme
+[program:myapp1]
+command=gunicorn myapp.wsgi:application
+directory=/var/www/myapp1
+numprocs=4
+process_name=%(program_name)s_%(process_num)02d</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Exemples par langage</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">Python (Django/Flask)</h3>
+                        <pre><code>[program:django]
+command=/path/to/venv/bin/gunicorn myproject.wsgi:application
+directory=/path/to/project
+user=www-data
+numprocs=4
+process_name=%(program_name)s_%(process_num)02d
+autostart=true
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/django.log
+
+[program:flask]
+command=/path/to/venv/bin/flask run --host=0.0.0.0
+directory=/path/to/flask_app
+environment=FLASK_APP="app.py",FLASK_ENV="production"</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Node.js</h3>
+                        <pre><code>[program:node]
+command=node app.js
+directory=/path/to/node_app
+user=nodejs
+autostart=true
+autorestart=true
+environment=NODE_ENV="production",PORT="3000"
+stderr_logfile=/var/log/node.err.log
+stdout_logfile=/var/log/node.out.log
+
+[program:express]
+command=npm start
+directory=/path/to/express_app
+numprocs=4
+process_name=%(program_name)s_%(process_num)02d</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Événements</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>[eventlistener:crashmail]
+command=crashmail -p myapp -m admin@example.com
+events=PROCESS_STATE_EXITED
+
+[eventlistener:memmon]
+command=memmon -p myapp=200MB
+events=TICK_60</code></pre>
+                        <div class="alert alert-secondary mt-3">
+                            <h3 class="h6">Types d'événements :</h3>
+                            <ul class="mb-0">
+                                <li>PROCESS_STATE (démarrage, arrêt)</li>
+                                <li>PROCESS_STATE_STARTING</li>
+                                <li>PROCESS_STATE_RUNNING</li>
+                                <li>PROCESS_STATE_BACKOFF</li>
+                                <li>PROCESS_STATE_STOPPING</li>
+                                <li>PROCESS_STATE_EXITED</li>
+                                <li>PROCESS_STATE_STOPPED</li>
+                                <li>PROCESS_STATE_FATAL</li>
+                                <li>TICK_5/TICK_60/TICK_3600</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Intégration avec Nginx</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># nginx.conf
+upstream django {
+    server 127.0.0.1:8000;
+    server 127.0.0.1:8001;
+    server 127.0.0.1:8002;
+    server 127.0.0.1:8003;
+}
+
+server {
+    listen 80;
+    server_name example.com;
+
+    location / {
+        proxy_pass http://django;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_redirect off;
+    }
+
+    location /static/ {
+        alias /path/to/static/;
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

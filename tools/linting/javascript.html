@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linting et formatage JavaScript</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Linting et formatage JavaScript avec ESLint et Prettier</h1>
+
+        <div class="alert alert-info">
+            Guide d'utilisation d'ESLint et Prettier pour maintenir un code JavaScript propre et cohérent.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration ESLint</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Installation
+npm install --save-dev eslint
+
+// .eslintrc.js
+module.exports = {
+  env: {
+    browser: true,
+    es2021: true,
+    node: true,
+  },
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:@typescript-eslint/recommended',
+  ],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
+    ecmaVersion: 12,
+    sourceType: 'module',
+  },
+  plugins: [
+    'react',
+    '@typescript-eslint',
+  ],
+  rules: {
+    'no-console': 'warn',
+    'no-unused-vars': 'error',
+    'prefer-const': 'error',
+    'react/prop-types': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
+  },
+};
+
+// .eslintignore
+node_modules/
+dist/
+build/
+coverage/
+*.test.js</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration Prettier</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Installation
+npm install --save-dev prettier
+
+// .prettierrc.js
+module.exports = {
+  semi: true,
+  trailingComma: 'all',
+  singleQuote: true,
+  printWidth: 80,
+  tabWidth: 2,
+  endOfLine: 'lf',
+  arrowParens: 'avoid',
+  bracketSpacing: true,
+  jsxBracketSameLine: false,
+  jsxSingleQuote: false,
+};
+
+// .prettierignore
+node_modules/
+dist/
+build/
+coverage/
+*.md
+
+// Intégration avec ESLint
+npm install --save-dev eslint-config-prettier eslint-plugin-prettier
+
+// .eslintrc.js avec Prettier
+module.exports = {
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:prettier/recommended',
+  ],
+  plugins: ['prettier'],
+  rules: {
+    'prettier/prettier': 'error',
+  },
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Scripts et commandes</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// package.json
+{
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\""
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
+  }
+}
+
+// VS Code settings.json
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ]
+}</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Commandes utiles :</h3>
+                    <pre><code># Lint
+npx eslint src/
+npx eslint src/ --fix
+
+# Format
+npx prettier --write src/
+npx prettier --check src/
+
+# Vérifier les conflits de règles
+npx eslint-config-prettier src/file.js</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Règles personnalisées</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// ESLint plugin personnalisé
+module.exports = {
+  rules: {
+    'no-relative-import-beyond-parent': {
+      create(context) {
+        return {
+          ImportDeclaration(node) {
+            const { source } = node;
+            const importPath = source.value;
+
+            if (importPath.startsWith('../')) {
+              const segments = importPath.split('/');
+              if (segments.length > 2) {
+                context.report({
+                  node,
+                  message: 'Relative imports beyond parent directory are not allowed',
+                });
+              }
+            }
+          },
+        };
+      },
+    },
+  },
+};
+
+// Configuration avec règles personnalisées
+module.exports = {
+  plugins: ['custom'],
+  rules: {
+    'custom/no-relative-import-beyond-parent': 'error',
+  },
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Intégration CI/CD</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># GitHub Actions
+name: Lint and Format
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+
+# GitLab CI
+lint:
+  image: node:18
+  script:
+    - npm ci
+    - npm run lint
+    - npm run format:check
+  only:
+    - merge_requests
+
+# Jenkins Pipeline
+pipeline {
+  agent { docker { image 'node:18' } }
+  stages {
+    stage('Lint and Format') {
+      steps {
+        sh 'npm ci'
+        sh 'npm run lint'
+        sh 'npm run format:check'
+      }
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

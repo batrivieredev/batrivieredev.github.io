@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentification et sécurité</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Authentification avec JWT et OAuth2</h1>
+
+        <div class="alert alert-info">
+            Guide d'implémentation de l'authentification sécurisée avec JWT et OAuth2.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">JSON Web Tokens (JWT)</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Node.js avec jsonwebtoken
+const jwt = require('jsonwebtoken');
+
+// Création d'un token
+const generateToken = (user) => {
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '24h' }
+  );
+};
+
+// Middleware de vérification
+const verifyToken = (req, res, next) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
+// Utilisation dans les routes
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user || !user.comparePassword(password)) {
+    return res.status(401).json({
+      message: 'Invalid credentials'
+    });
+  }
+
+  const token = generateToken(user);
+  res.json({ token });
+});
+
+// Route protégée
+app.get('/profile', verifyToken, (req, res) => {
+  res.json({ user: req.user });
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">OAuth2 et Google Login</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Configuration Passport avec Google OAuth2
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "/auth/google/callback"
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+      let user = await User.findOne({ googleId: profile.id });
+
+      if (!user) {
+        user = await User.create({
+          googleId: profile.id,
+          email: profile.emails[0].value,
+          name: profile.displayName
+        });
+      }
+
+      return done(null, user);
+    } catch (error) {
+      return done(error, null);
+    }
+  }
+));
+
+// Routes OAuth2
+app.get('/auth/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email']
+  })
+);
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', {
+    failureRedirect: '/login'
+  }),
+  (req, res) => {
+    const token = generateToken(req.user);
+    res.redirect(`/dashboard?token=${token}`);
+  }
+);</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Hachage des mots de passe</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// bcrypt
+const bcrypt = require('bcrypt');
+
+class User {
+  async hashPassword(password) {
+    const salt = await bcrypt.genSalt(12);
+    return bcrypt.hash(password, salt);
+  }
+
+  async comparePassword(password) {
+    return bcrypt.compare(password, this.password);
+  }
+}
+
+// argon2
+const argon2 = require('argon2');
+
+class User {
+  async hashPassword(password) {
+    return argon2.hash(password, {
+      type: argon2.argon2id,
+      memoryCost: 2 ** 16,
+      timeCost: 3,
+      parallelism: 1
+    });
+  }
+
+  async comparePassword(password) {
+    return argon2.verify(this.password, password);
+  }
+}</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Bonnes pratiques :</h3>
+                    <ul>
+                        <li>Utiliser un facteur de coût élevé pour bcrypt (> 12)</li>
+                        <li>Préférer argon2id pour une sécurité optimale</li>
+                        <li>Jamais stocker les mots de passe en clair</li>
+                        <li>Utiliser des secrets différents pour JWT par environnement</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Protection CORS/CSRF</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Configuration CORS
+const cors = require('cors');
+
+app.use(cors({
+  origin: ['https://example.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Protection CSRF
+const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
+
+app.use(cookieParser());
+app.use(csrf({ cookie: true }));
+
+app.get('/form', (req, res) => {
+  res.render('form', { csrfToken: req.csrfToken() });
+});
+
+// Frontend
+&lt;form action="/submit" method="POST"&gt;
+  &lt;input type="hidden"
+         name="_csrf"
+         value="{{csrfToken}}"&gt;
+  &lt;!-- autres champs --&gt;
+&lt;/form&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sécurité HTTP avec Helmet</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>const helmet = require('helmet');
+
+// Configuration de base
+app.use(helmet());
+
+// Configuration avancée
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "https://api.example.com"]
+      }
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true
+    },
+    frameguard: {
+      action: "deny"
+    },
+    referrerPolicy: {
+      policy: "strict-origin-when-cross-origin"
+    }
+  })
+);
+
+// Rate limiting
+const rateLimit = require('express-rate-limit');
+
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limite par IP
+    message: 'Too many requests, please try again later.'
+  })
+);</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

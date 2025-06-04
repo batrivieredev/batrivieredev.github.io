@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linting et formatage Python</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Linting et formatage Python avec Black et Flake8</h1>
+
+        <div class="alert alert-info">
+            Guide d'utilisation de Black et Flake8 pour maintenir un code Python propre et cohérent.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration Black</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Installation
+pip install black
+
+# pyproject.toml
+[tool.black]
+line-length = 88
+target-version = ['py37']
+include = '\.pyi?$'
+extend-exclude = '''
+# A regex preceded with ^/ will apply only to files and directories
+# in the root of the project.
+^/foo.py  # exclude a file named foo.py in the root of the project
+'''
+
+# Exemple avant/après formatage
+# Avant
+def long_function_name(
+    var_one, var_two,
+    var_three, var_four):
+    print(var_one)
+
+# Après
+def long_function_name(
+    var_one,
+    var_two,
+    var_three,
+    var_four,
+):
+    print(var_one)
+
+# Utilisation avec pre-commit
+# .pre-commit-config.yaml
+repos:
+-   repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+    -   id: black
+        language_version: python3.9</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration Flake8</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Installation
+pip install flake8
+
+# .flake8
+[flake8]
+max-line-length = 88
+extend-ignore = E203
+exclude = .git,__pycache__,build,dist
+per-file-ignores =
+    # imported but unused
+    __init__.py: F401
+    # module level import not at top
+    tests/*: E402
+max-complexity = 10
+
+# Extensions utiles
+pip install flake8-bugbear
+pip install flake8-docstrings
+pip install flake8-import-order
+
+# Configuration avec extensions
+[flake8]
+max-line-length = 88
+extend-ignore = E203
+select = C,E,F,W,B,B950
+import-order-style = google
+application-import-names = myapp,tests
+docstring-convention = google
+max-complexity = 10</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Intégration VSCode</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// settings.json
+{
+  "python.formatting.provider": "black",
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "editor.formatOnSave": true,
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
+  "python.linting.flake8Args": [
+    "--max-line-length=88",
+    "--extend-ignore=E203"
+  ]
+}
+
+# Environnement virtuel
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+.\\venv\\Scripts\\activate  # Windows
+
+pip install black flake8
+pip install pylint  # Optionnel, pour une analyse plus approfondie
+
+# Commandes
+black src/
+black --check src/
+flake8 src/</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Structure recommandée :</h3>
+                    <pre><code>project/
+├── src/
+│   └── myapp/
+│       ├── __init__.py
+│       └── main.py
+├── tests/
+│   └── test_main.py
+├── .flake8
+├── pyproject.toml
+├── setup.cfg
+└── setup.py</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration avancée</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># setup.cfg
+[tool:pytest]
+testpaths = tests
+python_files = test_*.py
+python_classes = Test
+python_functions = test_*
+
+[coverage:run]
+source = src
+omit = tests/*
+
+[isort]
+profile = black
+multi_line_output = 3
+line_length = 88
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+# tox.ini
+[tox]
+envlist = py37,py38,py39,lint
+isolated_build = True
+
+[testenv:lint]
+deps =
+    black
+    flake8
+    flake8-bugbear
+    flake8-docstrings
+    flake8-import-order
+commands =
+    black --check .
+    flake8 .</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Intégration CI/CD</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># GitHub Actions
+name: Code Quality
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black flake8
+
+      - name: Run Black
+        run: black --check .
+
+      - name: Run Flake8
+        run: flake8 .
+
+# GitLab CI
+lint:
+  image: python:3.9
+  script:
+    - pip install black flake8
+    - black --check .
+    - flake8 .
+  only:
+    - merge_requests
+
+# Jenkins Pipeline
+pipeline {
+  agent {
+    docker {
+      image 'python:3.9'
+    }
+  }
+  stages {
+    stage('Lint') {
+      steps {
+        sh '''
+          python -m pip install --upgrade pip
+          pip install black flake8
+          black --check .
+          flake8 .
+        '''
+      }
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

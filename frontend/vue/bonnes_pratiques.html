@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue.js - Bonnes Pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Vue.js - Bonnes Pratiques</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour développer des applications Vue.js de qualité.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Structure des composants</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="h6 text-success">✅ Bonnes pratiques</h3>
+                        <pre><code>// Composant bien structuré
+&lt;script setup&gt;
+import { ref, computed } from 'vue'
+import { useUserStore } from '@/stores/user'
+
+// Props avec validation
+const props = defineProps({
+  items: {
+    type: Array,
+    required: true,
+    validator: (items) => items.every(
+      item => 'id' in item
+    )
+  }
+})
+
+// Émissions typées
+const emit = defineEmits({
+  'update': (value) => typeof value === 'string'
+})
+
+// État local
+const searchQuery = ref('')
+
+// Données calculées
+const filteredItems = computed(() => {
+  return props.items.filter(item =>
+    item.name.includes(searchQuery.value)
+  )
+})
+
+// Méthodes
+const handleSubmit = () => {
+  emit('update', searchQuery.value)
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;div class="component"&gt;
+    &lt;form @submit.prevent="handleSubmit"&gt;
+      &lt;!-- Contenu --&gt;
+    &lt;/form&gt;
+  &lt;/div&gt;
+&lt;/template&gt;</code></pre>
+
+                        <h3 class="h6 text-danger mt-3">❌ À éviter</h3>
+                        <pre><code>// Mauvaises pratiques
+&lt;script&gt;
+export default {
+  // Props sans validation
+  props: ['data'],
+
+  // Mutation directe des props
+  methods: {
+    updateData() {
+      this.data.value = 'new' // ❌
+    }
+  },
+
+  // État global dans le composant
+  data() {
+    return {
+      globalState: window.state // ❌
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Performance</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="h6">Optimisation des rendus</h3>
+                        <pre><code>// Computed vs Methods
+const computed = computed(() => {
+  return expensiveOperation()
+}) // ✅ Mise en cache
+
+methods: {
+  calculate() {
+    return expensiveOperation()
+  } // ❌ Recalcul à chaque rendu
+}
+
+// v-show vs v-if
+&lt;div v-show="isVisible"&gt;
+  Contenu fréquemment basculé
+&lt;/div&gt; // ✅ Toggle CSS display
+
+&lt;div v-if="isVisible"&gt;
+  Contenu rarement changé
+&lt;/div&gt; // ✅ Supprime/Ajoute du DOM
+
+// Lazy loading des composants
+const HeavyComponent = defineAsyncComponent(
+  () => import('./HeavyComponent.vue')
+)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Gestion de l'état</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// stores/user.js
+import { defineStore } from 'pinia'
+
+export const useUserStore = defineStore('user', {
+  // État clairement défini
+  state: () => ({
+    user: null,
+    preferences: {},
+    loading: false
+  }),
+
+  // Getters pour données dérivées
+  getters: {
+    isAdmin: (state) => state.user?.role === 'admin',
+    fullName: (state) => {
+      if (!state.user) return ''
+      return `${state.user.firstName} ${state.user.lastName}`
+    }
+  },
+
+  // Actions pour mutations complexes
+  actions: {
+    async login(credentials) {
+      this.loading = true
+      try {
+        const user = await api.login(credentials)
+        this.user = user
+      } finally {
+        this.loading = false
+      }
+    }
+  }
+})
+
+// Composant
+const userStore = useUserStore()
+
+// ✅ Utilisation du store
+watchEffect(() => {
+  if (userStore.isAdmin) {
+    // Logic pour admin
+  }
+})</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Organisation du code</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>src/
+├── assets/          # Ressources statiques
+├── components/      # Composants réutilisables
+│   ├── base/       # Composants de base
+│   └── ui/         # Composants UI
+├── composables/    # Logique réutilisable
+├── views/          # Pages
+├── router/         # Configuration routes
+├── stores/         # État global
+├── utils/          # Fonctions utilitaires
+└── services/       # Appels API</code></pre>
+
+                        <div class="alert alert-secondary mt-3">
+                            <strong>Note:</strong> Suivez le principe de responsabilité unique pour chaque fichier.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Component.spec.js
+import { mount } from '@vue/test-utils'
+import Component from './Component.vue'
+
+describe('Component', () => {
+  it('émet update quand submit', async () => {
+    const wrapper = mount(Component)
+
+    await wrapper.find('input').setValue('test')
+    await wrapper.find('form').trigger('submit')
+
+    expect(wrapper.emitted('update')).toBeTruthy()
+    expect(wrapper.emitted('update')[0])
+      .toEqual(['test'])
+  })
+
+  it('filtre les items', () => {
+    const wrapper = mount(Component, {
+      props: {
+        items: [
+          { id: 1, name: 'test' },
+          { id: 2, name: 'other' }
+        ]
+      }
+    })
+
+    expect(wrapper.vm.filteredItems)
+      .toHaveLength(2)
+  })
+})</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Conventions de nommage</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Composants :</strong> PascalCase (UserProfile.vue)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Props :</strong> camelCase (userId, itemList)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Events :</strong> kebab-case (update-item, form-submit)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Stores :</strong> use + PascalCase (useUserStore)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Composables :</strong> use + camelCase (useWindowSize)
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

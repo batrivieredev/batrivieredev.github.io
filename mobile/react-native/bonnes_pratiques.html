@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonnes pratiques React Native</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Bonnes pratiques React Native</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour développer des applications React Native performantes et maintenables.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Architecture et organisation</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Structure du projet
+src/
+├── components/          # Composants réutilisables
+│   ├── atoms/          # Composants de base
+│   ├── molecules/      # Composants composés
+│   └── organisms/      # Composants complexes
+├── screens/            # Écrans de l'application
+├── navigation/         # Configuration de navigation
+├── services/          # Services (API, storage...)
+├── hooks/             # Hooks personnalisés
+├── utils/             # Fonctions utilitaires
+├── constants/         # Constantes
+└── store/             # État global (Redux, Context)
+
+// Exemple de composant atomique
+// components/atoms/Button.tsx
+import { StyleSheet } from 'react-native';
+
+interface ButtonProps {
+  onPress: () => void;
+  title: string;
+  variant?: 'primary' | 'secondary';
+}
+
+export const Button = ({ onPress, title, variant = 'primary' }) => {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[styles.button, styles[variant]]}
+    >
+      <Text style={styles.text}>{title}</Text>
+    </TouchableOpacity>
+  );
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Performance</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Éviter les re-renders inutiles
+const MemoizedComponent = React.memo(MyComponent);
+
+// Utiliser useCallback pour les fonctions
+const handlePress = useCallback(() => {
+  // Action
+}, [dependencies]);
+
+// Optimiser les listes
+const renderItem = useCallback(({ item }) => (
+  <ListItem item={item} />
+), []);
+
+const getItemLayout = useCallback((_, index) => ({
+  length: ITEM_HEIGHT,
+  offset: ITEM_HEIGHT * index,
+  index,
+}), []);
+
+// Lazy loading des écrans
+const ProfileScreen = React.lazy(() => import('./ProfileScreen'));
+
+// Préchargement des assets
+const preloadAssets = async () => {
+  const images = [
+    require('./assets/image1.png'),
+    require('./assets/image2.png'),
+  ];
+
+  await Promise.all([
+    ...images.map(image => Image.prefetch(image)),
+    Font.loadAsync({
+      'custom-font': require('./assets/font.ttf'),
+    }),
+  ]);
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Gestion des erreurs</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Boundary d'erreur
+class ErrorBoundary extends React.Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, info) {
+    // Envoyer l'erreur à un service de tracking
+    logError(error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return &lt;ErrorView onRetry={this.resetError} />;
+    }
+    return this.props.children;
+  }
+}
+
+// Gestion des erreurs API
+const fetchData = async () => {
+  try {
+    const response = await api.get('/data');
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      // Erreur serveur
+      handleServerError(error);
+    } else if (error.request) {
+      // Pas de réponse
+      handleNetworkError();
+    } else {
+      // Autre erreur
+      handleUnexpectedError(error);
+    }
+  }
+};</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Stockage sécurisé
+import EncryptedStorage from 'react-native-encrypted-storage';
+
+const storeToken = async (token) => {
+  try {
+    await EncryptedStorage.setItem(
+      'token',
+      JSON.stringify({
+        token,
+        timestamp: Date.now()
+      })
+    );
+  } catch (error) {
+    console.error('Erreur de stockage');
+  }
+};
+
+// Configuration SSL
+const api = axios.create({
+  baseURL: 'https://api.example.com',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  // Vérification SSL stricte
+  httpsAgent: new https.Agent({
+    rejectUnauthorized: true
+  })
+});
+
+// Validation des données
+const validateUserInput = (data) => {
+  const schema = Yup.object().shape({
+    email: Yup.string()
+      .email('Email invalide')
+      .required('Email requis'),
+    password: Yup.string()
+      .min(8, 'Minimum 8 caractères')
+      .matches(/[a-zA-Z]/, 'Lettres requises')
+      .matches(/[0-9]/, 'Chiffres requis')
+      .required('Mot de passe requis')
+  });
+
+  return schema.validate(data);
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Test de composant
+import { render, fireEvent } from '@testing-library/react-native';
+
+describe('Button', () => {
+  it('appelle onPress quand pressé', () => {
+    const onPress = jest.fn();
+    const { getByText } = render(
+      &lt;Button title="Test" onPress={onPress} /&gt;
+    );
+
+    fireEvent.press(getByText('Test'));
+    expect(onPress).toHaveBeenCalled();
+  });
+});
+
+// Mock de service
+jest.mock('@react-native-community/geolocation', () => ({
+  getCurrentPosition: jest.fn()
+    .mockImplementation((success) => success({
+      coords: {
+        latitude: 0,
+        longitude: 0
+      }
+    }))
+}));
+
+// Test d'intégration
+describe('LoginScreen', () => {
+  it('navigue vers Home après login réussi', async () => {
+    const navigation = {
+      navigate: jest.fn()
+    };
+
+    const { getByPlaceholder, getByText } = render(
+      &lt;LoginScreen navigation={navigation} /&gt;
+    );
+
+    fireEvent.changeText(
+      getByPlaceholder('Email'),
+      'test@example.com'
+    );
+    fireEvent.changeText(
+      getByPlaceholder('Mot de passe'),
+      'password123'
+    );
+    fireEvent.press(getByText('Connexion'));
+
+    await waitFor(() => {
+      expect(navigation.navigate)
+        .toHaveBeenCalledWith('Home');
+    });
+  });
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

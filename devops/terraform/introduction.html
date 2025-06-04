@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction à Terraform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Introduction à Terraform</h1>
+
+        <div class="alert alert-info">
+            Terraform est un outil d'Infrastructure as Code (IaC) qui permet de créer, modifier et gérer l'infrastructure cloud de manière déclarative.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration de base</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Provider configuration
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "eu-west-3"
+}
+
+# Resources
+resource "aws_instance" "web" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "Web Server"
+    Environment = "Production"
+  }
+}
+
+# Variables
+variable "instance_type" {
+  type        = string
+  default     = "t2.micro"
+  description = "EC2 instance type"
+}
+
+# Outputs
+output "instance_ip" {
+  value = aws_instance.web.public_ip
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Structure du projet</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>project/
+├── main.tf         # Configuration principale
+├── variables.tf    # Définition des variables
+├── outputs.tf      # Valeurs de sortie
+├── terraform.tfvars # Valeurs des variables
+└── modules/
+    ├── vpc/
+    │   ├── main.tf
+    │   ├── variables.tf
+    │   └── outputs.tf
+    └── ec2/
+        ├── main.tf
+        ├── variables.tf
+        └── outputs.tf
+
+# terraform.tfvars
+region = "eu-west-3"
+instance_type = "t2.micro"
+environment = "production"
+
+# Backend configuration
+terraform {
+  backend "s3" {
+    bucket = "terraform-state"
+    key    = "prod/terraform.tfstate"
+    region = "eu-west-3"
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Commandes de base</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># Initialisation
+terraform init
+
+# Vérification de la configuration
+terraform plan
+
+# Application des changements
+terraform apply
+
+# Destruction des ressources
+terraform destroy
+
+# Gestion de l'état
+terraform show
+terraform state list
+terraform state show aws_instance.web
+
+# Formatage et validation
+terraform fmt
+terraform validate
+
+# Workspace
+terraform workspace new dev
+terraform workspace select prod
+terraform workspace list
+
+# Import de ressources existantes
+terraform import aws_instance.web i-1234567890abcdef0
+
+# Mise à jour des providers
+terraform init -upgrade</code></pre>
+
+                <div class="alert alert-secondary mt-3">
+                    <h3 class="h6">Cycle de vie :</h3>
+                    <ol class="mb-0">
+                        <li>Write (écriture de la configuration)</li>
+                        <li>Plan (vérification des changements)</li>
+                        <li>Apply (application des changements)</li>
+                        <li>Destroy (suppression si nécessaire)</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Data Sources</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Récupération d'informations existantes
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+# Utilisation
+resource "aws_instance" "web" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = var.instance_type
+  subnet_id     = data.aws_vpc.default.id
+
+  tags = {
+    Name = "Web Server"
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Fonctions intégrées</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Manipulation de chaînes
+locals {
+  env_prefix = lower(var.environment)
+  name       = format("%s-%s", var.project, local.env_prefix)
+}
+
+# Liste et maps
+locals {
+  instance_types = {
+    dev  = "t2.micro"
+    prod = "t2.small"
+  }
+  azs = slice(data.aws_availability_zones.available.names, 0, 3)
+}
+
+# Conditions
+resource "aws_instance" "web" {
+  instance_type = contains(["prod", "staging"], var.environment)
+    ? "t2.small"
+    : "t2.micro"
+
+  tags = merge(
+    var.common_tags,
+    {
+      Environment = var.environment
+      Name        = local.name
+    }
+  )
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

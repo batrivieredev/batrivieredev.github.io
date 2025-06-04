@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScript - Exemples Pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>TypeScript - Exemples Pratiques</h1>
+
+        <div class="alert alert-info">
+            Exemples pratiques d'utilisation de TypeScript dans des scénarios réels de développement.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Gestionnaire d'état</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Types d'actions
+type Action =
+  | { type: 'ADD_TODO'; payload: string }
+  | { type: 'TOGGLE_TODO'; payload: number }
+  | { type: 'DELETE_TODO'; payload: number };
+
+// Interface d'état
+interface State {
+  todos: Array&lt;{
+    id: number;
+    text: string;
+    completed: boolean;
+  }>;
+  loading: boolean;
+}
+
+// État initial
+const initialState: State = {
+  todos: [],
+  loading: false
+};
+
+// Reducer
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return {
+        ...state,
+        todos: [
+          ...state.todos,
+          {
+            id: Date.now(),
+            text: action.payload,
+            completed: false
+          }
+        ]
+      };
+
+    case 'TOGGLE_TODO':
+      return {
+        ...state,
+        todos: state.todos.map(todo =>
+          todo.id === action.payload
+            ? { ...todo, completed: !todo.completed }
+            : todo
+        )
+      };
+
+    case 'DELETE_TODO':
+      return {
+        ...state,
+        todos: state.todos.filter(
+          todo => todo.id !== action.payload
+        )
+      };
+
+    default:
+      return state;
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Client API typé</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Types d'API
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+interface ApiResponse&lt;T&gt; {
+  data: T;
+  status: number;
+  message: string;
+}
+
+// Client API
+class ApiClient {
+  private baseUrl: string;
+
+  constructor(baseUrl: string) {
+    this.baseUrl = baseUrl;
+  }
+
+  async get&lt;T&gt;(endpoint: string): Promise&lt;T&gt; {
+    const response = await fetch(
+      `${this.baseUrl}${endpoint}`
+    );
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    return response.json();
+  }
+
+  async post&lt;T&gt;(
+    endpoint: string,
+    data: any
+  ): Promise&lt;T&gt; {
+    const response = await fetch(
+      `${this.baseUrl}${endpoint}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }
+    );
+    return response.json();
+  }
+}
+
+// Utilisation
+const api = new ApiClient('https://api.example.com');
+
+async function getUser(id: number) {
+  const user = await api.get&lt;ApiResponse&lt;User&gt;&gt;(
+    `/users/${id}`
+  );
+  return user.data;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Formulaire avec validation</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>interface FormData {
+  username: string;
+  email: string;
+  password: string;
+}
+
+interface ValidationError {
+  field: keyof FormData;
+  message: string;
+}
+
+class FormValidator {
+  private errors: ValidationError[] = [];
+
+  validate(data: Partial&lt;FormData&gt;): boolean {
+    this.errors = [];
+
+    if (data.username?.length &lt; 3) {
+      this.errors.push({
+        field: 'username',
+        message: 'Minimum 3 caractères'
+      });
+    }
+
+    if (data.email && !this.isValidEmail(data.email)) {
+      this.errors.push({
+        field: 'email',
+        message: 'Email invalide'
+      });
+    }
+
+    if (data.password?.length &lt; 8) {
+      this.errors.push({
+        field: 'password',
+        message: 'Minimum 8 caractères'
+      });
+    }
+
+    return this.errors.length === 0;
+  }
+
+  getErrors(): ValidationError[] {
+    return this.errors;
+  }
+
+  private isValidEmail(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+}
+
+// Utilisation
+const form = {
+  username: 'jo',
+  email: 'invalid-email',
+  password: '123'
+};
+
+const validator = new FormValidator();
+if (!validator.validate(form)) {
+  console.log(validator.getErrors());
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Event System</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>type EventHandler&lt;T&gt; = (event: T) => void;
+
+class EventEmitter&lt;T extends { type: string }&gt; {
+  private handlers: Map&lt;string, EventHandler&lt;T&gt;[]&gt; = new Map();
+
+  on(type: T['type'], handler: EventHandler&lt;T&gt;): void {
+    if (!this.handlers.has(type)) {
+      this.handlers.set(type, []);
+    }
+    this.handlers.get(type)?.push(handler);
+  }
+
+  off(type: T['type'], handler: EventHandler&lt;T&gt;): void {
+    const handlers = this.handlers.get(type);
+    if (handlers) {
+      const index = handlers.indexOf(handler);
+      if (index > -1) {
+        handlers.splice(index, 1);
+      }
+    }
+  }
+
+  emit(event: T): void {
+    const handlers = this.handlers.get(event.type);
+    handlers?.forEach(handler => handler(event));
+  }
+}
+
+// Utilisation
+interface ApplicationEvent {
+  type: 'user-login' | 'user-logout';
+  timestamp: number;
+  userId?: string;
+}
+
+const events = new EventEmitter&lt;ApplicationEvent&gt;();
+
+events.on('user-login', (event) => {
+  console.log(`User ${event.userId} logged in`);
+});
+
+events.emit({
+  type: 'user-login',
+  timestamp: Date.now(),
+  userId: '123'
+});</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

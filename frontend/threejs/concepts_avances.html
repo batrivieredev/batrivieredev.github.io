@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js - Concepts Avancés</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Three.js - Concepts Avancés</h1>
+
+        <div class="alert alert-info">
+            Découvrez les fonctionnalités avancées de Three.js pour créer des expériences 3D plus sophistiquées.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Shaders personnalisés</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Vertex shader
+const vertexShader = `
+  uniform float time;
+  varying vec2 vUv;
+  varying float vElevation;
+
+  void main() {
+    vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+
+    // Animation basée sur le temps
+    float elevation = sin(modelPosition.x + time) * 0.1;
+    modelPosition.y += elevation;
+
+    vec4 viewPosition = viewMatrix * modelPosition;
+    vec4 projectedPosition = projectionMatrix * viewPosition;
+
+    gl_Position = projectedPosition;
+
+    vUv = uv;
+    vElevation = elevation;
+  }
+`;
+
+// Fragment shader
+const fragmentShader = `
+  uniform vec3 uColor;
+  uniform float time;
+  varying vec2 vUv;
+  varying float vElevation;
+
+  void main() {
+    vec3 color = vec3(0.0);
+    color = mix(uColor, vec3(1.0), vElevation * 2.0 + 0.5);
+    gl_FragColor = vec4(color, 1.0);
+  }
+`;
+
+// Utilisation des shaders
+const material = new THREE.ShaderMaterial({
+  vertexShader,
+  fragmentShader,
+  uniforms: {
+    time: { value: 0 },
+    uColor: { value: new THREE.Color(0xff0000) }
+  }
+});
+
+// Mise à jour des uniforms
+function animate() {
+  material.uniforms.time.value = clock.getElapsedTime();
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Post-processing</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
+
+// Configuration
+const composer = new EffectComposer(renderer);
+
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  1.5,  // strength
+  0.4,  // radius
+  0.85  // threshold
+);
+composer.addPass(bloomPass);
+
+// Passe personnalisée
+const CustomPass = {
+  uniforms: {
+    tDiffuse: { value: null },
+    time: { value: 0 }
+  },
+
+  vertexShader: /* glsl */`
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+
+  fragmentShader: /* glsl */`
+    uniform sampler2D tDiffuse;
+    uniform float time;
+    varying vec2 vUv;
+
+    void main() {
+      vec2 newUV = vUv;
+      newUV.x += sin(newUV.y * 10.0 + time) * 0.1;
+      gl_FragColor = texture2D(tDiffuse, newUV);
+    }
+  `
+};
+
+const customPass = new ShaderPass(CustomPass);
+composer.addPass(customPass);</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Performances</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Instance Mesh pour de multiples objets
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshPhongMaterial();
+
+const count = 1000;
+const mesh = new THREE.InstancedMesh(
+  geometry,
+  material,
+  count
+);
+
+// Positionner les instances
+const matrix = new THREE.Matrix4();
+for (let i = 0; i < count; i++) {
+  matrix.setPosition(
+    Math.random() * 10,
+    Math.random() * 10,
+    Math.random() * 10
+  );
+  mesh.setMatrixAt(i, matrix);
+}
+
+// Optimisation des géométries
+geometry.computeBoundingSphere();
+geometry.computeBoundingBox();
+
+// Merge des géométries
+const geometries = [];
+for (let i = 0; i < 50; i++) {
+  const geometry = new THREE.BoxGeometry();
+  geometry.translate(
+    Math.random() * 10,
+    Math.random() * 10,
+    Math.random() * 10
+  );
+  geometries.push(geometry);
+}
+
+const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(
+  geometries
+);
+
+// Occlusion Culling
+const frustum = new THREE.Frustum();
+camera.updateMatrixWorld();
+frustum.setFromProjectionMatrix(
+  new THREE.Matrix4().multiplyMatrices(
+    camera.projectionMatrix,
+    camera.matrixWorldInverse
+  )
+);</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Physique</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>import * as CANNON from 'cannon-es';
+
+// Configuration monde physique
+const world = new CANNON.World();
+world.gravity.set(0, -9.82, 0);
+
+// Création d'un corps physique
+const sphereShape = new CANNON.Sphere(0.5);
+const sphereBody = new CANNON.Body({
+  mass: 1,
+  position: new CANNON.Vec3(0, 5, 0),
+  shape: sphereShape
+});
+world.addBody(sphereBody);
+
+// Sol
+const groundShape = new CANNON.Plane();
+const groundBody = new CANNON.Body({
+  type: CANNON.Body.STATIC,  // masse infinie
+  shape: groundShape
+});
+groundBody.quaternion.setFromAxisAngle(
+  new CANNON.Vec3(1, 0, 0),
+  -Math.PI / 2
+);
+world.addBody(groundBody);
+
+// Synchronisation Three.js/Cannon.js
+const sphereMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(0.5),
+  new THREE.MeshStandardMaterial()
+);
+scene.add(sphereMesh);
+
+function animate() {
+  // Mise à jour physique
+  world.step(1 / 60);
+
+  // Mise à jour visuelle
+  sphereMesh.position.copy(sphereBody.position);
+  sphereMesh.quaternion.copy(sphereBody.quaternion);
+
+  renderer.render(scene, camera);
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">VR et AR</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>import { VRButton } from 'three/examples/jsm/webxr/VRButton';
+import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory';
+
+// Activation WebXR
+renderer.xr.enabled = true;
+document.body.appendChild(VRButton.createButton(renderer));
+
+// Contrôleurs
+const controller1 = renderer.xr.getController(0);
+controller1.addEventListener('selectstart', onSelectStart);
+scene.add(controller1);
+
+const controller2 = renderer.xr.getController(1);
+controller2.addEventListener('selectstart', onSelectStart);
+scene.add(controller2);
+
+// Modèles des contrôleurs
+const controllerModelFactory = new XRControllerModelFactory();
+
+const controllerGrip1 = renderer.xr.getControllerGrip(0);
+controllerGrip1.add(
+  controllerModelFactory.createControllerModel(controllerGrip1)
+);
+scene.add(controllerGrip1);
+
+// Animation VR
+renderer.setAnimationLoop(function () {
+  renderer.render(scene, camera);
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Audio 3D</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Configuration audio
+const listener = new THREE.AudioListener();
+camera.add(listener);
+
+// Source sonore positionnelle
+const sound = new THREE.PositionalAudio(listener);
+
+const audioLoader = new THREE.AudioLoader();
+audioLoader.load('sound.mp3', function(buffer) {
+  sound.setBuffer(buffer);
+  sound.setRefDistance(20);
+  sound.setDirectionalCone(
+    180,  // coneInnerAngle
+    230,  // coneOuterAngle
+    0.5   // coneOuterGain
+  );
+});
+
+// Ajouter le son à un objet
+mesh.add(sound);
+
+// Analyser audio
+const analyser = new THREE.AudioAnalyser(sound, 32);
+
+function animate() {
+  // Obtenir les données de fréquence
+  const data = analyser.getFrequencyData();
+
+  // Utiliser les données pour l'animation
+  const value = data[0] / 255;
+  mesh.scale.setScalar(1 + value);
+
+  renderer.render(scene, camera);
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

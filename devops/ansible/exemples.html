@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ansible - Exemples Pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Ansible - Exemples Pratiques</h1>
+
+        <div class="alert alert-info">
+            Exemples pratiques d'utilisation d'Ansible pour des scénarios de déploiement courants.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Application LAMP Stack</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># site.yml
+- name: Installation LAMP Stack
+  hosts: webservers
+  become: true
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+    - name: Mise à jour des paquets
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Installation des paquets requis
+      apt:
+        name:
+          - apache2
+          - mysql-server
+          - php
+          - php-mysql
+          - python3-mysqldb
+        state: present
+
+    - name: Configuration PHP
+      template:
+        src: templates/php.ini.j2
+        dest: /etc/php/7.4/apache2/php.ini
+      notify: restart apache2
+
+    - name: Création base de données
+      mysql_db:
+        name: "{{ db_name }}"
+        state: present
+
+    - name: Création utilisateur MySQL
+      mysql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        priv: "{{ db_name }}.*:ALL"
+        host: localhost
+        state: present
+
+    - name: Déploiement application
+      git:
+        repo: "{{ app_repo }}"
+        dest: "{{ app_path }}"
+        version: "{{ app_version }}"
+      notify: restart apache2
+
+    - name: Configuration Apache VirtualHost
+      template:
+        src: templates/vhost.conf.j2
+        dest: /etc/apache2/sites-available/{{ app_name }}.conf
+      notify: reload apache2
+
+  handlers:
+    - name: restart apache2
+      service:
+        name: apache2
+        state: restarted
+
+    - name: reload apache2
+      service:
+        name: apache2
+        state: reloaded</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Configuration HAProxy</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># roles/haproxy/tasks/main.yml
+- name: Installation HAProxy
+  apt:
+    name: haproxy
+    state: present
+
+- name: Template de configuration
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: reload haproxy
+
+- name: Activation syslog
+  lineinfile:
+    path: /etc/default/haproxy
+    line: 'ENABLED=1'
+    regexp: '^ENABLED='
+
+# templates/haproxy.cfg.j2
+global
+    log /dev/log local0
+    chroot /var/lib/haproxy
+    user haproxy
+    group haproxy
+    daemon
+
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    timeout connect 5000
+    timeout client  50000
+    timeout server  50000
+
+frontend http_front
+    bind *:80
+    stats uri /haproxy?stats
+    default_backend http_back
+
+backend http_back
+    balance roundrobin
+    {% for host in groups['webservers'] %}
+    server {{ host }} {{ hostvars[host]['ansible_host'] }}:80 check
+    {% endfor %}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Déploiement Docker Swarm</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># swarm.yml
+- name: Configuration Docker Swarm
+  hosts: swarm_managers
+  become: true
+  tasks:
+    - name: Initialisation Swarm
+      docker_swarm:
+        state: present
+        advertise_addr: "{{ ansible_default_ipv4.address }}"
+      register: swarm_info
+      run_once: true
+
+    - name: Récupération token worker
+      set_fact:
+        worker_token: "{{ swarm_info.swarm_facts.JoinTokens.Worker }}"
+      run_once: true
+
+- name: Ajout des workers
+  hosts: swarm_workers
+  become: true
+  tasks:
+    - name: Join Swarm
+      docker_swarm:
+        state: join
+        advertise_addr: "{{ ansible_default_ipv4.address }}"
+        join_token: "{{ hostvars[groups['swarm_managers'][0]]['worker_token'] }}"
+        remote_addrs: ["{{ hostvars[groups['swarm_managers'][0]]['ansible_default_ipv4']['address'] }}"]
+
+# Déploiement stack
+- name: Déploiement services
+  hosts: swarm_managers[0]
+  tasks:
+    - name: Copy stack file
+      template:
+        src: stack.yml.j2
+        dest: /root/stack.yml
+
+    - name: Deploy stack
+      docker_stack:
+        state: present
+        name: myapp
+        compose:
+          - /root/stack.yml</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Configuration AWS</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># aws_infra.yml
+- name: Création infrastructure AWS
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - vars/aws.yml
+
+  tasks:
+    - name: Création VPC
+      amazon.aws.ec2_vpc_net:
+        name: "{{ vpc_name }}"
+        cidr_block: "{{ vpc_cidr }}"
+        region: "{{ region }}"
+        state: present
+      register: vpc
+
+    - name: Création subnet public
+      amazon.aws.ec2_vpc_subnet:
+        vpc_id: "{{ vpc.vpc.id }}"
+        cidr: "{{ public_subnet_cidr }}"
+        az: "{{ region }}a"
+        map_public: yes
+        state: present
+      register: public_subnet
+
+    - name: Création security group
+      amazon.aws.ec2_group:
+        name: "{{ app_name }}-sg"
+        description: Security group for web servers
+        vpc_id: "{{ vpc.vpc.id }}"
+        rules:
+          - proto: tcp
+            ports: [ 80, 443 ]
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            ports: [ 22 ]
+            cidr_ip: "{{ admin_ip }}/32"
+        state: present
+      register: security_group
+
+    - name: Lancement instances EC2
+      amazon.aws.ec2_instance:
+        name: "{{ app_name }}-{{ item }}"
+        instance_type: t2.micro
+        image_id: "{{ ami_id }}"
+        security_group: "{{ security_group.group_id }}"
+        subnet_id: "{{ public_subnet.subnet.id }}"
+        key_name: "{{ key_name }}"
+        count: "{{ instance_count }}"
+        state: present
+        tags:
+          Environment: "{{ env }}"
+          Role: webserver
+      loop: "{{ range(1, instance_count + 1)|list }}"</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">CI/CD avec Jenkins</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># jenkins.yml
+- name: Configuration Jenkins
+  hosts: jenkins
+  become: true
+  roles:
+    - java
+    - jenkins
+
+  tasks:
+    - name: Installation plugins
+      jenkins_plugin:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - git
+        - pipeline
+        - docker-workflow
+        - kubernetes
+      notify: restart jenkins
+
+    - name: Configuration credentials
+      jenkins_script:
+        script: |
+          def creds = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance()
+          def domain = com.cloudbees.plugins.credentials.domains.Domain.global()
+          def store = creds.getStore()
+
+          def githubCreds = new com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl(
+            com.cloudbees.plugins.credentials.CredentialsScope.GLOBAL,
+            'github-creds',
+            'GitHub credentials',
+            '{{ github_user }}',
+            '{{ github_token }}'
+          )
+
+          store.addCredentials(domain, githubCreds)</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Monitoring avec Prometheus</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># roles/prometheus/tasks/main.yml
+- name: Installation Prometheus
+  docker_container:
+    name: prometheus
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - /etc/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    restart_policy: always
+
+- name: Configuration node-exporter
+  docker_container:
+    name: node-exporter
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+
+- name: Configuration Grafana
+  docker_container:
+    name: grafana
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_password }}"
+    restart_policy: always</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

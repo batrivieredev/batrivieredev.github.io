@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonnes pratiques Flutter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>Bonnes pratiques Flutter</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour développer des applications Flutter maintenables et performantes.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Architecture</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Structure de projet
+lib/
+├── core/                 # Logique métier commune
+│   ├── constants/       # Constantes
+│   ├── themes/         # Thèmes
+│   └── utils/          # Utilitaires
+├── data/                # Couche données
+│   ├── models/         # Classes de données
+│   ├── repositories/   # Repositories
+│   └── services/       # Services API
+├── presentation/        # Interface utilisateur
+│   ├── screens/        # Écrans
+│   ├── widgets/        # Widgets réutilisables
+│   └── blocs/          # Gestion d'état
+└── main.dart           # Point d'entrée
+
+// Exemple d'architecture propre
+// data/models/user.dart
+@freezed
+class User with _$User {
+  const factory User({
+    required String id,
+    required String name,
+    required String email,
+  }) = _User;
+
+  factory User.fromJson(Map<String, dynamic> json) =>
+      _$UserFromJson(json);
+}
+
+// data/repositories/user_repository.dart
+abstract class UserRepository {
+  Future<User> getUser(String id);
+  Future<void> updateUser(User user);
+}
+
+// presentation/blocs/user_bloc.dart
+class UserBloc extends Bloc<UserEvent, UserState> {
+  final UserRepository repository;
+
+  UserBloc(this.repository) : super(UserInitial()) {
+    on<LoadUser>(_onLoadUser);
+  }
+
+  Future<void> _onLoadUser(
+    LoadUser event,
+    Emitter<UserState> emit,
+  ) async {
+    emit(UserLoading());
+    try {
+      final user = await repository.getUser(event.id);
+      emit(UserLoaded(user));
+    } catch (e) {
+      emit(UserError(e.toString()));
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Widgets et UI</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Widgets réutilisables
+class CustomButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+  final bool isLoading;
+
+  const CustomButton({
+    required this.text,
+    required this.onPressed,
+    this.isLoading = false,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: isLoading ? null : onPressed,
+      child: isLoading
+          ? CircularProgressIndicator()
+          : Text(text),
+      style: Theme.of(context).elevatedButtonTheme.style,
+    );
+  }
+}
+
+// Thèmes constants
+abstract class AppColors {
+  static const primary = Color(0xFF1565C0);
+  static const secondary = Color(0xFF00BCD4);
+  static const error = Color(0xFFB00020);
+}
+
+abstract class AppTextStyles {
+  static const headline1 = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+  );
+
+  static const body1 = TextStyle(
+    fontSize: 16,
+    height: 1.5,
+  );
+}
+
+// Extensions utiles
+extension ContextExtensions on BuildContext {
+  ThemeData get theme => Theme.of(this);
+  TextTheme get textTheme => theme.textTheme;
+  Size get screenSize => MediaQuery.of(this).size;
+  bool get isDarkMode =>
+    MediaQuery.of(this).platformBrightness == Brightness.dark;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Performance</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>// Widgets optimisés
+class OptimizedList extends StatelessWidget {
+  final List<String> items;
+
+  const OptimizedList({
+    required this.items,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      // Utiliser const pour les widgets statiques
+      itemBuilder: (context, index) => const ListItem(),
+      // Utiliser RepaintBoundary pour les animations
+      childrenDelegate: SliverChildBuilderDelegate(
+        (context, index) {
+          return RepaintBoundary(
+            child: ListItem(item: items[index]),
+          );
+        },
+        childCount: items.length,
+      ),
+    );
+  }
+}
+
+// Gestion de la mémoire
+class ImageWidget extends StatefulWidget {
+  @override
+  _ImageWidgetState createState() => _ImageWidgetState();
+}
+
+class _ImageWidgetState extends State<ImageWidget> {
+  late Future<void> _imageFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageFuture = precacheImage(
+      NetworkImage('url'),
+      context,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _imageFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return Image.network('url');
+        }
+        return Placeholder();
+      },
+    );
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Tests unitaires
+void main() {
+  group('UserRepository', () {
+    late UserRepository repository;
+    late MockApiClient mockClient;
+
+    setUp(() {
+      mockClient = MockApiClient();
+      repository = UserRepository(mockClient);
+    });
+
+    test('getUser returns User on success', () async {
+      // Arrange
+      when(mockClient.getUser('1'))
+          .thenAnswer((_) async => userJson);
+
+      // Act
+      final result = await repository.getUser('1');
+
+      // Assert
+      expect(result, isA<User>());
+      verify(mockClient.getUser('1')).called(1);
+    });
+  });
+}
+
+// Tests de widget
+void main() {
+  testWidgets('CustomButton shows loader when loading',
+      (WidgetTester tester) async {
+    // Arrange
+    await tester.pumpWidget(MaterialApp(
+      home: CustomButton(
+        text: 'Test',
+        onPressed: () {},
+        isLoading: true,
+      ),
+    ));
+
+    // Assert
+    expect(find.byType(CircularProgressIndicator),
+           findsOneWidget);
+    expect(find.text('Test'), findsNothing);
+  });
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Sécurité</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>// Stockage sécurisé
+class SecureStorage {
+  static const _storage = FlutterSecureStorage();
+
+  static Future<void> saveToken(String token) async {
+    await _storage.write(
+      key: 'auth_token',
+      value: token,
+    );
+  }
+
+  static Future<String?> getToken() async {
+    return await _storage.read(key: 'auth_token');
+  }
+}
+
+// Intercepteur API sécurisé
+class SecureApiInterceptor extends Interceptor {
+  @override
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    final token = await SecureStorage.getToken();
+    if (token != null) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
+    handler.next(options);
+  }
+
+  @override
+  void onError(
+    DioError err,
+    ErrorInterceptorHandler handler,
+  ) {
+    if (err.response?.statusCode == 401) {
+      // Gérer expiration du token
+      SecureStorage.deleteToken();
+    }
+    handler.next(err);
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

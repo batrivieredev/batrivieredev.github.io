@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React - Introduction | Scriptorium</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="bi bi-house-fill"></i></a></li>
+                <li class="breadcrumb-item"><a href="#"><i class="bi bi-window"></i> Frontend</a></li>
+                <li class="breadcrumb-item"><a href="#"><i class="bi bi-react"></i> React</a></li>
+                <li class="breadcrumb-item active"><i class="bi bi-book"></i> Introduction</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Introduction à React.js</h1>
+            <div class="btn-group">
+                <a href="introduction.html" class="btn btn-theme active"><i class="bi bi-book"></i> Introduction</a>
+                <a href="concepts_avances.html" class="btn btn-theme"><i class="bi bi-stars"></i> Concepts avancés</a>
+                <a href="exemples.html" class="btn btn-theme"><i class="bi bi-code-square"></i> Exemples</a>
+                <a href="bonnes_pratiques.html" class="btn btn-theme"><i class="bi bi-check-circle"></i> Bonnes pratiques</a>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            React est une bibliothèque JavaScript développée par Facebook pour construire des interfaces utilisateur interactives et réutilisables.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Concepts fondamentaux</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Composants :</strong> Blocs de construction réutilisables
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Props :</strong> Données passées aux composants
+                            </li>
+                            <li class="list-group-item">
+                                <strong>State :</strong> État interne des composants
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Virtual DOM :</strong> Représentation virtuelle du DOM
+                            </li>
+                            <li class="list-group-item">
+                                <strong>JSX :</strong> Syntaxe pour décrire l'UI
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Premier composant React</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>import React, { useState } from 'react';
+
+function Compteur() {
+  const [count, setCount] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Compteur: {count}&lt;/h2&gt;
+      &lt;button onClick={() => setCount(count + 1)}&gt;
+        Incrémenter
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Structure d'un projet React</h2>
+            </div>
+            <div class="card-body">
+                <pre><code>mon-app/
+├── node_modules/
+├── public/
+│   ├── index.html
+│   └── favicon.ico
+├── src/
+│   ├── components/
+│   │   └── App.js
+│   ├── styles/
+│   │   └── App.css
+│   └── index.js
+├── package.json
+└── README.md</code></pre>
+
+                <div class="mt-3">
+                    <h3 class="h6">Création d'un projet</h3>
+                    <pre><code># Avec Create React App
+npx create-react-app mon-app
+
+# Avec Vite
+npm create vite@latest mon-app -- --template react</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Composant avec Props</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>function Salutation({ nom, age }) {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Bonjour {nom}!&lt;/h1&gt;
+      &lt;p&gt;Vous avez {age} ans.&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Utilisation
+&lt;Salutation
+  nom="Baptiste"
+  age={25}
+/&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Composant avec State</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>function Formulaire() {
+  const [nom, setNom] = useState('');
+  const [email, setEmail] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Soumis:', { nom, email });
+  };
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input
+        value={nom}
+        onChange={e => setNom(e.target.value)}
+      /&gt;
+      &lt;input
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      /&gt;
+      &lt;button type="submit"&gt;
+        Envoyer
+      &lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Cycle de vie des composants</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h6">useEffect Hook</h3>
+                        <pre><code>function MonComposant() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    // Au montage
+    fetchData().then(setData);
+
+    return () => {
+      // Au démontage
+      cleanup();
+    };
+  }, []); // Array de dépendances
+
+  return data ? &lt;div&gt;{data}&lt;/div&gt; : null;
+}</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="h6">Hooks personnalisés</h3>
+                        <pre><code>function useLocalStorage(key, initial) {
+  const [value, setValue] = useState(() => {
+    return JSON.parse(
+      localStorage.getItem(key) ?? initial
+    );
+  });
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue];
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Baptiste RIVIERE - Scriptorium</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/accessibility.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("header").innerHTML = data;
+                // Re-init Bootstrap components after dynamic content load
+                const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+            })
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>

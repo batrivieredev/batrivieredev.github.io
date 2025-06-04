@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL - Bonnes Pratiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container mt-4">
+        <h1>GraphQL - Bonnes Pratiques</h1>
+
+        <div class="alert alert-info">
+            Guide des meilleures pratiques pour concevoir et maintenir des APIs GraphQL.
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Conception du schéma</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="h6 text-success">✅ Bonnes pratiques</h3>
+                        <pre><code># Utiliser des interfaces
+interface Node {
+  id: ID!
+}
+
+interface Timestamps {
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type User implements Node & Timestamps {
+  id: ID!
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# Nommage descriptif
+type Query {
+  searchUsersByName(term: String!): [User!]!
+  getUserById(id: ID!): User
+}
+
+# Inputs dédiés
+input CreateUserInput {
+  name: String!
+  email: String!
+}</code></pre>
+
+                        <h3 class="h6 text-danger mt-3">❌ À éviter</h3>
+                        <pre><code># Éviter les types trop génériques
+type Data {  # ❌
+  field: String
+}
+
+# Éviter les mutations avec trop de paramètres
+type Mutation {
+  createUser(  # ❌
+    name: String!
+    email: String!
+    age: Int
+    country: String
+  ): User
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Performance</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Utilisation de DataLoader
+const loaders = {
+  user: new DataLoader(ids =>
+    db.users.findByIds(ids)
+  ),
+  posts: new DataLoader(userIds =>
+    db.posts.findByUserIds(userIds)
+  )
+};
+
+# Pagination efficace
+type PostConnection {
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+}
+
+# Cache avec Apollo
+const cache = new InMemoryCache({
+  typePolicies: {
+    Query: {
+      fields: {
+        posts: {
+          // Configuration du merge
+          merge(existing = [], incoming) {
+            return [...existing, ...incoming];
+          }
+        }
+      }
+    }
+  }
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Sécurité</h2>
+            </div>
+            <div class="card-body">
+                <pre><code># Validation des entrées
+const resolvers = {
+  Mutation: {
+    createUser: async (_, { input }, { validate }) => {
+      // Validation avec Joi
+      validate(input, userSchema);
+
+      // ...suite du code
+    }
+  }
+};
+
+# Limitations de requête
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  validationRules: [
+    depthLimit(5),
+    costAnalysis({
+      maximumCost: 1000,
+      variables: {},
+      defaultCost: 1,
+    })
+  ]
+});
+
+# Authentification et autorisations
+const authenticated = next => (root, args, context, info) => {
+  if (!context.currentUser) {
+    throw new AuthenticationError('Not authenticated');
+  }
+  return next(root, args, context, info);
+};
+
+const hasRole = role => next => (root, args, context, info) => {
+  if (!context.currentUser.roles.includes(role)) {
+    throw new ForbiddenError('Not authorized');
+  }
+  return next(root, args, context, info);
+};</code></pre>
+
+                <div class="alert alert-warning mt-3">
+                    <h4 class="h6">Points importants :</h4>
+                    <ul class="mb-0">
+                        <li>Limiter la profondeur des requêtes</li>
+                        <li>Valider toutes les entrées utilisateur</li>
+                        <li>Utiliser des tokens JWT</li>
+                        <li>Implémenter des timeouts</li>
+                        <li>Surveiller les requêtes coûteuses</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Organisation du code</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code># Structure recommandée
+src/
+├── schema/
+│   ├── user/
+│   │   ├── typeDefs.ts
+│   │   ├── resolvers.ts
+│   │   └── loader.ts
+│   └── post/
+│       ├── typeDefs.ts
+│       ├── resolvers.ts
+│       └── loader.ts
+├── directives/
+├── scalars/
+└── utils/
+
+# Importation modulaire
+const typeDefs = mergeTypeDefs([
+  userTypeDefs,
+  postTypeDefs
+]);
+
+const resolvers = mergeResolvers([
+  userResolvers,
+  postResolvers
+]);</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Tests</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre><code>import { createTestClient } from 'apollo-server-testing';
+
+describe('Queries', () => {
+  const { query } = createTestClient(server);
+
+  it('should fetch users', async () => {
+    const GET_USERS = gql`
+      query GetUsers {
+        users {
+          id
+          name
+        }
+      }
+    `;
+
+    const res = await query({ query: GET_USERS });
+    expect(res.data.users).toBeDefined();
+  });
+});
+
+// Mock des résolveurs
+const mocks = {
+  User: () => ({
+    id: '1',
+    name: 'Test User'
+  })
+};
+
+const server = new ApolloServer({
+  typeDefs,
+  mocks
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Conventions de nommage</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Types :</strong> PascalCase (User, Post)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Champs :</strong> camelCase (firstName, createdAt)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Énums :</strong> PascalCase avec valeurs en SCREAMING_SNAKE_CASE
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Inputs :</strong> PascalCase avec suffixe Input (CreateUserInput)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Mutations :</strong> verbe + nom (createUser, updatePost)
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data)
+            .catch(error => console.error('Erreur lors du chargement du header:', error));
+    </script>
+</body>
+</html>
