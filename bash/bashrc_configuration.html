@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration du .bashrc - Scriptorium</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="container py-5" id="main-content">
+        <h1 class="display-4 mb-4">Configuration du .bashrc</h1>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Le fichier .bashrc</h2>
+                <p>Le fichier <code>.bashrc</code> est un script qui s'exécute à chaque démarrage d'un terminal bash interactif. Il permet de personnaliser votre environnement shell.</p>
+                <pre><code># Localisation du fichier
+~/.bashrc  # Pour Linux/macOS</code></pre>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Personnalisation du prompt</h2>
+                <p>Personnalisez l'apparence de votre prompt avec des couleurs et des informations utiles :</p>
+                <pre><code># Prompt personnalisé avec couleurs et git
+parse_git_branch() {
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+# Couleurs pour le prompt
+export PS1="\[\033[32m\]\u@\h\[\033[00m\]:\[\033[34m\]\w\[\033[31m\]\$(parse_git_branch)\[\033[00m\]\$ "</code></pre>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Alias utiles</h2>
+                <p>Les alias permettent de créer des raccourcis pour les commandes fréquemment utilisées :</p>
+                <pre><code># Navigation
+alias ll='ls -la'
+alias la='ls -A'
+alias l='ls -CF'
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# Git
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log'
+
+# Développement
+alias py='python3'
+alias pip='pip3'
+alias serve='python3 -m http.server'
+
+# Système
+alias update='sudo apt update && sudo apt upgrade'
+alias mem='free -h'
+alias disk='df -h'</code></pre>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Variables d'environnement</h2>
+                <pre><code># Path
+export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+
+# Éditeur par défaut
+export EDITOR="nano"
+export VISUAL="code"
+
+# Historique
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTCONTROL=ignoredups:erasedups</code></pre>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Fonctions personnalisées</h2>
+                <pre><code># Créer un dossier et s'y déplacer
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Extraire différents types d'archives
+extract() {
+    if [ -f $1 ]; then
+        case $1 in
+            *.tar.bz2)   tar xvjf $1    ;;
+            *.tar.gz)    tar xvzf $1    ;;
+            *.zip)       unzip $1       ;;
+            *.rar)       unrar x $1     ;;
+            *)           echo "Format non supporté" ;;
+        esac
+    else
+        echo "'$1' n'est pas un fichier valide!"
+    fi
+}</code></pre>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/accessibility.js"></script>
+    <script>
+        fetch('/header.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('header-placeholder').innerHTML = data);
+
+        fetch('/footer.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('footer-placeholder').innerHTML = data);
+    </script>
+</body>
+</html>

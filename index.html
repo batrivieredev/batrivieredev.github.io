@@ -9,29 +9,31 @@
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-    <div id="header"></div>
+    <div id="header-placeholder"></div>
 
-    <div class="container mt-4">
+    <div class="container mt-5">
         <div class="row">
             <div class="col-md-8 mx-auto text-center mb-5">
-                <h1 class="display-3">Scriptorium<br><small class="text-muted h4">by batrivieredev</small></h1>
+                <h1 class="display-3">🎓 Scriptorium<br><small class="text-muted h4">by batrivieredev</small></h1>
                 <p class="lead mt-4">Documentation complète pour le développement web, mobile et desktop</p>
             </div>
         </div>
 
         <div class="row g-4">
-            <!-- Éditeurs -->
+            <!-- Terminal & Éditeurs -->
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
+                <div class="card h-100 hover-shadow">
                     <div class="card-body">
                         <h2 class="h5 card-title mb-3">
-                            <i class="bi bi-keyboard-fill me-2"></i>
-                            Éditeurs
+                            🖥️ Terminal & Éditeurs
                         </h2>
                         <ul class="list-unstyled">
-                            <li><a href="/editors/vim.html">Vim</a></li>
-                            <li><a href="/editors/emacs.html">Emacs</a></li>
-                            <li><a href="/editors/nano.html">Nano</a></li>
+                            <li><a href="/editors/commandes_base.html">📝 Commandes de base</a></li>
+                            <li><a href="/bash/bashrc_configuration.html">⚙️ Configuration .bashrc</a></li>
+                            <li><h6 class="mt-3 mb-2 text-muted">Éditeurs de texte</h6></li>
+                            <li><a href="/editors/vim.html">📌 Vim</a></li>
+                            <li><a href="/editors/emacs.html">📎 Emacs</a></li>
+                            <li><a href="/editors/nano.html">📋 Nano</a></li>
                         </ul>
                     </div>
                 </div>
@@ -39,17 +41,16 @@
 
             <!-- Frontend -->
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
+                <div class="card h-100 hover-shadow">
                     <div class="card-body">
                         <h2 class="h5 card-title mb-3">
-                            <i class="bi bi-window-fullscreen me-2"></i>
-                            Frontend Web
+                            🎨 Frontend Web
                         </h2>
                         <ul class="list-unstyled">
-                            <li><a href="/frontend/html/introduction.html">HTML</a></li>
-                            <li><a href="/frontend/css/introduction.html">CSS</a></li>
-                            <li><a href="/frontend/javascript/introduction.html">JavaScript</a></li>
-                            <li><a href="/frontend/react/introduction.html">React</a></li>
+                            <li><a href="/frontend/html/introduction.html">🌐 HTML</a></li>
+                            <li><a href="/frontend/css/introduction.html">✨ CSS</a></li>
+                            <li><a href="/frontend/javascript/introduction.html">⚡ JavaScript</a></li>
+                            <li><a href="/frontend/react/introduction.html">⚛️ React</a></li>
                         </ul>
                     </div>
                 </div>
@@ -57,14 +58,13 @@
 
             <!-- Backend -->
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
+                <div class="card h-100 hover-shadow">
                     <div class="card-body">
                         <h2 class="h5 card-title mb-3">
-                            <i class="bi bi-hdd-rack-fill me-2"></i>
-                            Backend
+                            ⚙️ Backend
                         </h2>
                         <ul class="list-unstyled">
-                            <li><a href="/backend/python/flask/introduction.html">Flask</a></li>
+                            <li><a href="/backend/python/flask/introduction.html">🐍 Flask</a></li>
                         </ul>
                     </div>
                 </div>
@@ -72,15 +72,14 @@
 
             <!-- Bases de données -->
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
+                <div class="card h-100 hover-shadow">
                     <div class="card-body">
                         <h2 class="h5 card-title mb-3">
-                            <i class="bi bi-database-fill me-2"></i>
-                            Bases de données
+                            💾 Bases de données
                         </h2>
                         <ul class="list-unstyled">
-                            <li><a href="/databases/mysql/introduction.html">MySQL</a></li>
-                            <li><a href="/databases/mongodb/introduction.html">MongoDB</a></li>
+                            <li><a href="/databases/mysql/introduction.html">🐬 MySQL</a></li>
+                            <li><a href="/databases/mongodb/introduction.html">🍃 MongoDB</a></li>
                         </ul>
                     </div>
                 </div>
@@ -88,16 +87,15 @@
 
             <!-- Mobile -->
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
+                <div class="card h-100 hover-shadow">
                     <div class="card-body">
                         <h2 class="h5 card-title mb-3">
-                            <i class="bi bi-phone-fill me-2"></i>
-                            Apps Mobiles
+                            📱 Apps Mobiles
                         </h2>
                         <ul class="list-unstyled">
-                            <li><a href="/mobile/react-native/introduction.html">React Native</a></li>
-                            <li><a href="/mobile/flutter/introduction.html">Flutter</a></li>
-                            <li><a href="/mobile/native/introduction.html">Native iOS/Android</a></li>
+                            <li><a href="/mobile/react-native/introduction.html">⚛️ React Native</a></li>
+                            <li><a href="/mobile/flutter/introduction.html">🦋 Flutter</a></li>
+                            <li><a href="/mobile/native/introduction.html">📲 Native iOS/Android</a></li>
                         </ul>
                     </div>
                 </div>
@@ -105,14 +103,30 @@
 
             <!-- Desktop -->
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
+                <div class="card h-100 hover-shadow">
                     <div class="card-body">
                         <h2 class="h5 card-title mb-3">
-                            <i class="bi bi-pc-display-horizontal me-2"></i>
-                            Apps Desktop
+                            💻 Apps Desktop
                         </h2>
                         <ul class="list-unstyled">
-                            <li><a href="/desktop/electron/introduction.html">Electron</a></li>
+                            <li><a href="/desktop/electron/introduction.html">⚡ Electron</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DevOps -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 hover-shadow">
+                    <div class="card-body">
+                        <h2 class="h5 card-title mb-3">
+                            🛠️ DevOps
+                        </h2>
+                        <ul class="list-unstyled">
+                            <li><h6 class="mb-2 text-muted">Git</h6></li>
+                            <li><a href="/devops/git/configuration.html">⚙️ Configuration</a></li>
+                            <li><a href="/devops/git/commandes.html">💻 Commandes</a></li>
+                            <li><a href="/devops/git/workflows.html">🔄 Workflows</a></li>
                         </ul>
                     </div>
                 </div>
@@ -120,17 +134,16 @@
 
             <!-- Sécurité -->
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
+                <div class="card h-100 hover-shadow">
                     <div class="card-body">
                         <h2 class="h5 card-title mb-3">
-                            <i class="bi bi-shield-lock-fill me-2"></i>
-                            Sécurité
+                            🔒 Sécurité
                         </h2>
                         <ul class="list-unstyled">
-                            <li><a href="/security/authentication/introduction.html">Authentification</a></li>
-                            <li><a href="/security/password/introduction.html">Mots de passe</a></li>
-                            <li><a href="/security/http/introduction.html">Sécurité HTTP</a></li>
-                            <li><a href="/security/api/introduction.html">Protection API</a></li>
+                            <li><a href="/security/authentication/introduction.html">🔑 Authentification</a></li>
+                            <li><a href="/security/password/introduction.html">🔐 Mots de passe</a></li>
+                            <li><a href="/security/http/introduction.html">🌐 Sécurité HTTP</a></li>
+                            <li><a href="/security/api/introduction.html">🛡️ Protection API</a></li>
                         </ul>
                     </div>
                 </div>
@@ -138,27 +151,26 @@
 
             <!-- Tests -->
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
+                <div class="card h-100 hover-shadow">
                     <div class="card-body">
                         <h2 class="h5 card-title mb-3">
-                            <i class="bi bi-bug-fill me-2"></i>
-                            Tests & Qualité
+                            🧪 Tests & Qualité
                         </h2>
                         <ul class="list-unstyled">
-                            <li><a href="/tests/javascript/introduction.html">JavaScript</a></li>
-                            <li><a href="/tests/python/introduction.html">Python</a></li>
-                            <li><a href="/tests/e2e/introduction.html">E2E</a></li>
+                            <li><a href="/tests/javascript/introduction.html">⚡ JavaScript</a></li>
+                            <li><a href="/tests/python/introduction.html">🐍 Python</a></li>
+                            <li><a href="/tests/e2e/introduction.html">🔄 E2E</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-5">
+        <div class="row mt-5 mb-5">
             <div class="col-md-8 mx-auto text-center">
                 <div class="card hover-shadow">
                     <div class="card-body">
-                        <h2 class="h5 mb-4">Configuration de l'interface</h2>
+                        <h2 class="h5 mb-4">⚙️ Configuration de l'interface</h2>
                         <div class="d-flex justify-content-center gap-4">
                             <button class="btn btn-theme" id="theme-toggle">
                                 <i class="bi bi-moon-stars-fill me-2"></i>
@@ -181,8 +193,10 @@
         fetch("/header.html")
             .then(response => response.text())
             .then(data => {
-                document.getElementById("header").innerHTML = data;
+                document.getElementById("header-placeholder").innerHTML = data;
                 // Re-init Bootstrap components after dynamic content load
+                const dropdowns = document.querySelectorAll('.dropdown-toggle');
+                dropdowns.forEach(dropdown => new bootstrap.Dropdown(dropdown));
                 const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
                 tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
             })

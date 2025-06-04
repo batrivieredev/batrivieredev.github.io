@@ -73,10 +73,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Initialize tooltips if Bootstrap is loaded
+    // Initialize Bootstrap components
     if (typeof bootstrap !== 'undefined') {
+        // Initialize tooltips
         const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
         tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+
+        // Initialize dropdowns
+        const dropdowns = document.querySelectorAll('.dropdown-toggle');
+        dropdowns.forEach(dropdown => new bootstrap.Dropdown(dropdown));
     }
 
     // Gestion des préférences système

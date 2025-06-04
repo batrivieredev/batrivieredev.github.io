@@ -13,41 +13,49 @@
     font-style: normal;
 }
 
-/* Variables mode clair */
+/* Variables mode clair - Couleurs accessibles aux daltoniens */
 :root {
     --bg-primary: #ffffff;
     --bg-secondary: #f8f9fa;
-    --text-primary: #212529;
-    --text-secondary: #6c757d;
-    --link-color: #0d6efd;
-    --link-hover: #0a58ca;
-    --code-bg: #f8f9fa;
-    --border-color: #dee2e6;
+    --text-primary: #2C3E50;  /* Bleu foncé pour un meilleur contraste */
+    --text-secondary: #515E6A; /* Gris foncé lisible */
+    --link-color: #0052CC;    /* Bleu accessible */
+    --link-hover: #1A73E8;    /* Bleu plus vif au hover */
+    --code-bg: #F5F7FA;       /* Fond gris clair pour le code */
+    --border-color: #D1D5DB;
     --font-family: 'Luciole', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --line-height: 1.5;
     --letter-spacing: normal;
     --word-spacing: normal;
-    --header-bg: #f8f9fa;
-    --btn-bg: #0d6efd;
+    --header-bg: #ffffff;
+    --btn-bg: #0052CC;
     --btn-text: #ffffff;
     --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
     --card-shadow-hover: 0 4px 8px rgba(0,0,0,0.15);
-    --title-color: #0d6efd;
+    --title-color: #2C3E50;
+    --success-color: #057A55;  /* Vert foncé accessible */
+    --warning-color: #B45309;  /* Orange foncé accessible */
+    --error-color: #DC2626;    /* Rouge accessible */
+    --info-color: #0052CC;     /* Bleu informatif */
 }
 
-/* Mode sombre */
+/* Mode sombre - Couleurs accessibles */
 [data-theme="dark"] {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #2d2d2d;
-    --text-primary: #ffffff;
-    --text-secondary: #cccccc;
-    --link-color: #66b3ff;
-    --link-hover: #99ccff;
-    --code-bg: #333333;
-    --border-color: #404040;
-    --header-bg: #2d2d2d;
-    --btn-bg: #0d6efd;
-    --btn-text: #ffffff;
+    --bg-primary: #1A1A1A;
+    --bg-secondary: #2D2D2D;
+    --text-primary: #E5E7EB;   /* Gris très clair */
+    --text-secondary: #9CA3AF; /* Gris moyen */
+    --link-color: #60A5FA;     /* Bleu clair accessible */
+    --link-hover: #93C5FD;     /* Bleu plus clair au hover */
+    --code-bg: #374151;        /* Fond foncé pour le code */
+    --border-color: #4B5563;
+    --header-bg: #2D2D2D;
+    --btn-bg: #60A5FA;
+    --btn-text: #1A1A1A;
+    --success-color: #34D399;  /* Vert clair accessible */
+    --warning-color: #FBBF24;  /* Jaune accessible */
+    --error-color: #F87171;    /* Rouge clair accessible */
+    --info-color: #60A5FA;     /* Bleu clair */
 }
 
 /* Mode dyslexie */
@@ -98,7 +106,7 @@ body {
     font-weight: 500;
 }
 
-/* Buttons */
+/* Buttons avec états hover améliorés */
 .btn-theme {
     background-color: var(--btn-bg);
     color: var(--btn-text);
@@ -110,12 +118,29 @@ body {
     gap: 0.5rem;
     transition: all 0.2s ease;
     font-weight: 500;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-theme::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.btn-theme:hover::after {
+    opacity: 1;
 }
 
 .btn-theme:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    color: var(--btn-text);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .btn-theme i {
@@ -129,42 +154,47 @@ body {
 
 .btn-theme.active {
     background-color: var(--title-color);
-    color: var(--btn-text);
 }
 
+/* Dropdowns accessibles */
 .dropdown-menu {
     background-color: var(--bg-primary);
     border-color: var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .dropdown-item {
     color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
 }
 
 .dropdown-item:hover {
     background-color: var(--bg-secondary);
     color: var(--link-color);
+    transform: translateX(5px);
 }
 
 /* Liens */
 a {
     color: var(--link-color);
     text-decoration: none;
+    transition: all 0.2s ease;
 }
 
 a:hover {
     color: var(--link-hover);
-    text-decoration: underline;
+    text-decoration: none;
 }
 
-/* Cards */
-/* Cards */
+/* Cards avec animations douces */
 .card {
     background-color: var(--bg-secondary);
     border-color: var(--border-color);
     box-shadow: var(--card-shadow);
     transition: all 0.3s ease;
     border-radius: 0.5rem;
+    overflow: hidden;
 }
 
 .card:hover {
@@ -177,147 +207,29 @@ a:hover {
     font-weight: 600;
 }
 
-/* Title styles */
-.display-3 {
-    font-weight: 700;
-    color: var(--title-color);
-    margin-bottom: 0.5rem;
-}
-
-.display-3 small {
-    font-weight: 400;
-    opacity: 0.8;
-}
-
-.card-header {
-    background-color: var(--bg-secondary);
-    border-bottom-color: var(--border-color);
-}
-
 /* Code */
 pre {
     background-color: var(--code-bg);
     border: 1px solid var(--border-color);
-    border-radius: 0.25rem;
+    border-radius: 0.375rem;
     padding: 1rem;
     margin-bottom: 1rem;
+    overflow-x: auto;
 }
 
 code {
     color: inherit;
-    font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: 'Fira Code', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9em;
 }
 
-/* Alertes */
-.alert {
-    border-color: var(--border-color);
+/* Focus visible */
+:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 2px;
 }
 
-.alert-info {
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
-}
-
-/* Accessibilité */
-.btn:focus,
-.form-control:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
-}
-
-/* Contrastes améliorés */
-[data-theme="dark"] .btn-outline-primary {
-    color: var(--link-color);
-    border-color: var(--link-color);
-}
-
-[data-theme="dark"] .btn-outline-primary:hover {
-    background-color: var(--link-color);
-    color: var(--bg-primary);
-}
-
-/* Breadcrumbs */
-.breadcrumb {
-    background-color: transparent;
-    margin: 0;
-    padding: 1.25rem 0;
-    font-size: 0.95rem;
-}
-
-.breadcrumb-item {
-    display: flex;
-    align-items: center;
-}
-
-.breadcrumb-item a {
-    color: var(--link-color);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 0.375rem;
-    transition: all 0.2s ease;
-}
-
-.breadcrumb-item a:hover {
-    background-color: var(--bg-secondary);
-    text-decoration: none;
-    transform: translateY(-1px);
-}
-
-.breadcrumb-item a i {
-    font-size: 1.2em;
-    transition: transform 0.2s;
-}
-
-.breadcrumb-item a:hover i {
-    transform: scale(1.1);
-}
-
-.breadcrumb-item.active {
-    color: var(--text-secondary);
-}
-
-/* Footer */
-footer {
-    background-color: var(--header-bg) !important;
-    color: var(--text-primary);
-    border-top: 1px solid var(--border-color);
-    padding: 2rem 0;
-}
-
-/* Media Queries pour l'accessibilité */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        transition: none !important;
-        animation: none !important;
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        color-scheme: dark;
-    }
-}
-
-/* Utilities */
-.text-primary {
-    color: var(--text-primary) !important;
-}
-
-.text-secondary {
-    color: var(--text-secondary) !important;
-}
-
-.bg-primary {
-    background-color: var(--bg-primary) !important;
-}
-
-.bg-secondary {
-    background-color: var(--bg-secondary) !important;
-}
-
-/* Skip to content link */
+/* Skip to content */
 .skip-to-content {
     position: absolute;
     left: -9999px;
@@ -330,4 +242,12 @@ footer {
 .skip-to-content:focus {
     left: 50%;
     transform: translateX(-50%);
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
 }
