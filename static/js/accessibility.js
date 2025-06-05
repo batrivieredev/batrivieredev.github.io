@@ -1,8 +1,14 @@
-// Gestion du thème et de l'accessibilité
-document.addEventListener('DOMContentLoaded', () => {
+// Fonction d'initialisation de l'accessibilité
+function initializeAccessibility() {
     // Sélecteurs
     const themeToggle = document.getElementById('theme-toggle');
     const fontToggle = document.getElementById('font-toggle');
+
+    if (!themeToggle || !fontToggle) {
+        console.error('Boutons d\'accessibilité non trouvés');
+        return;
+    }
+
     const themeIcon = themeToggle.querySelector('i');
     const fontIcon = fontToggle.querySelector('i');
 
@@ -52,9 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateThemeIcon(isDark) {
         themeIcon.classList.remove('bi-sun-fill', 'bi-moon-fill', 'bi-moon-stars-fill');
         themeIcon.classList.add(isDark ? 'bi-sun-fill' : 'bi-moon-stars-fill');
-        themeToggle.title = isDark ? 'Passer en mode clair' : 'Passer en mode sombre';
 
-        // Update button text if it exists
+        // Update button text
         const buttonText = themeToggle.querySelector('span');
         if (buttonText) {
             buttonText.textContent = isDark ? 'Mode clair' : 'Mode sombre';
@@ -64,24 +69,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFontIcon(isDyslexic) {
         fontIcon.classList.remove('bi-type', 'bi-type-bold', 'bi-fonts');
         fontIcon.classList.add(isDyslexic ? 'bi-type-bold' : 'bi-fonts');
-        fontToggle.title = isDyslexic ? 'Police standard' : 'Police dyslexique';
 
-        // Update button text if it exists
+        // Update button text
         const buttonText = fontToggle.querySelector('span');
         if (buttonText) {
             buttonText.textContent = isDyslexic ? 'Police standard' : 'Police dyslexique';
         }
-    }
-
-    // Initialize Bootstrap components
-    if (typeof bootstrap !== 'undefined') {
-        // Initialize tooltips
-        const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
-
-        // Initialize dropdowns
-        const dropdowns = document.querySelectorAll('.dropdown-toggle');
-        dropdowns.forEach(dropdown => new bootstrap.Dropdown(dropdown));
     }
 
     // Gestion des préférences système
@@ -91,11 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateThemeIcon(e.matches);
         }
     });
+}
 
-    // Skip to content
-    const skipLink = document.createElement('a');
-    skipLink.href = '#main-content';
-    skipLink.className = 'skip-to-content';
-    skipLink.textContent = 'Aller au contenu principal';
-    document.body.insertBefore(skipLink, document.body.firstChild);
-});
+// Cette fonction sera appelée une fois que le footer est chargé
+window.initializeAccessibility = initializeAccessibility;

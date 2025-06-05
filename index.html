@@ -10,6 +10,7 @@
 </head>
 <body>
     <div id="header-placeholder"></div>
+    <div id="footer-placeholder"></div>
 
     <div class="container mt-5">
         <div class="row">
@@ -185,17 +186,27 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/accessibility.js"></script>
     <script>
+        // Charger le header
         fetch("/header.html")
             .then(response => response.text())
             .then(data => {
                 document.getElementById("header-placeholder").innerHTML = data;
                 // Re-init Bootstrap components after dynamic content load
-                const dropdowns = document.querySelectorAll('.dropdown-toggle');
+                const dropdowns = document.querySelectorAll(".dropdown-toggle");
                 dropdowns.forEach(dropdown => new bootstrap.Dropdown(dropdown));
-                const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-                tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
             })
-            .catch(error => console.error('Erreur lors du chargement du header:', error));
+            .catch(error => console.error("Erreur lors du chargement du header:", error));
+
+        // Charger le footer puis initialiser l'accessibilité
+        fetch("/footer.html")
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("footer-placeholder").innerHTML = data;
+                // Initialiser l'accessibilité après l'insertion du footer
+                if (typeof window.initializeAccessibility === "function") {
+                    window.initializeAccessibility();
+                }
+            })
+            .catch(error => console.error("Erreur lors du chargement du footer:", error));
     </script>
 </body>
-</html>
