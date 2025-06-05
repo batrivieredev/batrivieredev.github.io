@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Parcourir tous les fichiers HTML récursivement
-find . -name "*.html" -not -name "header.html" -not -name "footer.html" -not -name "template.html" | while read file; do
+find . -name "*.html" -not -name "header.html" -not -name "footer.html"-not -name "template.html" | while read file; do
     echo "Correction des chemins dans $file"
 
     # Compter le nombre de niveaux de profondeur
